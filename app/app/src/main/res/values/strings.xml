@@ -38,4 +38,174 @@
     <string name="consent_training_desc">Allow sharing event scores (never text or audio) to improve detection. Not used in this build, which has no internet access.</string>
     <string name="consent_case_title">Case sharing</string>
     <string name="consent_case_desc">Allow building a complaint pack you can share with cybercrime.gov.in or your bank.</string>
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_history">History</string>
+    <string name="nav_numbers">Numbers</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Levels and scam types -->
+    <string name="level_safe">Safe</string>
+    <string name="level_warning">Warning</string>
+    <string name="level_red_flag">Red flag</string>
+    <string name="scam_otp_theft">OTP theft</string>
+    <string name="scam_money_transfer">Money transfer pressure</string>
+    <string name="scam_forwarding">Call forwarding hijack</string>
+    <string name="scam_merge">Call merge fraud</string>
+    <string name="scam_remote_access">Remote access fraud</string>
+    <string name="scam_digital_arrest">Digital arrest</string>
+    <string name="scam_suspicious">Suspicious call</string>
+    <string name="scam_none">No scam pattern</string>
+
+    <!-- Reasons -->
+    <string name="reason_unknown_caller">The caller is not in your contacts</string>
+    <string name="reason_international">The call is from an international or internet number</string>
+    <string name="reason_repeated_calls">This number called you 3 or more times in an hour</string>
+    <string name="reason_reported">This number has been reported as a scam</string>
+    <string name="reason_long_call">The call lasted more than 5 minutes</string>
+    <string name="reason_odd_hours">The call came late at night</string>
+    <string name="reason_known_bank">This is a known bank or delivery number</string>
+    <string name="reason_user_safe">You said this was you</string>
+    <string name="reason_otp">An OTP arrived during or right after the call</string>
+    <string name="reason_debit">Money left your account during or right after the call</string>
+    <string name="reason_forwarding">Call forwarding was switched on</string>
+    <string name="reason_merge">Another call was joined while you were talking</string>
+    <string name="reason_amount_high">The amount is far above your usual spending</string>
+    <string name="reason_new_payee">The money went to someone you have not paid before</string>
+    <string name="reason_multiple_debits">Several debits happened within 10 minutes</string>
+    <string name="reason_balance_low">Your balance is now almost zero</string>
+    <string name="reason_remote_app">A screen-sharing or remote-control app was opened</string>
+    <string name="reason_sideloaded">An app was installed from outside the app store</string>
+    <string name="reason_link_install">A message with a link arrived, then an app was installed</string>
+    <string name="reason_network_lost">Your phone suddenly lost its network (possible SIM swap)</string>
+    <string name="reason_combo_otp_debit">An OTP and a debit came within 5 minutes of each other</string>
+    <string name="reason_combo_forwarding_otp">Call forwarding was switched on and an OTP arrived</string>
+    <string name="reason_combo_merge_otp">A call was merged and an OTP arrived</string>
+    <string name="reason_combo_remote_debit">A remote-control app was open and money left your account</string>
+    <string name="reason_voice_otp">The caller asked for an OTP or PIN</string>
+    <string name="reason_voice_arrest">The caller threatened arrest or police action</string>
+    <string name="reason_voice_payment">The caller pushed you to pay or transfer money</string>
+    <string name="reason_voice_remote">The caller asked you to install a screen-sharing app</string>
+    <string name="voice_cat_otp">asking for an OTP</string>
+    <string name="voice_cat_arrest">arrest threat</string>
+    <string name="voice_cat_payment">payment pressure</string>
+    <string name="voice_cat_remote">screen-sharing request</string>
+
+    <!-- Notifications -->
+    <string name="channel_status">Protection status</string>
+    <string name="channel_warning">Scam warnings</string>
+    <string name="channel_red_flag">Scam red flags</string>
+    <string name="warning_title">Possible scam: %1$s</string>
+    <string name="red_flag_title">Scam alert · risk %1$d/100</string>
+    <string name="test_alert_title">Test alert from Scam Call Guard</string>
+    <string name="test_alert_body">If you can see this, alerts will reach you.</string>
+    <string name="service_notification_title">Scam Call Guard is protecting you</string>
+    <string name="service_notification_body">Calls from unknown numbers are checked on this phone.</string>
+
+    <!-- Red flag screen -->
+    <string name="red_flag_heading">This looks like a scam call</string>
+    <string name="risk_score_label">Risk score</string>
+    <string name="risk_score_value">Risk score %1$d/100</string>
+    <string name="red_flag_advice">Do not share any OTP or PIN. Banks and police never ask for one on a call.</string>
+    <string name="action_end_call">End call</string>
+    <string name="end_call_manually">End the call now using your phone\'s red button.</string>
+    <string name="action_call_bank_1930">Money at risk? Call your bank, then dial 1930</string>
+    <string name="action_know_caller">I know this caller</string>
+    <string name="action_report_scam">Report as scam</string>
+    <string name="action_dismiss">Dismiss</string>
+    <string name="action_this_was_me">This was me</string>
+    <string name="reported_toast">Number reported. It will be flagged next time.</string>
+    <string name="test_alert_banner">TEST ALERT · no real call</string>
+    <string name="cd_score">Risk score %1$d out of 100, %2$s</string>
+    <string name="score_out_of">out of 100</string>
+    <string name="layer_l1">Voice phrases (L1)</string>
+    <string name="layer_l2">Caller signals (L2)</string>
+    <string name="layer_l3">Events on your phone (L3)</string>
+
+    <!-- Home -->
+    <string name="status_on">Protection ON</string>
+    <string name="status_on_body">Calls from unknown numbers are being checked.</string>
+    <string name="status_limited">Protection limited</string>
+    <string name="status_limited_body">Some permissions are missing, so some scams may not be noticed.</string>
+    <string name="status_off">Protection OFF</string>
+    <string name="status_off_body">Turn protection on to be warned about scam calls.</string>
+    <string name="home_protection_toggle">Protection</string>
+    <string name="home_protection_toggle_desc">Check calls from unknown numbers</string>
+    <string name="action_fix_permissions">See what is missing</string>
+    <string name="home_calls_checked">Unknown calls checked</string>
+    <string name="home_alerts_week">Alerts this week</string>
+    <string name="home_last_alert">Last alert</string>
+    <string name="home_no_alerts">No alerts yet. We will warn you if a call looks like a scam.</string>
+    <string name="banner_tap">Tap for details</string>
+
+    <!-- History and detail -->
+    <string name="history_title">Alert history</string>
+    <string name="history_empty_title">No calls checked yet</string>
+    <string name="history_empty_body">Calls from unknown numbers will appear here with their risk score.</string>
+    <string name="history_row_detail">%1$s · risk %2$d</string>
+    <string name="tag_simulated">Simulated</string>
+    <string name="tag_this_was_me">This was me</string>
+    <string name="tag_reported">Reported</string>
+    <string name="detail_title">Alert details</string>
+    <string name="detail_peak">Highest score in this call: %1$d</string>
+    <string name="detail_reasons">Why</string>
+    <string name="detail_no_reasons">No risk signals: the caller was known.</string>
+    <string name="detail_timeline">What happened</string>
+    <string name="detail_no_events">No events recorded.</string>
+    <string name="detail_actions">What you can do</string>
+    <string name="ev_ringing">Call from an unknown number</string>
+    <string name="ev_ringing_hidden">Call from a hidden number</string>
+    <string name="ev_active">Call answered</string>
+    <string name="ev_ended">Call ended after %1$d s</string>
+    <string name="ev_second_call">A second call joined</string>
+    <string name="ev_otp_trusted">OTP message from a bank or known sender</string>
+    <string name="ev_otp_unknown">OTP message from an unknown sender</string>
+    <string name="ev_debit">Debit message: %1$s</string>
+    <string name="ev_debit_balance">Debit message: %1$s (balance %2$s)</string>
+    <string name="ev_link">Message containing a link</string>
+    <string name="ev_forwarding_on">Call forwarding switched on</string>
+    <string name="ev_forwarding_off">Call forwarding switched off</string>
+    <string name="ev_remote_app">Remote-control app opened: %1$s</string>
+    <string name="ev_apk_sideloaded">App installed from outside the store: %1$s</string>
+    <string name="ev_apk_store">App installed: %1$s</string>
+    <string name="ev_network_lost">Network lost</string>
+    <string name="ev_feedback_me">You said: this was me</string>
+    <string name="ev_feedback_scam">You reported this as a scam</string>
+    <string name="ev_voice">Scam phrase heard: %1$s</string>
+
+    <!-- Simulator -->
+    <string name="simulator_title">Scenario Simulator</string>
+    <string name="simulator_intro">Demo only. Each scenario plays fake events through the real detection pipeline. Results are tagged as simulated in History.</string>
+    <string name="simulator_run_all">Run all scenarios (no alerts)</string>
+    <string name="simulator_play">Play with alerts</string>
+    <string name="simulator_expected">Expected</string>
+    <string name="simulator_actual">Actual (%1$d)</string>
+    <string name="simulator_pass">PASS</string>
+    <string name="simulator_fail">FAIL</string>
+    <string name="simulator_summary">%1$d of %2$d scenarios passed</string>
+    <string name="sc1_title">Silent OTP theft</string>
+    <string name="sc1_desc">An unknown caller keeps you talking for 6 minutes while an OTP arrives.</string>
+    <string name="sc2_title">OTP + debit</string>
+    <string name="sc2_desc">An OTP arrives, then ₹24,999 is debited two minutes later.</string>
+    <string name="sc3_title">Forwarding + OTP</string>
+    <string name="sc3_desc">Call forwarding is switched on, then an OTP arrives.</string>
+    <string name="sc4_title">Merge + OTP</string>
+    <string name="sc4_desc">The caller merges in a second call, then an OTP arrives.</string>
+    <string name="sc5_title">Remote access + debit</string>
+    <string name="sc5_desc">AnyDesk is opened, then ₹49,000 is debited.</string>
+    <string name="sc6_title">Saved contact call</string>
+    <string name="sc6_desc">A saved contact calls and an OTP arrives. Must stay silent.</string>
+    <string name="sc7_title">Bank OTP, no call</string>
+    <string name="sc7_desc">A bank OTP arrives with no call at all. Must stay safe.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_consent">Consent levels</string>
+    <string name="settings_language">Language</string>
+    <string name="language_system">Phone language</string>
+    <string name="language_english">English</string>
+    <string name="language_hindi">हिन्दी (Hindi)</string>
+    <string name="settings_demo">Demo Mode</string>
+    <string name="demo_mode_title">Demo Mode (demo only)</string>
+    <string name="demo_mode_desc">For demonstrations: enables the simulator, and on a red flag ends the call and locks the phone after a 5-second countdown you can cancel.</string>
 </resources>

@@ -1,8 +1,10 @@
 package com.scamguard.app
 
 import android.app.Application
+import com.scamguard.app.alerts.NotificationChannels
+import kotlinx.coroutines.launch
 
-/** Application entry point; owns the [AppContainer]. */
+/** Application entry point; owns the [AppContainer] and starts the event pipeline. */
 class ScamGuardApp : Application() {
     lateinit var container: AppContainer
         private set
@@ -10,6 +12,10 @@ class ScamGuardApp : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
+        NotificationChannels.create(this)
+        // Subscribe before any receiver can emit, so an SMS that woke the process is not lost.
+        container.sessionManager.start(container.appScope)
+        container.appScope.launch { container.reputation.importSeed() }
     }
 }
 
