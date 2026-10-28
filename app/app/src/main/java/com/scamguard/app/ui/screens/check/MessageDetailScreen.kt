@@ -16,6 +16,7 @@ import com.scamguard.app.data.db.PredictionFeedbackEntity
 import com.scamguard.app.ml.MessageCategory
 import com.scamguard.app.ui.Labels
 import com.scamguard.app.ui.components.FeedbackButtons
+import com.scamguard.app.ui.components.LoadingState
 import com.scamguard.app.ui.components.MessageVerdictCard
 import com.scamguard.app.ui.components.ScreenFrame
 import com.scamguard.app.ui.components.formatTime
@@ -47,7 +48,11 @@ fun MessageDetailScreen(id: Long, onBack: () -> Unit) {
     val fb by vm.feedback.collectAsStateWithLifecycle()
 
     ScreenFrame(stringResource(R.string.message_detail_title), onBack = onBack) {
-        val c = check ?: return@ScreenFrame
+        val c = check
+        if (c == null) {
+            LoadingState(stringResource(R.string.model_state_loading))
+            return@ScreenFrame
+        }
         Text(formatTime(c.ts), style = MaterialTheme.typography.bodyMedium)
         MessageVerdictCard(
             Labels.parseMessageVerdict(c.verdict), c.scamProbability, MessageCategory.parse(c.category),

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -24,6 +23,7 @@ import com.scamguard.app.R
 import com.scamguard.app.ml.ModelId
 import com.scamguard.app.ml.ModelState
 import com.scamguard.app.ui.components.ScreenFrame
+import com.scamguard.app.ui.components.SurfacePanel
 import com.scamguard.app.ui.components.TagChip
 import com.scamguard.app.ui.navigation.LocalAppContainer
 import com.scamguard.app.ui.theme.AlertRed
@@ -41,7 +41,7 @@ fun ModelStatusScreen(onBack: () -> Unit, onOpenHealth: () -> Unit) {
         ModelId.entries.forEach { id -> ModelCard(id, health.states[id] ?: ModelState.NotLoaded) }
 
         Text(stringResource(R.string.signals_title), style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
-        Card(Modifier.fillMaxWidth()) {
+        SurfacePanel(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(stringResource(R.string.signals_can), style = MaterialTheme.typography.bodyMedium)
                 Text(stringResource(R.string.signals_cannot), style = MaterialTheme.typography.bodyMedium)
@@ -60,7 +60,7 @@ private fun ModelCard(id: ModelId, state: ModelState) {
         ModelId.URL -> Triple(R.string.model_url, R.string.model_url_desc, "binary")
         ModelId.CALL -> Triple(R.string.model_call, R.string.model_call_desc, "model")
     }
-    Card(Modifier.fillMaxWidth()) {
+    SurfacePanel(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(title), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f).semantics { heading() })

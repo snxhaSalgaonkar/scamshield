@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,7 +38,9 @@ import com.scamguard.app.ui.components.maskOrUnknown
 import com.scamguard.app.ui.components.ChipGap
 import com.scamguard.app.ui.components.EmptyState
 import com.scamguard.app.ui.components.LevelChip
+import com.scamguard.app.ui.components.LoadingState
 import com.scamguard.app.ui.components.ScreenFrame
+import com.scamguard.app.ui.components.SurfacePanel
 import com.scamguard.app.ui.components.TagChip
 import com.scamguard.app.ui.components.formatTime
 import com.scamguard.app.ui.navigation.containerViewModel
@@ -67,7 +69,11 @@ fun HistoryScreen(onOpen: (String) -> Unit, onOpenMessage: (Long) -> Unit) {
             Tab(selected = tab == 1, onClick = { tab = 1 }, text = { Text(stringResource(R.string.history_tab_messages)) })
         }
         if (tab == 1) {
-            val list = messages ?: return@ScreenFrame
+            val list = messages
+            if (list == null) {
+                LoadingState(stringResource(R.string.model_state_loading))
+                return@ScreenFrame
+            }
             if (list.isEmpty()) {
                 EmptyState(stringResource(R.string.history_messages_empty_title), stringResource(R.string.history_messages_empty_body))
             } else {
@@ -77,7 +83,11 @@ fun HistoryScreen(onOpen: (String) -> Unit, onOpenMessage: (Long) -> Unit) {
             }
             return@ScreenFrame
         }
-        val list = items ?: return@ScreenFrame
+        val list = items
+        if (list == null) {
+            LoadingState(stringResource(R.string.model_state_loading))
+            return@ScreenFrame
+        }
         if (list.isEmpty()) {
             EmptyState(stringResource(R.string.history_empty_title), stringResource(R.string.history_empty_body))
         } else {
@@ -94,8 +104,8 @@ fun HistoryScreen(onOpen: (String) -> Unit, onOpenMessage: (Long) -> Unit) {
 
 @Composable
 private fun HistoryRow(d: DecisionEntity, onClick: () -> Unit) {
-    Card(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    SurfacePanel(Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onClick)) {
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 LevelChip(Labels.parseLevel(d.peakLevel))
                 if (d.simulated) { ChipGap(); TagChip(stringResource(R.string.tag_simulated)) }
@@ -111,8 +121,8 @@ private fun HistoryRow(d: DecisionEntity, onClick: () -> Unit) {
 
 @Composable
 private fun MessageRow(m: MessageCheckEntity, onClick: () -> Unit) {
-    Card(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    SurfacePanel(Modifier.fillMaxWidth().clickable(role = Role.Button, onClick = onClick)) {
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(Labels.messageVerdict(Labels.parseMessageVerdict(m.verdict))), style = MaterialTheme.typography.titleMedium)
                 if (m.simulated) { ChipGap(); TagChip(stringResource(R.string.tag_simulated)) }

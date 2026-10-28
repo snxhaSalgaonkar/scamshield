@@ -2,8 +2,16 @@
 <resources>
     <style name="Theme.ScamGuard" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:statusBarColor">@color/navy</item>
+        <item name="android:navigationBarColor">@color/navy</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
     </style>
     <style name="Theme.ScamGuard.Alert" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowBackground">@color/alert_red</item>
+        <item name="android:statusBarColor">@color/alert_red</item>
+        <item name="android:navigationBarColor">@color/navy</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
     </style>
 </resources>

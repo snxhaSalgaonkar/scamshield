@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.background
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -23,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -33,6 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.scamguard.app.R
 import com.scamguard.app.ui.components.ConsentToggles
+import com.scamguard.app.ui.components.Eyebrow
+import com.scamguard.app.ui.components.GradientPanel
+import com.scamguard.app.ui.components.SurfacePanel
 import com.scamguard.app.ui.components.ShieldIcon
 import com.scamguard.app.ui.navigation.containerViewModel
 import com.scamguard.app.util.Permissions
@@ -49,9 +51,10 @@ fun OnboardingScreen() {
     Column(
         Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .safeDrawingPadding()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
         LinearProgressIndicator(
             progress = { (step + 1f) / STEPS },
@@ -93,10 +96,14 @@ fun OnboardingScreen() {
 
 @Composable
 private fun IntroStep() {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-        ShieldIcon(MaterialTheme.colorScheme.primary, contentDescription = null, size = 120.dp)
+    GradientPanel(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 20.dp, vertical = 24.dp),
+    ) {
+        ShieldIcon(MaterialTheme.colorScheme.primary, contentDescription = null, size = 72.dp)
+        Eyebrow(stringResource(R.string.app_name))
+        Text(stringResource(R.string.onboarding_intro_title), style = MaterialTheme.typography.headlineMedium)
     }
-    StepTitle(stringResource(R.string.onboarding_intro_title))
     Text(stringResource(R.string.onboarding_intro_body), style = MaterialTheme.typography.bodyLarge)
     Text(stringResource(R.string.onboarding_intro_signals), style = MaterialTheme.typography.bodyLarge)
 }
@@ -104,7 +111,7 @@ private fun IntroStep() {
 @Composable
 private fun PrivacyStep() {
     StepTitle(stringResource(R.string.onboarding_privacy_title))
-    Card(Modifier.fillMaxWidth()) {
+    SurfacePanel(Modifier.fillMaxWidth()) {
         Text(
             stringResource(R.string.privacy_promise),
             style = MaterialTheme.typography.titleMedium,
@@ -141,7 +148,7 @@ private fun PermissionsStep() {
         modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
     ) { Text(stringResource(R.string.action_battery_optimisation)) }
 
-    Card(Modifier.fillMaxWidth()) {
+    SurfacePanel(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(stringResource(R.string.oem_title), style = MaterialTheme.typography.titleMedium)
             Text(stringResource(R.string.oem_samsung), style = MaterialTheme.typography.bodyMedium)

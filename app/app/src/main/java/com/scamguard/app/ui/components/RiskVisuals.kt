@@ -1,6 +1,7 @@
 package com.scamguard.app.ui.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,9 @@ import com.scamguard.app.ui.Labels
 import com.scamguard.app.ui.theme.AlertRed
 import com.scamguard.app.ui.theme.SafeGreen
 import com.scamguard.app.ui.theme.WarningAmber
+import com.scamguard.app.ui.theme.AlertRedContainer
+import com.scamguard.app.ui.theme.WarningAmberLight
+import com.scamguard.app.ui.theme.SafeGreenContainer
 
 /** Colour for a risk level. Red is used only for red flags. */
 @Composable
@@ -86,12 +90,22 @@ private fun LayerBar(label: String, value: Int) {
 /** A small coloured pill naming the level. */
 @Composable
 fun LevelChip(level: RiskLevel) {
-    Surface(color = levelColor(level), shape = RoundedCornerShape(50)) {
+    val color = levelColor(level)
+    val container = when (level) {
+        RiskLevel.SAFE -> SafeGreenContainer
+        RiskLevel.WARNING -> WarningAmberLight
+        RiskLevel.RED_FLAG -> AlertRedContainer
+    }
+    Surface(
+        color = container,
+        shape = RoundedCornerShape(50),
+        modifier = Modifier.border(1.dp, color.copy(alpha = 0.48f), RoundedCornerShape(50)),
+    ) {
         Text(
             stringResource(Labels.level(level)),
-            color = Color.White,
+            color = color,
             style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+            modifier = Modifier.padding(horizontal = 11.dp, vertical = 5.dp),
         )
     }
 }
@@ -99,7 +113,11 @@ fun LevelChip(level: RiskLevel) {
 /** A neutral pill, e.g. for "Simulated". */
 @Composable
 fun TagChip(text: String) {
-    Surface(color = MaterialTheme.colorScheme.secondaryContainer, shape = RoundedCornerShape(50)) {
+    Surface(
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        shape = RoundedCornerShape(50),
+        modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(50)),
+    ) {
         Text(
             text,
             style = MaterialTheme.typography.labelMedium,

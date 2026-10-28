@@ -1,8 +1,11 @@
 package com.scamguard.app.ui.navigation
 
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Home
@@ -10,14 +13,18 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -41,6 +48,13 @@ import com.scamguard.app.ui.screens.home.HomeScreen
 import com.scamguard.app.ui.screens.onboarding.OnboardingScreen
 import com.scamguard.app.ui.screens.settings.SettingsScreen
 import com.scamguard.app.ui.screens.simulator.SimulatorScreen
+import com.scamguard.app.ui.components.LoadingState
+import com.scamguard.app.ui.theme.AppBurgundy
+import com.scamguard.app.ui.theme.AppSurface
+import com.scamguard.app.ui.theme.AlertRed
+import com.scamguard.app.ui.theme.AppText
+import com.scamguard.app.ui.theme.AppTextMuted
+import com.scamguard.app.ui.theme.AppInk
 
 /** Navigation routes. */
 object Routes {
@@ -74,7 +88,13 @@ fun AppRoot(openWindowId: String?, onWindowOpened: () -> Unit, openMessageId: Lo
     val container = LocalAppContainer.current
     val context = LocalContext.current
     val settings by container.settings.settings.collectAsStateWithLifecycle(initialValue = null)
-    val current = settings ?: return
+    val current = settings
+    if (current == null) {
+        Box(Modifier.fillMaxSize().background(AppInk), contentAlignment = Alignment.Center) {
+            LoadingState(stringResource(R.string.model_state_loading))
+        }
+        return
+    }
     if (!current.onboardingDone) {
         OnboardingScreen()
         return
@@ -142,7 +162,12 @@ fun AppRoot(openWindowId: String?, onWindowOpened: () -> Unit, openMessageId: Lo
 
 @Composable
 private fun BottomBar(nav: NavHostController, route: String?) {
-    NavigationBar {
+    NavigationBar(
+        containerColor = AppSurface,
+        contentColor = AppText,
+        tonalElevation = 0.dp,
+        windowInsets = NavigationBarDefaults.windowInsets,
+    ) {
         topLevel.forEach { item ->
             NavigationBarItem(
                 selected = route == item.route,
@@ -155,6 +180,13 @@ private fun BottomBar(nav: NavHostController, route: String?) {
                 },
                 icon = { Icon(item.icon, contentDescription = null) },
                 label = { Text(stringResource(item.label)) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = AlertRed,
+                    selectedTextColor = AppText,
+                    indicatorColor = AppBurgundy,
+                    unselectedIconColor = AppTextMuted,
+                    unselectedTextColor = AppTextMuted,
+                ),
             )
         }
     }

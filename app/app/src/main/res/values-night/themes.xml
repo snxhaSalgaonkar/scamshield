@@ -2,5 +2,9 @@
 <resources>
     <style name="Theme.ScamGuard" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/navy</item>
+        <item name="android:statusBarColor">@color/navy</item>
+        <item name="android:navigationBarColor">@color/navy</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
     </style>
 </resources>

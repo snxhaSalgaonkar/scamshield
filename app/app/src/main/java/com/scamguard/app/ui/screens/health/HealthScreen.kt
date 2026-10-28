@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -34,6 +33,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.scamguard.app.R
 import com.scamguard.app.actions.GuardDeviceAdmin
 import com.scamguard.app.ui.components.ScreenFrame
+import com.scamguard.app.ui.components.SurfacePanel
 import com.scamguard.app.ui.components.rememberHealth
 import com.scamguard.app.ui.navigation.LocalAppContainer
 import com.scamguard.app.ui.screens.settings.SectionTitle
@@ -90,8 +90,7 @@ private fun CapabilityCard(
 ) {
     val (title, desc) = texts(c.id)
     val stateLabel = stringResource(stateLabel(c.state))
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp)) {
+    SurfacePanel(Modifier.fillMaxWidth()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(title), style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
                 Text(
@@ -115,7 +114,6 @@ private fun CapabilityCard(
                     modifier = Modifier.padding(top = 8.dp).fillMaxWidth().heightIn(min = 48.dp),
                 ) { Text(stringResource(if (action is Fix.Request) R.string.health_grant else R.string.health_open_settings)) }
             }
-        }
     }
 }
 

@@ -17,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -26,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -40,6 +42,8 @@ import com.scamguard.app.actions.CallActions
 import com.scamguard.app.ui.Labels
 import com.scamguard.app.ui.navigation.containerViewModel
 import com.scamguard.app.ui.theme.AlertRed
+import com.scamguard.app.ui.theme.AlertRedContainer
+import com.scamguard.app.ui.theme.AppInk
 
 /** Full-screen red alert: score, scam type, three reasons and big actions. */
 @Composable
@@ -47,7 +51,18 @@ fun RedFlagScreen(windowId: String, onClose: () -> Unit) {
     val vm = containerViewModel(key = windowId) { RedFlagViewModel(it, windowId) }
     val state by vm.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val s = state ?: return
+    val s = state
+    if (s == null) {
+        Column(
+            Modifier.fillMaxSize().background(AppInk).safeDrawingPadding(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            CircularProgressIndicator(color = AlertRed)
+            WhiteText(stringResource(R.string.model_state_loading), MaterialTheme.typography.bodyMedium)
+        }
+        return
+    }
 
     val endCallPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted && CallActions.endCall(context)) onClose()
@@ -66,10 +81,10 @@ fun RedFlagScreen(windowId: String, onClose: () -> Unit) {
     Column(
         Modifier
             .fillMaxSize()
-            .background(AlertRed)
+            .background(Brush.verticalGradient(listOf(AlertRedContainer, AppInk, AppInk)))
             .safeDrawingPadding()
             .verticalScroll(rememberScrollState())
-            .padding(20.dp),
+            .padding(horizontal = 20.dp, vertical = 22.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         if (s.isTest) WhiteText(stringResource(R.string.test_alert_banner), MaterialTheme.typography.labelLarge)
@@ -94,13 +109,13 @@ fun RedFlagScreen(windowId: String, onClose: () -> Unit) {
         WhiteText(stringResource(R.string.red_flag_advice), MaterialTheme.typography.bodyLarge)
 
         val big = Modifier.fillMaxWidth().heightIn(min = 64.dp)
-        val whiteButton = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = AlertRed)
+        val redButton = ButtonDefaults.buttonColors(containerColor = AlertRed, contentColor = Color.White)
         when {
             s.callEnded -> Button(
                 onClick = { context.startActivity(CallActions.dialHelplineIntent()) },
-                modifier = big, colors = whiteButton,
+                modifier = big, colors = redButton,
             ) { Text(stringResource(R.string.action_call_bank_1930), style = MaterialTheme.typography.titleMedium) }
-            CallActions.endCallSupported() -> Button(onClick = endCall, modifier = big, colors = whiteButton) {
+            CallActions.endCallSupported() -> Button(onClick = endCall, modifier = big, colors = redButton) {
                 Text(stringResource(R.string.action_end_call), style = MaterialTheme.typography.titleLarge)
             }
             else -> WhiteText(stringResource(R.string.end_call_manually), MaterialTheme.typography.titleMedium)

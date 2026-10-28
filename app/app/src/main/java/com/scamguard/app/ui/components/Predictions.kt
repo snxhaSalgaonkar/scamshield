@@ -28,16 +28,20 @@ import com.scamguard.app.data.ModelFeedback
 import com.scamguard.app.ml.MessageCategory
 import com.scamguard.app.ml.MessageVerdict
 import com.scamguard.app.ui.Labels
+import com.scamguard.app.ui.theme.AlertRedContainer
+import com.scamguard.app.ui.theme.AppSurfaceRaised
+import com.scamguard.app.ui.theme.AppText
 import com.scamguard.app.ui.theme.AlertRed
 import com.scamguard.app.ui.theme.WarningAmber
+import com.scamguard.app.ui.theme.WarningAmberLight
 import kotlin.math.roundToInt
 
 /** Colour for a message verdict; neutral when the model makes no claim. */
 @Composable
 fun verdictColor(v: MessageVerdict): Color = when (v) {
-    MessageVerdict.LIKELY_SCAM -> AlertRed
-    MessageVerdict.SUSPICIOUS -> WarningAmber
-    else -> MaterialTheme.colorScheme.surfaceVariant
+    MessageVerdict.LIKELY_SCAM -> AlertRedContainer
+    MessageVerdict.SUSPICIOUS -> WarningAmberLight
+    else -> AppSurfaceRaised
 }
 
 /** Verdict, model estimate, experimental category and indicator words for one message. */
@@ -55,12 +59,21 @@ fun MessageVerdictCard(
         Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite },
         colors = CardDefaults.cardColors(
             containerColor = verdictColor(verdict),
-            contentColor = if (strong) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+            contentColor = if (strong) AppText else MaterialTheme.colorScheme.onSurfaceVariant,
         ),
     ) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(Labels.messageVerdict(verdict)), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+                Text(
+                    stringResource(Labels.messageVerdict(verdict)),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = when (verdict) {
+                        MessageVerdict.LIKELY_SCAM -> AlertRed
+                        MessageVerdict.SUSPICIOUS -> WarningAmber
+                        else -> MaterialTheme.colorScheme.onSurface
+                    },
+                    modifier = Modifier.weight(1f),
+                )
                 if (simulated) TagChip(stringResource(R.string.tag_simulated))
             }
             if (probability != null && verdict != MessageVerdict.UNKNOWN) {

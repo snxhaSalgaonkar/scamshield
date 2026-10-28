@@ -10,7 +10,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +34,7 @@ import androidx.lifecycle.viewModelScope
 import com.scamguard.app.R
 import com.scamguard.app.data.NumbersRepository
 import com.scamguard.app.ui.components.ScreenFrame
+import com.scamguard.app.ui.components.SurfacePanel
 import com.scamguard.app.ui.components.maskOrUnknown
 import com.scamguard.app.ui.navigation.containerViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -96,8 +96,8 @@ fun NumbersScreen(onBack: () -> Unit) {
 @Composable
 private fun NumberList(title: String, rows: List<Pair<String, String>>, onRemove: (String) -> Unit) {
     Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+    SurfacePanel(Modifier.fillMaxWidth(), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp, vertical = 8.dp)) {
+        Column {
             if (rows.isEmpty()) Text(stringResource(R.string.numbers_none), Modifier.padding(vertical = 8.dp))
             rows.forEach { (hash, mask) ->
                 Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {

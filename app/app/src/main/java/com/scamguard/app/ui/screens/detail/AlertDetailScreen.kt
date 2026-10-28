@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -41,8 +40,10 @@ import com.scamguard.app.ui.components.maskOrUnknown
 import com.scamguard.app.ui.components.ChipGap
 import com.scamguard.app.ui.components.LayerBars
 import com.scamguard.app.ui.components.LevelChip
+import com.scamguard.app.ui.components.LoadingState
 import com.scamguard.app.ui.components.ScoreGauge
 import com.scamguard.app.ui.components.ScreenFrame
+import com.scamguard.app.ui.components.SurfacePanel
 import com.scamguard.app.ui.components.TagChip
 import com.scamguard.app.ui.components.formatClock
 import com.scamguard.app.ui.components.formatRupees
@@ -60,7 +61,11 @@ fun AlertDetailScreen(windowId: String, onBack: () -> Unit) {
     val callModel = health.states[ModelId.CALL] as? ModelState.Ready
 
     ScreenFrame(stringResource(R.string.detail_title), onBack = onBack) {
-        val data = detail ?: return@ScreenFrame
+        val data = detail
+        if (data == null) {
+            LoadingState(stringResource(R.string.model_state_loading))
+            return@ScreenFrame
+        }
         val d = data.decision
         val level = Labels.parseLevel(d.level)
 
@@ -86,8 +91,8 @@ fun AlertDetailScreen(windowId: String, onBack: () -> Unit) {
             d.scoreSource == ScoreSource.RULE_FALLBACK.name -> Text(stringResource(R.string.detail_rules_note), style = MaterialTheme.typography.bodySmall)
             d.experimental -> Text(stringResource(R.string.detail_experimental_note), style = MaterialTheme.typography.bodySmall)
         }
-        Card(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp)) { LayerBars(d.l1, d.l2, d.l3) }
+        SurfacePanel(Modifier.fillMaxWidth()) {
+            LayerBars(d.l1, d.l2, d.l3)
         }
 
         SectionTitle(stringResource(R.string.detail_reasons))
@@ -97,8 +102,8 @@ fun AlertDetailScreen(windowId: String, onBack: () -> Unit) {
         val factors = parseFactors(d.factors)
         if (factors.isNotEmpty()) {
             SectionTitle(stringResource(R.string.detail_factors))
-            Card(Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            SurfacePanel(Modifier.fillMaxWidth()) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     factors.forEach { (code, delta) ->
                         Row(Modifier.fillMaxWidth()) {
                             Text(stringResource(Labels.reason(code)), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
@@ -146,8 +151,8 @@ private fun SectionTitle(text: String) {
 @Composable
 private fun Timeline(calls: List<CallEventEntity>, signals: List<SignalEventEntity>) {
     val rows = calls.map { it.ts to callLine(it) } + signals.map { it.ts to signalLine(it) }
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    SurfacePanel(Modifier.fillMaxWidth()) {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             if (rows.isEmpty()) Text(stringResource(R.string.detail_no_events))
             rows.sortedBy { it.first }.forEach { (ts, line) ->
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {

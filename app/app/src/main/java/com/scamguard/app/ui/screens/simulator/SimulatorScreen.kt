@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -23,6 +22,7 @@ import com.scamguard.app.R
 import com.scamguard.app.ui.components.ChipGap
 import com.scamguard.app.ui.components.LevelChip
 import com.scamguard.app.ui.components.ScreenFrame
+import com.scamguard.app.ui.components.SurfacePanel
 import com.scamguard.app.ui.navigation.containerViewModel
 import com.scamguard.app.ui.theme.AlertRed
 import com.scamguard.app.ui.theme.SafeGreen
@@ -35,7 +35,10 @@ fun SimulatorScreen(onBack: () -> Unit) {
     val running by vm.running.collectAsStateWithLifecycle()
 
     ScreenFrame(stringResource(R.string.simulator_title), onBack = onBack) {
-        Text(stringResource(R.string.simulator_intro), style = MaterialTheme.typography.bodyMedium)
+        SurfacePanel(Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.tag_simulated), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            Text(stringResource(R.string.simulator_intro), style = MaterialTheme.typography.bodyMedium)
+        }
         Button(
             onClick = vm::runAll,
             enabled = !running,
@@ -57,8 +60,8 @@ fun SimulatorScreen(onBack: () -> Unit) {
 
 @Composable
 private fun ScenarioCard(scenario: Scenario, result: ScenarioResult?, enabled: Boolean, onPlay: () -> Unit) {
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    SurfacePanel(Modifier.fillMaxWidth()) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("${scenario.id}. " + stringResource(scenario.title), style = MaterialTheme.typography.titleMedium)
             Text(stringResource(scenario.description), style = MaterialTheme.typography.bodyMedium)
             scenario.messages(0).forEach { (_, text) ->

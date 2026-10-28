@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -30,6 +29,7 @@ import com.scamguard.app.ui.Labels
 import com.scamguard.app.ui.components.FeedbackButtons
 import com.scamguard.app.ui.components.MessageVerdictCard
 import com.scamguard.app.ui.components.ScreenFrame
+import com.scamguard.app.ui.components.SurfacePanel
 import com.scamguard.app.ui.navigation.containerViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -110,8 +110,8 @@ fun CheckScreen() {
 
 @Composable
 private fun LinkList(urls: List<UrlPrediction>) {
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    SurfacePanel(Modifier.fillMaxWidth()) {
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(stringResource(R.string.check_links), style = MaterialTheme.typography.titleMedium)
             urls.forEach { u ->
                 val verdict = stringResource(Labels.urlVerdict(u.verdict))

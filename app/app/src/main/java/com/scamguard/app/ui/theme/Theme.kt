@@ -1,74 +1,72 @@
 package com.scamguard.app.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private val LightColors = lightColorScheme(
-    primary = Teal700,
-    onPrimary = Color.White,
-    primaryContainer = Teal100,
-    onPrimaryContainer = Teal900,
-    secondary = Navy700,
-    onSecondary = Color.White,
-    secondaryContainer = Navy100,
-    onSecondaryContainer = Navy900,
-    background = Slate50,
-    onBackground = Navy900,
-    surface = Color.White,
-    onSurface = Navy900,
-    surfaceVariant = Navy100,
-    onSurfaceVariant = Slate600,
-    outline = Slate300,
+private val ScamShieldColors = darkColorScheme(
+    primary = AppRose,
+    onPrimary = AppInk,
+    primaryContainer = AppBurgundy,
+    onPrimaryContainer = AppText,
+    secondary = AppTextMuted,
+    onSecondary = AppInk,
+    secondaryContainer = AppSurfaceHighest,
+    onSecondaryContainer = AppText,
+    tertiary = SafeGreen,
+    onTertiary = AppInk,
+    background = AppInk,
+    onBackground = AppText,
+    surface = AppSurface,
+    onSurface = AppText,
+    surfaceVariant = AppSurfaceHighest,
+    onSurfaceVariant = AppTextMuted,
+    outline = AppOutline,
+    outlineVariant = Color(0xFF30272E),
     error = AlertRed,
     onError = Color.White,
-    errorContainer = AlertRedLight,
-    onErrorContainer = Color(0xFF410002),
-)
-
-private val DarkColors = darkColorScheme(
-    primary = Teal300,
-    onPrimary = Teal900,
-    primaryContainer = Teal700,
-    onPrimaryContainer = Teal100,
-    secondary = Navy100,
-    onSecondary = Navy900,
-    secondaryContainer = Navy700,
-    onSecondaryContainer = Navy100,
-    background = Navy900,
-    onBackground = Color(0xFFE6EDF5),
-    surface = Navy800,
-    onSurface = Color(0xFFE6EDF5),
-    surfaceVariant = Navy700,
-    onSurfaceVariant = Slate300,
-    outline = Slate600,
-    error = Color(0xFFFFB4AB),
-    onError = Color(0xFF690005),
-    errorContainer = Color(0xFF93000A),
+    errorContainer = AlertRedContainer,
     onErrorContainer = AlertRedLight,
 )
 
-private val AppTypography = Typography().run {
+private val ScamShieldTypography = Typography().run {
     copy(
-        headlineMedium = headlineMedium.copy(fontWeight = FontWeight.SemiBold),
+        displayLarge = displayLarge.copy(fontWeight = FontWeight.SemiBold, letterSpacing = (-0.7).sp),
+        displayMedium = displayMedium.copy(fontWeight = FontWeight.SemiBold, letterSpacing = (-0.5).sp),
+        headlineLarge = headlineLarge.copy(fontWeight = FontWeight.SemiBold, letterSpacing = (-0.3).sp),
+        headlineMedium = headlineMedium.copy(fontWeight = FontWeight.SemiBold, letterSpacing = (-0.2).sp),
         titleLarge = titleLarge.copy(fontWeight = FontWeight.SemiBold),
-        bodyLarge = TextStyle(fontSize = 17.sp, lineHeight = 24.sp),
+        titleMedium = titleMedium.copy(fontWeight = FontWeight.SemiBold),
+        bodyLarge = TextStyle(fontSize = 17.sp, lineHeight = 25.sp, fontWeight = FontWeight.Normal),
+        bodyMedium = bodyMedium.copy(lineHeight = 21.sp),
+        labelLarge = labelLarge.copy(fontWeight = FontWeight.SemiBold),
     )
 }
 
-/** Calm navy and teal theme; red appears only on alerts. */
+private val ScamShieldShapes = Shapes(
+    extraSmall = RoundedCornerShape(8.dp),
+    small = RoundedCornerShape(11.dp),
+    medium = RoundedCornerShape(15.dp),
+    large = RoundedCornerShape(19.dp),
+    extraLarge = RoundedCornerShape(24.dp),
+)
+
+/** ScamShield keeps one deliberate dark palette in both system appearance modes. */
+@Suppress("UNUSED_PARAMETER")
 @Composable
-fun ScamGuardTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
+fun ScamGuardTheme(darkTheme: Boolean = true, content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = if (darkTheme) DarkColors else LightColors,
-        typography = AppTypography,
+        colorScheme = ScamShieldColors,
+        typography = ScamShieldTypography,
+        shapes = ScamShieldShapes,
         content = content,
     )
 }

@@ -28,6 +28,7 @@ import androidx.lifecycle.viewModelScope
 import com.scamguard.app.AppContainer
 import com.scamguard.app.R
 import com.scamguard.app.ui.components.ScreenFrame
+import com.scamguard.app.ui.components.SurfacePanel
 import com.scamguard.app.ui.navigation.containerViewModel
 import com.scamguard.app.ui.theme.AlertRed
 import kotlinx.coroutines.Dispatchers
@@ -77,8 +78,10 @@ fun DataScreen(onBack: () -> Unit) {
     }
 
     ScreenFrame(stringResource(R.string.data_title), onBack = onBack) {
-        Text(stringResource(R.string.data_intro), style = MaterialTheme.typography.bodyMedium)
-        Text(stringResource(R.string.data_feedback_count, count), style = MaterialTheme.typography.bodyMedium)
+        SurfacePanel(Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.data_intro), style = MaterialTheme.typography.bodyLarge)
+            Text(stringResource(R.string.data_feedback_count, count), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
         OutlinedButton(onClick = { confirmExport = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
             Text(stringResource(R.string.data_export))
         }
