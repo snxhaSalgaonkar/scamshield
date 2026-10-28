@@ -208,4 +208,46 @@
     <string name="settings_demo">Demo Mode</string>
     <string name="demo_mode_title">Demo Mode (demo only)</string>
     <string name="demo_mode_desc">For demonstrations: enables the simulator, and on a red flag ends the call and locks the phone after a 5-second countdown you can cancel.</string>
+
+    <!-- Health and permissions -->
+    <string name="health_title">Health and permissions</string>
+    <string name="health_intro">What protection can use on this phone. You can deny anything; the app keeps working with what it has.</string>
+    <string name="health_required">Needed for protection</string>
+    <string name="health_optional">Optional</string>
+    <string name="health_grant">Allow</string>
+    <string name="health_open_settings">Open settings</string>
+    <string name="health_forwarding_unavailable">Forwarding check unavailable on this SIM</string>
+    <string name="health_screening_old_android">Android 8 and 9 do not let apps screen calls. Unknown callers are still noticed through phone state, but the number is not available, so every caller is treated as unknown.</string>
+    <string name="health_end_call_old_android">Android 8 does not let apps end calls. End the call yourself.</string>
+    <string name="health_contacts_denied">Without contacts, saved contacts may also be checked. They are never stored.</string>
+    <string name="cap_state_available">Available</string>
+    <string name="cap_state_denied">Denied</string>
+    <string name="cap_state_restricted">Restricted by Android</string>
+    <string name="cap_state_unsupported">Not available on this phone</string>
+    <string name="cap_state_not_configured">Not set up yet</string>
+    <string name="cap_sms">SMS events</string>
+    <string name="cap_sms_desc">Notice that an OTP, debit or link message arrived. Message text is never stored.</string>
+    <string name="cap_phone">Phone state</string>
+    <string name="cap_phone_desc">Know when a call rings, connects and ends.</string>
+    <string name="cap_contacts">Contacts check</string>
+    <string name="cap_contacts_desc">Skip calls from your saved contacts. Names are never read or stored.</string>
+    <string name="cap_notifications">Notifications</string>
+    <string name="cap_notifications_desc">Show warnings while a call is going on.</string>
+    <string name="cap_full_screen">Full-screen alerts</string>
+    <string name="cap_full_screen_desc">Show red-flag alerts over the lock screen. Without it you get a heads-up notification instead.</string>
+    <string name="cap_screening">Caller ID and spam app</string>
+    <string name="cap_screening_desc">Lets the app see the caller\'s number to tell unknown callers apart. Calls are never blocked.</string>
+    <string name="cap_end_call">End call button</string>
+    <string name="cap_end_call_desc">Lets the alert end the call when you tap End call.</string>
+    <string name="cap_forwarding">Call forwarding check</string>
+    <string name="cap_forwarding_desc">Asks your carrier whether call forwarding is on. Not every carrier answers.</string>
+    <string name="cap_usage">Usage access</string>
+    <string name="cap_usage_desc">Notice when a screen-sharing app such as AnyDesk is opened during a call. Only those apps are checked.</string>
+    <string name="cap_battery">Battery: unrestricted</string>
+    <string name="cap_battery_desc">Stops the phone from putting protection to sleep. Samsung, Xiaomi, Oppo and Vivo phones may need this.</string>
+    <string name="cap_microphone">Microphone</string>
+    <string name="cap_microphone_desc">Only for the experimental voice layer.</string>
+    <string name="cap_device_admin">Screen lock (Demo Mode)</string>
+    <string name="cap_device_admin_desc">Lets Demo Mode lock the screen after a red flag. Only the lock policy is requested.</string>
+    <string name="device_admin_explanation">Scam Call Guard will only be able to lock your screen, and only in Demo Mode after a red-flag alert. You can turn this off at any time in Health and permissions.</string>
 </resources>

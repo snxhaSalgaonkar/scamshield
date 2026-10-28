@@ -30,12 +30,15 @@ import com.scamguard.app.ui.navigation.containerViewModel
 
 /** Settings: consent levels, language and Demo Mode. */
 @Composable
-fun SettingsScreen(onOpenSimulator: () -> Unit) {
+fun SettingsScreen(onOpenSimulator: () -> Unit, onOpenHealth: () -> Unit) {
     val vm = containerViewModel { SettingsViewModel(it) }
     val state by vm.state.collectAsStateWithLifecycle()
     val s = state ?: return
 
     ScreenFrame(stringResource(R.string.settings_title)) {
+        OutlinedButton(onClick = onOpenHealth, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+            Text(stringResource(R.string.health_title))
+        }
         SectionTitle(stringResource(R.string.settings_consent))
         ConsentToggles(s, vm::setVoiceLayer, vm::setTrainingUpload, vm::setCaseSharing)
 

@@ -36,7 +36,7 @@ interface SignalEventDao {
     suspend fun byWindow(windowId: String): List<SignalEventEntity>
 
     @Query(
-        "SELECT amountPaise FROM signal_events WHERE type = 'DEBIT' AND amountPaise IS NOT NULL " +
+        "SELECT amountPaise FROM signal_events WHERE type = 'DEBIT' AND amountPaise > 0 " +
             "AND ts < :before AND simulated = 0 ORDER BY ts DESC LIMIT :limit"
     )
     suspend fun recentDebitAmounts(before: Long, limit: Int): List<Long>

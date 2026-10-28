@@ -29,6 +29,7 @@ import androidx.navigation.compose.rememberNavController
 import com.scamguard.app.R
 import com.scamguard.app.service.GuardService
 import com.scamguard.app.ui.screens.detail.AlertDetailScreen
+import com.scamguard.app.ui.screens.health.HealthScreen
 import com.scamguard.app.ui.screens.history.HistoryScreen
 import com.scamguard.app.ui.screens.home.HomeScreen
 import com.scamguard.app.ui.screens.onboarding.OnboardingScreen
@@ -41,6 +42,7 @@ object Routes {
     const val HISTORY = "history"
     const val SETTINGS = "settings"
     const val SIMULATOR = "simulator"
+    const val HEALTH = "health"
     const val DETAIL = "detail/{id}"
     fun detail(id: String) = "detail/$id"
 }
@@ -86,13 +88,17 @@ fun AppRoot(openWindowId: String?, onWindowOpened: () -> Unit) {
             composable(Routes.HOME) {
                 HomeScreen(
                     onOpenAlert = { nav.navigate(Routes.detail(it)) },
-                    onOpenHealth = { },
+                    onOpenHealth = { nav.navigate(Routes.HEALTH) },
                     onOpenSimulator = { nav.navigate(Routes.SIMULATOR) },
                 )
             }
             composable(Routes.HISTORY) { HistoryScreen(onOpen = { nav.navigate(Routes.detail(it)) }) }
-            composable(Routes.SETTINGS) { SettingsScreen(onOpenSimulator = { nav.navigate(Routes.SIMULATOR) }) }
+            composable(Routes.SETTINGS) { SettingsScreen(
+                    onOpenSimulator = { nav.navigate(Routes.SIMULATOR) },
+                    onOpenHealth = { nav.navigate(Routes.HEALTH) },
+                ) }
             composable(Routes.SIMULATOR) { SimulatorScreen(onBack = nav::popBackStack) }
+            composable(Routes.HEALTH) { HealthScreen(onBack = nav::popBackStack) }
             composable(Routes.DETAIL) { entry ->
                 AlertDetailScreen(windowId = entry.arguments?.getString("id").orEmpty(), onBack = nav::popBackStack)
             }
