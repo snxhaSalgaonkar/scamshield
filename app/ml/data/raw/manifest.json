@@ -1,0 +1,22 @@
+{
+  "uci_sms_spam": {
+    "file": "uci_sms_spam.zip",
+    "sha256": "1587ea43e58e82b14ff1f5425c88e17f8496bfcdb67a583dbff9eefaf9963ce3",
+    "bytes": 203415
+  },
+  "mendeley_smishing": {
+    "file": "mendeley_smishing.zip",
+    "sha256": "9bbf3188fdad81495d8e82825648b9b63b53fc86841a3d26c02629990b233cc3",
+    "bytes": 244698
+  },
+  "phiusiil_url": {
+    "file": "phiusiil.zip",
+    "sha256": "0a639fd03aea6308c5b1c10c92aa23c2ce1505447a9137271865cd0badc9a59a",
+    "bytes": 15376007
+  },
+  "indian_scam_synthetic": {
+    "file": "indian_scam_synthetic.csv",
+    "sha256": "45bde5f156a1a42698bab209e32bcd41b3639013d772f644cc3208ed39fb61e2",
+    "bytes": 389521
+  }
+}

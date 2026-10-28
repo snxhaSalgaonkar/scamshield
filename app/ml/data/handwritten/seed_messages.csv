@@ -1,0 +1,68 @@
+text,label,category
+"This is Inspector Sharma from Mumbai Cyber Crime. A parcel in your name contains drugs. You are under digital arrest. Do not disconnect the call.",scam,IMPERSONATION_THREAT
+"CBI notice: your Aadhaar is linked to a money laundering case. Join video call immediately or arrest warrant will be issued today.",scam,IMPERSONATION_THREAT
+"Final notice from Customs Dept: illegal items found in courier booked on your ID. Call officer now to avoid FIR and arrest.",scam,IMPERSONATION_THREAT
+"Your mobile number will be blocked in 2 hours due to illegal activity reported to TRAI. Press 9 to speak to the police officer.",scam,IMPERSONATION_THREAT
+"Narcotics Control Bureau: case registered against you. Stay on Skype call and do not tell family. Verification fee must be paid now.",scam,IMPERSONATION_THREAT
+"Supreme Court order: your bank account is frozen for investigation. Transfer funds to RBI safe account for verification within 1 hour.",scam,IMPERSONATION_THREAT
+"Delhi Police: a FIR has been filed on your PAN number. To avoid arrest pay security deposit today via UPI. Do not disconnect.",scam,IMPERSONATION_THREAT
+"ED officer here. Your name came up in a hawala investigation. You are under surveillance, keep camera on and transfer savings for audit.",scam,IMPERSONATION_THREAT
+"Income Tax Department: legal action will be taken today for unpaid dues. Call the officer at once to settle and avoid arrest.",scam,IMPERSONATION_THREAT
+"FedEx parcel to Taiwan in your name has 5 passports and MDMA. Mumbai police will call you. Cooperate or face arrest.",scam,IMPERSONATION_THREAT
+"Court summons issued against you for cyber crime. Reply now or a non-bailable warrant will be executed by local police.",scam,IMPERSONATION_THREAT
+"Your SIM is used in terrorist funding case. Investigation officer will verify you on video call. Keep this confidential.",scam,IMPERSONATION_THREAT
+"Mumbai crime branch: you are a suspect. Pay refundable verification amount to clear your name, or officers will reach your home.",scam,IMPERSONATION_THREAT
+"Aapke naam par drugs wala parcel pakda gaya hai. Police case darj hai, call mat kaatna warna giraftari hogi.",scam,IMPERSONATION_THREAT
+"CBI se baat kar rahe hain. Aap digital arrest mein hain, kisi ko mat batana aur paise verification ke liye transfer karo.",scam,IMPERSONATION_THREAT
+"Cyber cell warning: obscene content complaint against your number. Settle the case now or arrest will follow.",scam,IMPERSONATION_THREAT
+"RBI officer: your account is involved in fraud. Move all money to the secure government account given by me for checking.",scam,IMPERSONATION_THREAT
+"Customs duty pending on international gift parcel. Pay clearance fee today or legal case will be filed against you.",scam,IMPERSONATION_THREAT
+"Dear customer, to fix your account problem please install AnyDesk from Play Store and share the 9 digit code with our executive.",scam,REMOTE_ACCESS
+"Bank support: download TeamViewer QuickSupport and tell me the ID shown so I can process your refund.",scam,REMOTE_ACCESS
+"Your KYC update needs screen sharing. Install the app from this link and allow all permissions: bit.ly/kyc-help",scam,REMOTE_ACCESS
+"To receive cashback install the support app from apk link and enable accessibility permission.",scam,REMOTE_ACCESS
+"Electricity connection will be cut tonight. Download the bill update app from link and open it to pay pending bill.",scam,REMOTE_ACCESS
+"Customer care here. Please install RustDesk so our technician can fix your UPI app problem remotely.",scam,REMOTE_ACCESS
+"Refund failed. Share your screen using the app I sent on WhatsApp so I can guide you to receive the money.",scam,REMOTE_ACCESS
+"Apna phone screen share karo, AnyDesk install karke code bhejo, hum aapka refund process kar denge.",scam,REMOTE_ACCESS
+"Your credit card points expire today. Install the rewards APK from the link to redeem: rewards-points.xyz/app.apk",scam,REMOTE_ACCESS
+"Wedding invitation for you, open the attached APK file to view the card.",scam,REMOTE_ACCESS
+"Please install the SBI YONO update from this link not Play Store, old app will stop working: sbi-yono-update.top",scam,REMOTE_ACCESS
+"Share the OTP you just received to cancel the wrong transaction, otherwise money will be debited.",scam,CREDENTIAL_THEFT
+"Your PAN card is not linked. Account will be blocked today. Update KYC by entering your netbanking password here: kyc-update.co",scam,CREDENTIAL_THEFT
+"Dear user, your debit card is suspended. Reply with card number, expiry and CVV to reactivate.",scam,CREDENTIAL_THEFT
+"Aapka OTP batayein taaki hum aapka account unblock kar sakein. Yeh bank ki taraf se call hai.",scam,CREDENTIAL_THEFT
+"I sent you a code by mistake, please forward the 6 digit code to me urgently.",scam,CREDENTIAL_THEFT
+"Your UPI PIN must be verified. Enter UPI PIN to receive Rs 5000 refund into your account.",scam,PAYMENT_FRAUD
+"I have sent Rs 2000 to you by mistake, please return it by approving the collect request.",scam,PAYMENT_FRAUD
+"Pay Rs 10 registration fee on this UPI ID to activate your loan of Rs 5 lakh today.",scam,PAYMENT_FRAUD
+"Urgent: I am in hospital, send 15000 on this number by GPay now, I will return tomorrow. Don't call, phone is broken.",scam,PAYMENT_FRAUD
+"Your electricity bill was not updated. Power will be disconnected at 9:30 pm tonight. Pay immediately to officer on this number.",scam,PAYMENT_FRAUD
+"Hi Mum, this is my new number. I need money for rent today, please transfer to this account and keep it between us.",scam,PAYMENT_FRAUD
+"Stay on the line and transfer the amount now, do not tell anyone at the bank why you are sending it.",scam,PAYMENT_FRAUD
+"Part time job: earn 5000 daily by liking videos. Pay 500 joining deposit to start tasks.",scam,PRIZE_LURE
+"Congratulations! Your number won KBC lottery of 25 lakh. Pay processing fee to claim prize.",scam,PRIZE_LURE
+"Your HDFC Bank OTP for txn of Rs 2,450 at Amazon is 482913. Do not share it with anyone. Bank never asks for OTP.",legit,
+"OTP 731905 for login to your ICICI account. Valid for 5 minutes. Never share your OTP with anyone, including bank staff.",legit,
+"Rs 1,200 debited from A/c XX4321 on 12-Oct to VPA grocer@okaxis. Not you? Call 1800 xxx to block.",legit,
+"Your Amazon order has been shipped and will be delivered tomorrow. Track it in the Amazon app.",legit,
+"Your parcel with tracking ID 3349 is out for delivery. Our delivery partner will call before arriving.",legit,
+"Traffic e-challan issued for vehicle MH01 for overspeeding. Pay on the official Parivahan portal or at the traffic police office.",legit,
+"Reminder: your electricity bill of Rs 1,340 is due on 15 Nov. Pay via the official app or website. Ignore if already paid.",legit,
+"Your ticket complaint was registered with the police station. Reference number 2241. Visit the station with ID proof.",legit,
+"Dear customer, update the app from Google Play Store to continue using mobile banking. We never send APK links.",legit,
+"Hi, IT support here as discussed in office, I'll come to your desk at 3 to install the VPN software.",legit,
+"Mom, I reached the hostel safely. Will call you tonight after dinner.",legit,
+"Can you send me the photos from yesterday? Also pay me back the 300 for lunch when you can.",legit,
+"Meeting moved to 4 pm. Please share the screen with the slides during the call.",legit,
+"Your Swiggy order is on the way. The delivery partner will reach in 15 minutes.",legit,
+"Salary of Rs 45,000 credited to your account XX9876. Available balance Rs 52,310.",legit,
+"Your court hearing reminder from your lawyer: case listed for 21 Nov, please bring the documents.",legit,
+"We noticed a login from a new device. If this was you, no action needed. If not, change your password in the app.",legit,
+"Your SBI card statement is generated. Minimum due Rs 1,500 by 20 Nov. Pay via YONO or netbanking.",legit,
+"Hey are we still on for cricket on Sunday? Bring the bat.",legit,
+"Your Aadhaar update request has been completed. Download the updated Aadhaar from the official UIDAI website.",legit,
+"Dear patient, your appointment with Dr. Rao is confirmed for Monday 10 am.",legit,
+"Papa ne bola tha shaam ko aana, khana saath mein khayenge.",legit,
+"Bhai kal ki movie ke tickets book kar diye, 7 baje milte hain.",legit,
+"Customs clearance for your import shipment is complete. The invoice is available in your account on the courier website.",legit,

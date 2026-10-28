@@ -1,0 +1,517 @@
+{
+  "model": "text",
+  "format": "scamml-text/1",
+  "trained_at": "2026-10-28T10:13:27+00:00",
+  "use_synthetic_training_data": false,
+  "hyperparameters": {
+    "binary_C": 32.0,
+    "category_C": 32.0,
+    "max_features": 20000,
+    "min_df": 2,
+    "features": "word unigrams + bigrams + char 3-5-grams within tokens, sublinear TF-IDF, L2"
+  },
+  "data": {
+    "real": {
+      "rows_in": 11545,
+      "conflicting_groups_dropped": 0,
+      "rows_out": 5876,
+      "malicious": 915
+    },
+    "train": {
+      "n": 4113,
+      "malicious": 640,
+      "by_source": {
+        "uci_sms_spam": 3565,
+        "mendeley_smishing": 548
+      }
+    },
+    "val": {
+      "n": 881,
+      "malicious": 137,
+      "by_source": {
+        "uci_sms_spam": 770,
+        "mendeley_smishing": 111
+      }
+    },
+    "test": {
+      "n": 882,
+      "malicious": 138,
+      "by_source": {
+        "uci_sms_spam": 762,
+        "mendeley_smishing": 120
+      }
+    }
+  },
+  "thresholds": {
+    "warning": 0.2657,
+    "high": 0.782,
+    "selected_on": "validation (real data)"
+  },
+  "ood": {
+    "min_tokens": 2,
+    "min_coverage": 0.5
+  },
+  "test_real": {
+    "at_warning_threshold": {
+      "n": 882,
+      "positives": 138,
+      "threshold": 0.2657,
+      "precision": 0.95,
+      "recall": 0.9638,
+      "f1": 0.9568,
+      "false_positive_rate": 0.0094,
+      "pr_auc": 0.9859,
+      "roc_auc": 0.997,
+      "brier": 0.0114,
+      "confusion_matrix": {
+        "tn": 737,
+        "fp": 7,
+        "fn": 5,
+        "tp": 133
+      },
+      "calibration": [
+        {
+          "range": [
+            0.0,
+            0.1
+          ],
+          "n": 731,
+          "mean_predicted": 0.0068,
+          "observed_rate": 0.0041
+        },
+        {
+          "range": [
+            0.1,
+            0.2
+          ],
+          "n": 7,
+          "mean_predicted": 0.1368,
+          "observed_rate": 0.0
+        },
+        {
+          "range": [
+            0.2,
+            0.3
+          ],
+          "n": 6,
+          "mean_predicted": 0.2472,
+          "observed_rate": 0.6667
+        },
+        {
+          "range": [
+            0.3,
+            0.4
+          ],
+          "n": 3,
+          "mean_predicted": 0.3426,
+          "observed_rate": 0.3333
+        },
+        {
+          "range": [
+            0.4,
+            0.5
+          ],
+          "n": 1,
+          "mean_predicted": 0.4736,
+          "observed_rate": 0.0
+        },
+        {
+          "range": [
+            0.5,
+            0.6
+          ],
+          "n": 2,
+          "mean_predicted": 0.5168,
+          "observed_rate": 1.0
+        },
+        {
+          "range": [
+            0.6,
+            0.7
+          ],
+          "n": 3,
+          "mean_predicted": 0.6362,
+          "observed_rate": 0.3333
+        },
+        {
+          "range": [
+            0.7,
+            0.8
+          ],
+          "n": 3,
+          "mean_predicted": 0.7555,
+          "observed_rate": 1.0
+        },
+        {
+          "range": [
+            0.8,
+            0.9
+          ],
+          "n": 7,
+          "mean_predicted": 0.8609,
+          "observed_rate": 0.8571
+        },
+        {
+          "range": [
+            0.9,
+            1.0
+          ],
+          "n": 119,
+          "mean_predicted": 0.9866,
+          "observed_rate": 0.9916
+        }
+      ]
+    },
+    "at_high_threshold": {
+      "n": 882,
+      "positives": 138,
+      "threshold": 0.782,
+      "precision": 0.9841,
+      "recall": 0.8986,
+      "f1": 0.9394,
+      "false_positive_rate": 0.0027,
+      "pr_auc": 0.9859,
+      "roc_auc": 0.997,
+      "brier": 0.0114,
+      "confusion_matrix": {
+        "tn": 742,
+        "fp": 2,
+        "fn": 14,
+        "tp": 124
+      },
+      "calibration": [
+        {
+          "range": [
+            0.0,
+            0.1
+          ],
+          "n": 731,
+          "mean_predicted": 0.0068,
+          "observed_rate": 0.0041
+        },
+        {
+          "range": [
+            0.1,
+            0.2
+          ],
+          "n": 7,
+          "mean_predicted": 0.1368,
+          "observed_rate": 0.0
+        },
+        {
+          "range": [
+            0.2,
+            0.3
+          ],
+          "n": 6,
+          "mean_predicted": 0.2472,
+          "observed_rate": 0.6667
+        },
+        {
+          "range": [
+            0.3,
+            0.4
+          ],
+          "n": 3,
+          "mean_predicted": 0.3426,
+          "observed_rate": 0.3333
+        },
+        {
+          "range": [
+            0.4,
+            0.5
+          ],
+          "n": 1,
+          "mean_predicted": 0.4736,
+          "observed_rate": 0.0
+        },
+        {
+          "range": [
+            0.5,
+            0.6
+          ],
+          "n": 2,
+          "mean_predicted": 0.5168,
+          "observed_rate": 1.0
+        },
+        {
+          "range": [
+            0.6,
+            0.7
+          ],
+          "n": 3,
+          "mean_predicted": 0.6362,
+          "observed_rate": 0.3333
+        },
+        {
+          "range": [
+            0.7,
+            0.8
+          ],
+          "n": 3,
+          "mean_predicted": 0.7555,
+          "observed_rate": 1.0
+        },
+        {
+          "range": [
+            0.8,
+            0.9
+          ],
+          "n": 7,
+          "mean_predicted": 0.8609,
+          "observed_rate": 0.8571
+        },
+        {
+          "range": [
+            0.9,
+            1.0
+          ],
+          "n": 119,
+          "mean_predicted": 0.9866,
+          "observed_rate": 0.9916
+        }
+      ]
+    },
+    "by_source": {
+      "uci_sms_spam": {
+        "n": 762,
+        "positives": 88,
+        "threshold": 0.2657,
+        "precision": 0.9451,
+        "recall": 0.9773,
+        "f1": 0.9609,
+        "false_positive_rate": 0.0074,
+        "pr_auc": 0.9863,
+        "roc_auc": 0.9978,
+        "brier": 0.0075,
+        "confusion_matrix": {
+          "tn": 669,
+          "fp": 5,
+          "fn": 2,
+          "tp": 86
+        },
+        "calibration": [
+          {
+            "range": [
+              0.0,
+              0.1
+            ],
+            "n": 663,
+            "mean_predicted": 0.007,
+            "observed_rate": 0.003
+          },
+          {
+            "range": [
+              0.1,
+              0.2
+            ],
+            "n": 6,
+            "mean_predicted": 0.1408,
+            "observed_rate": 0.0
+          },
+          {
+            "range": [
+              0.2,
+              0.3
+            ],
+            "n": 3,
+            "mean_predicted": 0.2508,
+            "observed_rate": 0.3333
+          },
+          {
+            "range": [
+              0.3,
+              0.4
+            ],
+            "n": 1,
+            "mean_predicted": 0.3948,
+            "observed_rate": 0.0
+          },
+          {
+            "range": [
+              0.4,
+              0.5
+            ],
+            "n": 1,
+            "mean_predicted": 0.4736,
+            "observed_rate": 0.0
+          },
+          {
+            "range": [
+              0.5,
+              0.6
+            ],
+            "n": 1,
+            "mean_predicted": 0.5192,
+            "observed_rate": 1.0
+          },
+          {
+            "range": [
+              0.6,
+              0.7
+            ],
+            "n": 1,
+            "mean_predicted": 0.608,
+            "observed_rate": 0.0
+          },
+          {
+            "range": [
+              0.7,
+              0.8
+            ],
+            "n": 2,
+            "mean_predicted": 0.7567,
+            "observed_rate": 1.0
+          },
+          {
+            "range": [
+              0.8,
+              0.9
+            ],
+            "n": 3,
+            "mean_predicted": 0.8637,
+            "observed_rate": 0.6667
+          },
+          {
+            "range": [
+              0.9,
+              1.0
+            ],
+            "n": 81,
+            "mean_predicted": 0.9898,
+            "observed_rate": 0.9877
+          }
+        ]
+      },
+      "mendeley_smishing": {
+        "n": 120,
+        "positives": 50,
+        "threshold": 0.2657,
+        "precision": 0.9592,
+        "recall": 0.94,
+        "f1": 0.9495,
+        "false_positive_rate": 0.0286,
+        "pr_auc": 0.9931,
+        "roc_auc": 0.9949,
+        "brier": 0.0361,
+        "confusion_matrix": {
+          "tn": 68,
+          "fp": 2,
+          "fn": 3,
+          "tp": 47
+        },
+        "calibration": [
+          {
+            "range": [
+              0.0,
+              0.1
+            ],
+            "n": 68,
+            "mean_predicted": 0.0048,
+            "observed_rate": 0.0147
+          },
+          {
+            "range": [
+              0.1,
+              0.2
+            ],
+            "n": 1,
+            "mean_predicted": 0.1133,
+            "observed_rate": 0.0
+          },
+          {
+            "range": [
+              0.2,
+              0.3
+            ],
+            "n": 3,
+            "mean_predicted": 0.2437,
+            "observed_rate": 1.0
+          },
+          {
+            "range": [
+              0.3,
+              0.4
+            ],
+            "n": 2,
+            "mean_predicted": 0.3165,
+            "observed_rate": 0.5
+          },
+          {
+            "range": [
+              0.5,
+              0.6
+            ],
+            "n": 1,
+            "mean_predicted": 0.5145,
+            "observed_rate": 1.0
+          },
+          {
+            "range": [
+              0.6,
+              0.7
+            ],
+            "n": 2,
+            "mean_predicted": 0.6503,
+            "observed_rate": 0.5
+          },
+          {
+            "range": [
+              0.7,
+              0.8
+            ],
+            "n": 1,
+            "mean_predicted": 0.753,
+            "observed_rate": 1.0
+          },
+          {
+            "range": [
+              0.8,
+              0.9
+            ],
+            "n": 4,
+            "mean_predicted": 0.8589,
+            "observed_rate": 1.0
+          },
+          {
+            "range": [
+              0.9,
+              1.0
+            ],
+            "n": 38,
+            "mean_predicted": 0.9797,
+            "observed_rate": 1.0
+          }
+        ]
+      }
+    }
+  },
+  "category_head_EXPERIMENTAL": {
+    "classes": [
+      "CREDENTIAL_THEFT",
+      "IMPERSONATION_THREAT",
+      "PAYMENT_FRAUD",
+      "PRIZE_LURE",
+      "PHISHING_LINK",
+      "OTHER_SPAM"
+    ],
+    "note": "Real messages have only weak (heuristic) category labels; this is agreement with those labels, not accuracy.",
+    "weak_label_agreement_test_real": 0.8841,
+    "train_support": {
+      "PRIZE_LURE": 299,
+      "OTHER_SPAM": 235,
+      "PHISHING_LINK": 75,
+      "CREDENTIAL_THEFT": 16,
+      "PAYMENT_FRAUD": 14,
+      "IMPERSONATION_THREAT": 1
+    },
+    "test_real_support": {
+      "PRIZE_LURE": 60,
+      "OTHER_SPAM": 55,
+      "PHISHING_LINK": 12,
+      "CREDENTIAL_THEFT": 6,
+      "PAYMENT_FRAUD": 4,
+      "IMPERSONATION_THREAT": 1
+    }
+  }
+}
