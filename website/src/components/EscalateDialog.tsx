@@ -1,69 +1,59 @@
+'use client'
+
 import { Check, Copy } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { caseRef, dateTime, inr } from '@/lib/format'
-import { eventLabel, firedCombos } from '@/lib/rules'
-import type { Alert } from '@/lib/types'
+import { caseRef, dateTime, deviceHash, formatPhone } from '@/lib/format'
+import { detectedViaLabel, scamTypeLabel } from '@/lib/labels'
+import { actionLabel, bandLabel, bandOf } from '@/lib/risk'
+import type { Report } from '@/lib/types'
 
-function complaintSummary(a: Alert): string {
-  const debits = a.events.filter((e) => e.type === 'debit_sms' && e.amount)
+/** Plain-text summary an officer can paste into a 1930 / cybercrime.gov.in escalation. */
+export function complaintSummary(r: Report): string {
   const lines = [
-    `Case reference: ${caseRef(a)}`,
-    `Received: ${dateTime(a.createdAt)}`,
-    `Category: ${a.scamType} (suspected)`,
-    `Caller: ${a.callerPrefix} (ref #${a.callerHash})`,
-    `Region: ${a.region}`,
-    `Risk score: ${a.score}/100 (L1 ${a.l1 ?? 'n/a'}, L2 ${a.l2}, L3 ${a.l3})`,
-    `Phone events: ${a.events.filter((e) => !['call_start', 'call_end'].includes(e.type)).map((e) => eventLabel[e.type]).join('; ') || 'none'}`,
+    `Case reference: ${caseRef(r)}`,
+    `Received: ${dateTime(r.created_at)}`,
+    `Category: ${scamTypeLabel[r.scam_type]} (suspected)`,
+    `Caller number: ${formatPhone(r.caller_number)} (series ${r.number_prefix}-XXXXX${r.telecom_circle ? `, ${r.telecom_circle} circle, approx.` : ''})`,
+    `Risk score: ${r.risk_score}/100, ${bandLabel[bandOf(r.risk_score)]} (L1 content ${r.l1_score}, L2 reputation ${r.l2_score}, L3 correlation ${r.l3_score})`,
+    `Detected via: ${r.detected_via.map((v) => detectedViaLabel[v]).join(', ') || 'n/a'}`,
+    `Action on phone: ${actionLabel[r.action_taken]}`,
   ]
-  if (debits.length) lines.push(`Reported debits: ${debits.map((d) => inr.format(d.amount!)).join(', ')}`)
-  const combos = firedCombos(a.events)
-  if (combos.length) lines.push(`Combo rules: ${combos.join('; ')}`)
-  lines.push(
-    a.complaintSubmitted
-      ? 'Citizen consent: complaint submitted (case_sharing). Identity details available on request.'
-      : 'Citizen consent: not given. Identity withheld; device reference only.',
-  )
+  if (r.matched_phrases.length) lines.push(`Detected tactics: ${r.matched_phrases.map((p) => `"${p}"`).join(', ')}`)
+  if (r.reasons.length) lines.push(`Reasons: ${r.reasons.join('; ')}`)
+  if (r.similarity) lines.push(`Pattern match: "${r.similarity.matched}" (${Math.round(r.similarity.score * 100)}% similar)`)
+  lines.push(`Reporting device: ${deviceHash(r.device_id)} (opaque reference; no citizen identity or conversation is held)`)
   return lines.join('\n')
 }
 
 interface Props {
-  alert: Alert
+  report: Report
   open: boolean
   onOpenChange: (open: boolean) => void
-  onConfirm: (note: string) => void
+  onConfirm: () => void
   pending: boolean
 }
 
-export function EscalateDialog({ alert, open, onOpenChange, onConfirm, pending }: Props) {
-  const [note, setNote] = useState('')
+export function EscalateDialog({ report, open, onOpenChange, onConfirm, pending }: Props) {
   const [copied, setCopied] = useState(false)
-  const summary = complaintSummary(alert)
+  const summary = complaintSummary(report)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Escalate {caseRef(alert)}</DialogTitle>
+          <DialogTitle>Escalate {caseRef(report)}</DialogTitle>
           <DialogDescription>
-            Marks the case as escalated and records your note in the audit log. Use the summary below for the National Cyber
-            Crime Helpline (1930) or the cyber-crime reporting portal.
+            Marks the report as escalated. Use the summary below for the National Cyber Crime Helpline (1930) or the cyber-crime
+            reporting portal.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <Label>Complaint summary</Label>
+            <Label>Escalation summary</Label>
             <Button
               variant="ghost"
               size="sm"
@@ -81,28 +71,15 @@ export function EscalateDialog({ alert, open, onOpenChange, onConfirm, pending }
               {copied ? 'Copied' : 'Copy'}
             </Button>
           </div>
-          <pre className="max-h-52 overflow-auto rounded border border-border bg-navy-soft/50 p-3 font-mono text-xs leading-relaxed whitespace-pre-wrap">
-            {summary}
-          </pre>
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="escalate-note">Officer note</Label>
-          <Textarea
-            id="escalate-note"
-            placeholder="e.g. Forwarded to cyber cell, matches pattern of earlier digital-arrest cases"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            rows={3}
-          />
+          <pre className="max-h-64 overflow-auto rounded border border-border bg-navy-soft/50 p-3 font-mono text-xs leading-relaxed whitespace-pre-wrap">{summary}</pre>
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button className="bg-red-700 hover:bg-red-800" disabled={pending} onClick={() => onConfirm(note.trim())}>
-            {pending ? 'Escalating…' : 'Escalate case'}
+          <Button className="bg-red-700 text-white hover:bg-red-800" disabled={pending} onClick={onConfirm}>
+            {pending ? 'Escalating…' : 'Mark escalated'}
           </Button>
         </DialogFooter>
       </DialogContent>

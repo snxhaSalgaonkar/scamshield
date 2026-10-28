@@ -1,18 +1,5 @@
-// Red-flag terms highlighted inline wherever case text is shown.
-const TERMS = [
-  'OTP',
-  'debit',
-  'remote-access',
-  'merged',
-  'merge',
-  'forwarding',
-  'APK',
-  'combo rule',
-  'reported',
-  'international',
-  'VoIP',
-  'long call',
-]
+// Red-flag terms highlighted inline in the reasons a phone sends.
+const TERMS = ['OTP', 'debit', 'remote-access', 'Remote-access', 'merged', 'primer', 'UPI', 'reported', 'impersonation', 'disconnect', 'wrong number', 'secrecy', 'isolation']
 
 const pattern = new RegExp(`(${TERMS.map((t) => t.replace(/[-]/g, '\\-')).join('|')})`, 'gi')
 

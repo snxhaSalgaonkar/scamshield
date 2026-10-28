@@ -1,11 +1,11 @@
-import { apiDataSource } from './data.api'
 import { mockDataSource } from './data.mock'
+import { supabaseDataSource } from './data.supabase'
+import { isMock } from './env'
 import type { DataSource } from './types'
 
-// VITE_DATA_SOURCE: "mock" (default, no backend needed) | "api" (FastAPI backend at VITE_API_URL).
-// Every page goes through `dataSource`, so switching backends needs no other code changes.
-export const isMock = (import.meta.env.VITE_DATA_SOURCE ?? 'mock') !== 'api'
+// NEXT_PUBLIC_DATA_SOURCE: "mock" (default, no backend) | "supabase".
+// Every page goes through `dataSource`, so switching needs no other code changes.
+export const dataSource: DataSource = isMock ? mockDataSource : supabaseDataSource
 
-export const dataSource: DataSource = isMock ? mockDataSource : apiDataSource
-
+export { isMock }
 export * from './types'

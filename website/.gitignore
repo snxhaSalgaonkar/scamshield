@@ -1,24 +1,24 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
+# dependencies
 node_modules
-dist
-dist-ssr
-*.local
 
-# Editor directories and files
+# next.js
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+
+# env (keep .env.example)
+.env
+.env*.local
+
+# transformers.js model cache
+.cache
+
+# logs
+*.log
+
+# editor
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?

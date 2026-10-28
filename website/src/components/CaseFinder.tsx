@@ -1,12 +1,14 @@
-import { useQuery } from '@tanstack/react-query'
-import { BarChart3, FileText, LayoutList, MonitorPlay, PhoneOff, Search } from 'lucide-react'
+'use client'
+
+import { FileText, LayoutDashboard, Map, MonitorPlay, Network, PhoneOff, Rows3, Search } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { RiskScore } from '@/components/RiskScore'
+import { RiskBadge } from '@/components/RiskBadge'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
-import { dataSource } from '@/lib/data'
-import { caseRef, timeAgo } from '@/lib/format'
-import { numberStatusLabel } from '@/lib/risk'
+import { useWindowReports } from '@/hooks/realtime'
+import { useNumbers } from '@/hooks/useData'
+import { caseRef, formatPhone, timeAgo } from '@/lib/format'
+import { scamTypeLabel } from '@/lib/labels'
 import { cn } from '@/lib/utils'
 
 interface Result {
@@ -19,56 +21,55 @@ interface Result {
 }
 
 const PAGES: Result[] = [
-  { id: 'p-feed', icon: <LayoutList className="size-4" />, title: 'Live feed', detail: 'All incoming alerts', to: '/dashboard' },
-  { id: 'p-numbers', icon: <PhoneOff className="size-4" />, title: 'Flagged numbers', detail: 'Reputation register', to: '/dashboard/numbers' },
-  { id: 'p-trends', icon: <BarChart3 className="size-4" />, title: 'Hotspots and trends', detail: 'Regions, hours, score bands', to: '/dashboard/trends' },
+  { id: 'p-overview', icon: <LayoutDashboard className="size-4" />, title: 'Overview', detail: 'Live feed and summary', to: '/dashboard' },
+  { id: 'p-reports', icon: <Rows3 className="size-4" />, title: 'Reports', detail: 'Filter, page and export', to: '/dashboard/reports' },
+  { id: 'p-numbers', icon: <PhoneOff className="size-4" />, title: 'Numbers', detail: 'Reported and flagged numbers', to: '/dashboard/numbers' },
+  { id: 'p-clusters', icon: <Network className="size-4" />, title: 'Clusters', detail: 'Number-series gangs', to: '/dashboard/clusters' },
+  { id: 'p-map', icon: <Map className="size-4" />, title: 'Map', detail: 'Reports by telecom circle', to: '/dashboard/map' },
   { id: 'p-wall', icon: <MonitorPlay className="size-4" />, title: 'Command wall', detail: 'Full-screen projector view', to: '/command' },
 ]
 
-const norm = (s: string) => s.toLowerCase().replace(/[\s/]+/g, '')
+const norm = (s: string) => s.toLowerCase().replace(/[\s/+-]+/g, '')
 
-/** Ctrl+K finder: jump to a case by reference, number, region or type. */
+/** Ctrl+K finder: jump to a report by reference, number, circle or scam type. */
 export function CaseFinder({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
-  const navigate = useNavigate()
+  const router = useRouter()
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
   const listRef = useRef<HTMLUListElement>(null)
-
-  const alerts = useQuery({ queryKey: ['alerts', null], queryFn: () => dataSource.getAlerts({}), enabled: open })
-  const numbers = useQuery({ queryKey: ['numbers'], queryFn: () => dataSource.getFlaggedNumbers(), enabled: open })
+  const { data: reports } = useWindowReports()
+  const { data: numbers } = useNumbers()
 
   const results = useMemo<Result[]>(() => {
     const q = norm(query)
     if (!q) return PAGES
-    const numberHits: Result[] = (numbers.data ?? [])
-      .filter((n) => norm(n.callerPrefix).includes(q) || n.callerHash.includes(q))
+    const numberHits: Result[] = (numbers ?? [])
+      .filter((n) => norm(n.number).includes(q))
       .slice(0, 3)
       .map((n) => ({
-        id: `n-${n.callerHash}`,
+        id: `n-${n.number}`,
         icon: <PhoneOff className="size-4" />,
-        title: <span className="font-mono">{n.callerPrefix}</span>,
-        detail: `${n.reportCount} reports, ${numberStatusLabel[n.status].toLowerCase()}`,
-        to: `/dashboard?number=${n.callerHash}`,
+        title: <span className="font-mono">{formatPhone(n.number)}</span>,
+        detail: `${n.report_count} reports from ${n.reporter_count} devices${n.is_flagged ? ', flagged' : ''}`,
+        to: `/dashboard/numbers?number=${encodeURIComponent(n.number)}`,
       }))
-    const caseHits: Result[] = (alerts.data ?? [])
-      .filter((a) =>
-        [caseRef(a), a.callerPrefix, a.callerHash, a.region, a.scamType, a.id].some((field) => norm(field).includes(q)),
-      )
+    const reportHits: Result[] = (reports ?? [])
+      .filter((r) => [caseRef(r), r.caller_number, r.telecom_circle ?? '', scamTypeLabel[r.scam_type], r.id].some((f) => norm(f).includes(q)))
       .slice(0, 7)
-      .map((a) => ({
-        id: a.id,
+      .map((r) => ({
+        id: r.id,
         icon: <FileText className="size-4" />,
         title: (
           <>
-            <span className="font-mono text-[13px]">{caseRef(a)}</span> <span className="text-muted-foreground">·</span> {a.scamType}
+            <span className="font-mono text-[13px]">{caseRef(r)}</span> <span className="opacity-60">·</span> {scamTypeLabel[r.scam_type]}
           </>
         ),
-        detail: `${a.region}, ${a.callerPrefix}, ${timeAgo(a.createdAt)}`,
-        aside: <RiskScore score={a.score} />,
-        to: `/dashboard/cases/${a.id}`,
+        detail: `${formatPhone(r.caller_number)}${r.telecom_circle ? `, ${r.telecom_circle}` : ''}, ${timeAgo(r.created_at)}`,
+        aside: <RiskBadge score={r.risk_score} />,
+        to: `/dashboard/reports/${r.id}`,
       }))
-    return [...caseHits, ...numberHits]
-  }, [query, alerts.data, numbers.data])
+    return [...reportHits, ...numberHits]
+  }, [query, reports, numbers])
 
   useEffect(() => {
     listRef.current?.querySelector('[aria-selected=true]')?.scrollIntoView({ block: 'nearest' })
@@ -78,13 +79,13 @@ export function CaseFinder({ open, onOpenChange }: { open: boolean; onOpenChange
     if (!r) return
     onOpenChange(false)
     setQuery('')
-    navigate(r.to)
+    router.push(r.to)
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="top-[18%] translate-y-0 gap-0 overflow-hidden p-0 sm:max-w-xl" showCloseButton={false}>
-        <DialogTitle className="sr-only">Find a case</DialogTitle>
+        <DialogTitle className="sr-only">Find a report</DialogTitle>
         <div className="flex items-center gap-3 border-b border-border px-4">
           <Search className="size-4 text-muted-foreground" aria-hidden />
           <input
@@ -93,7 +94,7 @@ export function CaseFinder({ open, onOpenChange }: { open: boolean; onOpenChange
             aria-expanded
             aria-controls="finder-results"
             aria-activedescendant={results[active] ? `finder-${results[active].id}` : undefined}
-            placeholder="Case reference, number, region or scam type"
+            placeholder="Case reference, number, circle or scam type"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value)
@@ -119,9 +120,7 @@ export function CaseFinder({ open, onOpenChange }: { open: boolean; onOpenChange
         <ul id="finder-results" role="listbox" ref={listRef} className="max-h-[50vh] overflow-y-auto p-2">
           {!query && <li className="px-3 pt-1 pb-2 text-xs text-muted-foreground">Go to</li>}
           {results.length === 0 && (
-            <li className="px-3 py-8 text-center text-sm text-muted-foreground">
-              Nothing matches “{query}”. Try a case number like 000126, a city, or the last digits of a caller prefix.
-            </li>
+            <li className="px-3 py-8 text-center text-sm text-muted-foreground">Nothing in the last 7 days matches “{query}”.</li>
           )}
           {results.map((r, i) => (
             <li
@@ -131,10 +130,7 @@ export function CaseFinder({ open, onOpenChange }: { open: boolean; onOpenChange
               aria-selected={i === active}
               onMouseMove={() => setActive(i)}
               onClick={() => go(r)}
-              className={cn(
-                'flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5',
-                i === active ? 'bg-navy text-white' : 'text-foreground',
-              )}
+              className={cn('flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5', i === active ? 'bg-navy text-white' : 'text-foreground')}
             >
               <span className={cn('shrink-0', i === active ? 'text-brass' : 'text-navy/60')}>{r.icon}</span>
               <span className="min-w-0 flex-1">
@@ -145,15 +141,6 @@ export function CaseFinder({ open, onOpenChange }: { open: boolean; onOpenChange
             </li>
           ))}
         </ul>
-
-        <div className="flex gap-4 border-t border-border bg-muted/50 px-4 py-2 text-xs text-muted-foreground">
-          <span>
-            <kbd className="font-mono">↑ ↓</kbd> to move
-          </span>
-          <span>
-            <kbd className="font-mono">Enter</kbd> to open
-          </span>
-        </div>
       </DialogContent>
     </Dialog>
   )

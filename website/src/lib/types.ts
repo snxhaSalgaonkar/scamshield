@@ -1,74 +1,93 @@
-// Mirrors the FastAPI `/police/*` responses (camelCased by data.api.ts).
-// Citizen content (SMS text, OTP values, audio) is never part of these types.
+// Mirrors SHARED_CONTRACT.md §4–§5 exactly (snake_case, same strings). Do not rename fields here
+// without changing the contract and telling the Kotlin team.
 
-export type AlertStatus = 'new' | 'reviewed' | 'escalated' | 'false_positive'
+export const SCAM_TYPES = [
+  'digital_arrest',
+  'otp_theft',
+  'kyc_bank_impersonation',
+  'remote_access',
+  'refund_lottery_qr',
+  'utility_disconnection',
+  'wrong_number_distraction',
+  'voice_clone_impersonation',
+  'other',
+] as const
+export type ScamType = (typeof SCAM_TYPES)[number]
 
-export type ScamType = 'Digital Arrest' | 'OTP Theft' | 'KYC Scam' | 'False Positive'
+export const DETECTED_VIA = ['voice', 'sms', 'reputation', 'correlation', 'manual_report'] as const
+export type DetectedVia = (typeof DETECTED_VIA)[number]
 
-export type RiskLevel = 'silent' | 'warning' | 'red'
+export const ACTIONS_TAKEN = ['none', 'warn', 'countdown_cancelled', 'disconnected'] as const
+export type ActionTaken = (typeof ACTIONS_TAKEN)[number]
 
-export type AlertEventType =
-  | 'call_start'
-  | 'otp_received'
-  | 'debit_sms'
-  | 'forwarding_on'
-  | 'merge_seen'
-  | 'remote_app'
-  | 'new_apk'
-  | 'call_end'
+export const REPORT_STATUSES = ['new', 'reviewed', 'escalated', 'false_positive'] as const
+export type ReportStatus = (typeof REPORT_STATUSES)[number]
 
-export interface AlertEvent {
-  type: AlertEventType
-  /** ISO timestamp */
-  ts: string
-  /** Debit amount in INR, extracted on the phone. Only set for debit_sms. */
-  amount?: number
-}
+export type UserFeedback = 'safe'
 
-export interface Alert {
-  id: string
-  callEventId: string
-  /** Display-safe prefix only, e.g. "+91 98765 XXXXX". The full number never reaches police. */
-  callerPrefix: string
-  /** Short form of caller_hash, used to link alerts to a `numbers` row. */
-  callerHash: string
-  /** Opaque device identifier, no other personal info. */
-  deviceId: string
-  region: string
-  /** Fused score, 0-100 */
+/** 0–39 SAFE · 40–74 WARN · 75–89 HIGH · 90–100 SCAM (contract §4). */
+export const BANDS = ['safe', 'warn', 'high', 'scam'] as const
+export type Band = (typeof BANDS)[number]
+
+export interface Similarity {
   score: number
-  /** L1 voice/keyword evidence. null when the optional voice layer was not used. */
-  l1: number | null
-  /** L2 caller reputation */
-  l2: number
-  /** L3 event correlation inside the call window */
-  l3: number
-  scamType: ScamType
+  matched: string
+}
+
+/** One row of `reports`. No transcript, no victim PII. */
+export interface Report {
+  id: string
+  device_id: string
+  caller_number: string
+  number_prefix: string
+  telecom_circle: string | null
+  risk_score: number
+  l1_score: number
+  l2_score: number
+  l3_score: number
+  scam_type: ScamType
+  matched_phrases: string[]
   reasons: string[]
-  events: AlertEvent[]
-  callStart: string
-  callEnd: string
-  /** Citizen chose to submit this as a complaint (consent level `case_sharing`). */
-  complaintSubmitted: boolean
-  status: AlertStatus
-  createdAt: string
+  similarity: Similarity | null
+  detected_via: DetectedVia[]
+  action_taken: ActionTaken
+  user_feedback: UserFeedback | null
+  status: ReportStatus
+  call_started_at: string | null
+  created_at: string
 }
 
-export type NumberStatus = 'flagged' | 'watch' | 'expired'
+/** What the phone (or simulator) sends; the rest is defaulted / filled by triggers. */
+export type ReportInsert = Omit<Report, 'id' | 'created_at' | 'number_prefix' | 'telecom_circle' | 'status' | 'user_feedback'> & {
+  number_prefix?: string
+  telecom_circle?: string | null
+  status?: ReportStatus
+  user_feedback?: UserFeedback | null
+  created_at?: string
+}
 
-export type NumberType = 'mobile' | 'international' | 'voip'
-
+/** One row of `numbers` (maintained by trigger). */
 export interface NumberRecord {
-  callerHash: string
-  callerPrefix: string
-  numberType: NumberType
-  firstSeen: string
-  reportCount: number
-  callsPerHour: number
-  status: NumberStatus
-  lastActivity: string
-  expiresAt: string
+  number: string
+  number_prefix: string
+  telecom_circle: string | null
+  first_seen: string
+  last_activity: string
+  report_count: number
+  reporter_count: number
+  safe_count: number
+  max_risk_score: number
+  is_flagged: boolean
 }
+
+/** One row of `number_series`. */
+export interface NumberSeries {
+  prefix: string
+  operator: string | null
+  telecom_circle: string | null
+}
+
+export type StatsRange = '24h' | '7d'
 
 export interface TimeBucket {
   /** ISO timestamp of the bucket start */
@@ -76,87 +95,69 @@ export interface TimeBucket {
   count: number
 }
 
-/** Live banner + feed charts, last 12 hours. */
 export interface Stats {
-  totalAlerts: number
-  redFlags: number
-  warnings: number
-  low: number
-  awaitingReview: number
-  oldestAwaitingReview: string | null
-  byType: Record<string, number>
+  range: StatsRange
+  total: number
+  byBand: Record<Band, number>
+  byScamType: Partial<Record<ScamType, number>>
+  byDetectedVia: Partial<Record<DetectedVia, number>>
+  disconnected: number
+  /** disconnected × AVG_LOSS_PREVENTED_INR — an estimate, always label it as one. */
+  moneyProtectedEstimate: number
+  falsePositive: FalsePositiveRate
   overTime: TimeBucket[]
+  awaitingReview: number
 }
 
-/** Hotspots and trends over a longer window. */
-export interface Trends {
-  days: number
-  totalAlerts: number
-  avgScore: number
-  redFlagShare: number
-  falsePositiveRate: number
-  byDay: TimeBucket[]
-  byRegion: Record<string, number>
-  /** 24 entries, index = hour of day (IST) */
-  byHourOfDay: number[]
-  /** 10 buckets: 0-9, 10-19, ... 90-100 */
-  scoreHistogram: number[]
-  /** region -> scam type -> count */
-  typeByRegion: Record<string, Record<string, number>>
+export interface FalsePositiveRate {
+  /** null when nothing has been reviewed or given feedback yet */
+  rate: number | null
+  falsePositives: number
+  reviewed: number
 }
 
-export type OfficerRole = 'officer' | 'admin'
-
-export interface Officer {
-  id: string
-  name: string
-  email: string
-  role: OfficerRole
-  lastLogin?: string
+export interface ReportFilters {
+  /** ISO lower bound on created_at (inclusive) */
+  from?: string
+  /** ISO upper bound on created_at (exclusive) */
+  to?: string
+  scamType?: ScamType
+  band?: Band
+  status?: ReportStatus
+  detectedVia?: DetectedVia
+  circle?: string
+  /** Matches anywhere in caller_number (digits only are compared). */
+  number?: string
+  /** Exact number_prefix */
+  prefix?: string
+  limit?: number
 }
 
-export interface Session {
-  token: string
-  officer: Officer
+export interface ReportPage {
+  rows: Report[]
+  total: number
 }
 
-export interface AuditEntry {
-  id: string
-  officerName: string
-  action: string
-  target: string
-  ts: string
-}
+export type RealtimeStatus = 'connecting' | 'live' | 'offline'
 
-export interface FusionConfig {
-  thresholds: { warning: number; red: number }
-  weights: { l1: number; l2: number; l3: number }
-  eventPoints: Partial<Record<AlertEventType, number>>
-  unknownCallerPoints: number
-  comboRules: string[]
-  postCallWindowMin: number
-}
-
-export interface AlertFilter {
-  callerHash?: string
-}
-
-/** Everything the UI needs from a backend. Implemented by data.mock.ts and data.api.ts. */
+/** Everything the UI needs from a backend. Implemented by data.supabase.ts and data.mock.ts. */
 export interface DataSource {
-  login(email: string, password: string): Promise<Session>
-  getAlerts(filter?: AlertFilter): Promise<Alert[]>
-  /** Fetching a case writes an audit-log entry on the backend. */
-  getAlert(id: string): Promise<Alert | null>
-  /** Calls onInsert for each new alert; returns an unsubscribe function. */
-  subscribeToAlerts(onInsert: (a: Alert) => void): () => void
-  getFlaggedNumbers(): Promise<NumberRecord[]>
-  getNumber(callerHash: string): Promise<NumberRecord | null>
-  updateAlertStatus(id: string, status: AlertStatus, note?: string): Promise<void>
-  getStats(): Promise<Stats>
-  getTrends(days: number): Promise<Trends>
-  getOfficers(): Promise<Officer[]>
-  getConfig(): Promise<FusionConfig>
-  getAuditLog(): Promise<AuditEntry[]>
-  /** Mock only: inject a scam alert immediately, for live demos. */
-  simulateAlert?(): void
+  getReports(filters?: ReportFilters): Promise<Report[]>
+  /** One page of reports, newest first, with the total count for the same filters. */
+  getReportsPage(filters: ReportFilters, page: number, pageSize: number): Promise<ReportPage>
+  getReport(id: string): Promise<Report | null>
+  getReportsByNumber(number: string): Promise<Report[]>
+  getReportsByPrefix(prefix: string): Promise<Report[]>
+  updateReportStatus(id: string, status: ReportStatus): Promise<void>
+  getNumbers(opts?: { flaggedOnly?: boolean }): Promise<NumberRecord[]>
+  getNumber(number: string): Promise<NumberRecord | null>
+  getNumberSeries(): Promise<NumberSeries[]>
+  getStats(range: StatsRange): Promise<Stats>
+  /** CSV of all reports matching the filters (authority only). */
+  exportCsv(filters: ReportFilters): Promise<Blob>
+  subscribeToReports(
+    onChange: (r: Report, type: 'INSERT' | 'UPDATE') => void,
+    onStatus?: (s: RealtimeStatus) => void,
+  ): () => void
+  subscribeToNumbers(onChange: (n: NumberRecord) => void): () => void
 }
