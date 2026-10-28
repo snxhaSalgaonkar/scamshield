@@ -7,11 +7,13 @@ import android.provider.Telephony
 import com.scamguard.app.appContainer
 import com.scamguard.app.bus.EventBus
 import com.scamguard.app.bus.SignalEvent
+import kotlinx.coroutines.launch
 
 /**
  * Turns SMS_RECEIVED into privacy-safe events. Multipart messages are joined per sender,
- * classified in memory by [SmsParser] and dropped; only event types, amounts and hashes
- * reach the bus. The broadcast is protected by BROADCAST_SMS, so only the system sends it.
+ * parsed in memory by [SmsParser] (OTP, debit, link) and scored by the on-device message
+ * and link models through [com.scamguard.app.service.MessageGuard], then dropped; only
+ * event types, amounts, hashes and model probabilities reach the bus. The broadcast is protected by BROADCAST_SMS, so only the system sends it.
  * Whether protection is on is checked by the session manager, the single gate for all
  * collectors.
  */
@@ -26,10 +28,18 @@ class SmsReceiver : BroadcastReceiver() {
         }
         val container = context.appContainer
         val now = System.currentTimeMillis()
-        messages.groupBy { it.originatingAddress }.forEach { (sender, parts) ->
-            val body = parts.joinToString("") { it.messageBody.orEmpty() }
-            val classification = SmsParser.classify(body)
-            emit(container.eventBus, classification, container.trustedSenders.isTrusted(sender), now)
+        val bySender = messages.groupBy { it.originatingAddress }.map { (sender, parts) ->
+            container.trustedSenders.isTrusted(sender) to parts.joinToString("") { it.messageBody.orEmpty() }
+        }
+        bySender.forEach { (trusted, body) -> emit(container.eventBus, SmsParser.classify(body), trusted, now) }
+        // Model inference runs off the main thread; the receiver stays alive until it is done.
+        val pending = goAsync()
+        container.appScope.launch {
+            try {
+                bySender.forEach { (trusted, body) -> container.messageGuard.onSms(body, trusted, now) }
+            } finally {
+                pending.finish()
+            }
         }
     }
 

@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.scamguard.app.AppContainer
 import com.scamguard.app.data.db.DecisionEntity
+import com.scamguard.app.data.db.MessageCheckEntity
+import com.scamguard.app.ml.ModelId
 import com.scamguard.app.data.settings.AppSettings
 import com.scamguard.app.service.GuardService
 import com.scamguard.app.service.LiveWindow
@@ -20,6 +22,8 @@ data class HomeState(
     val alertsThisWeek: Int = 0,
     val lastAlert: DecisionEntity? = null,
     val live: LiveWindow? = null,
+    val lastMessage: MessageCheckEntity? = null,
+    val modelsReady: Int = 0,
 )
 
 /** Home: protection toggle, counters, last alert and the live warning banner. */
@@ -33,6 +37,8 @@ class HomeViewModel(private val container: AppContainer, now: Long = System.curr
         decisions.observeLatestAlert(),
         container.sessionManager.live,
     ) { settings, calls, alerts, last, live -> HomeState(settings, calls, alerts, last, live) }
+        .combine(container.database.messageChecks().observeLatestSuspicious()) { s, m -> s.copy(lastMessage = m) }
+        .combine(container.predictions.health) { s, h -> s.copy(modelsReady = ModelId.entries.count(h::isReady)) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeState())
 
     fun setProtection(enabled: Boolean) = viewModelScope.launch {

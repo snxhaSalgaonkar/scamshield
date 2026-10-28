@@ -28,16 +28,29 @@ import com.scamguard.app.ui.components.ScreenFrame
 import com.scamguard.app.ui.components.ToggleRow
 import com.scamguard.app.ui.navigation.containerViewModel
 
-/** Settings: consent levels, language and Demo Mode. */
+/** Settings: links to health, models, numbers and data; consent levels, language and Demo Mode. */
 @Composable
-fun SettingsScreen(onOpenSimulator: () -> Unit, onOpenHealth: () -> Unit) {
+fun SettingsScreen(
+    onOpenSimulator: () -> Unit,
+    onOpenHealth: () -> Unit,
+    onOpenModels: () -> Unit,
+    onOpenNumbers: () -> Unit,
+    onOpenData: () -> Unit,
+) {
     val vm = containerViewModel { SettingsViewModel(it) }
     val state by vm.state.collectAsStateWithLifecycle()
     val s = state ?: return
 
     ScreenFrame(stringResource(R.string.settings_title)) {
-        OutlinedButton(onClick = onOpenHealth, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-            Text(stringResource(R.string.health_title))
+        listOf(
+            R.string.health_title to onOpenHealth,
+            R.string.settings_models to onOpenModels,
+            R.string.settings_numbers to onOpenNumbers,
+            R.string.settings_data to onOpenData,
+        ).forEach { (label, onClick) ->
+            OutlinedButton(onClick = onClick, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                Text(stringResource(label))
+            }
         }
         SectionTitle(stringResource(R.string.settings_consent))
         ConsentToggles(s, vm::setVoiceLayer, vm::setTrainingUpload, vm::setCaseSharing)

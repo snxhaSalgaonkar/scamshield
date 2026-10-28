@@ -12,11 +12,11 @@ import com.scamguard.app.data.db.AppDatabase
 import com.scamguard.app.data.db.DecisionEntity
 import com.scamguard.app.data.settings.AppSettings
 import com.scamguard.app.data.settings.SettingsRepository
+import com.scamguard.app.engine.CallRiskScorer
 import com.scamguard.app.engine.CallWindow
 import com.scamguard.app.engine.CallerContext
 import com.scamguard.app.engine.Decision
 import com.scamguard.app.engine.RiskConfig
-import com.scamguard.app.engine.RiskEngine
 import com.scamguard.app.engine.RiskInput
 import com.scamguard.app.engine.RiskLevel
 import com.scamguard.app.engine.TransactionHistory
@@ -41,8 +41,8 @@ data class LiveWindow(val window: CallWindow, val decision: Decision)
 
 /**
  * The pipeline's heart: collects bus events, keeps the [CallWindow] through a
- * [WindowTracker], scores every change with [RiskEngine], persists the result and hands it
- * to [AlertDispatcher]. Live and simulated events run in separate lanes.
+ * [WindowTracker], scores every change with the on-device call model ([CallRiskScorer]),
+ * persists the result and hands it to [AlertDispatcher]. Live and simulated events run in separate lanes.
  * Windows from known callers are scored (silently) but never persisted.
  */
 class CallSessionManager(
@@ -52,6 +52,7 @@ class CallSessionManager(
     private val reputation: LocalReputation,
     private val numbers: NumbersRepository,
     private val dispatcher: AlertDispatcher,
+    private val scorer: CallRiskScorer,
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
     private val mutex = Mutex()
@@ -90,6 +91,9 @@ class CallSessionManager(
         simTracker.reset()
         _simulated.value = null
     }
+
+    /** The live window's id, if a call window is open (used by the device-signal collectors). */
+    val liveWindowId: String? get() = _live.value?.window?.id
 
     /** Forgets in-memory windows (after "delete all my data"). */
     suspend fun resetAll() = mutex.withLock {
@@ -141,7 +145,7 @@ class CallSessionManager(
             if (tracker.current == null) publish(env.simulated, null)
             return
         }
-        val decision = RiskEngine.evaluate(buildInput(window, env.simulated, s, env.event.ts), config)
+        val decision = scorer.evaluate(buildInput(window, env.simulated, s, env.event.ts), config)
         publish(env.simulated, LiveWindow(window, decision))
         if (persisted != null) persistDecision(persisted, decision, env.simulated)
         if (!env.quiet) dispatcher.onDecision(window, decision, env.event)
@@ -159,7 +163,7 @@ class CallSessionManager(
             return
         }
         if (current.window.state != WindowState.ACTIVE) return
-        val decision = RiskEngine.evaluate(buildInput(current.window, false, s, now), config)
+        val decision = scorer.evaluate(buildInput(current.window, false, s, now), config)
         if (decision == current.decision.copy(evaluatedAt = now)) return
         _live.value = LiveWindow(current.window, decision)
         if (current.window.isUnknown) persistDecision(current.window, decision, simulated = false)
@@ -214,6 +218,12 @@ class CallSessionManager(
                 callEnded = window.callEnded,
                 simulated = simulated,
                 feedback = existing?.feedback,
+                scoreSource = d.source.name,
+                probability = d.probability,
+                modelVersion = d.modelVersion,
+                experimental = d.experimental,
+                factors = d.factors.joinToString(",") { "${it.feature}:${"%.4f".format(java.util.Locale.ROOT, it.delta)}" },
+                features = d.features?.joinToString(",") { "%.6g".format(java.util.Locale.ROOT, it) },
             )
         )
     }

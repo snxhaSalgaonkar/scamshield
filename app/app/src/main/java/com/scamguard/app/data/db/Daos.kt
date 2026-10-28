@@ -71,6 +71,44 @@ interface DecisionDao {
 
     @Query("UPDATE decisions SET feedback = :feedback WHERE windowId = :windowId")
     suspend fun setFeedback(windowId: String, feedback: String)
+
+    @Query("SELECT * FROM decisions ORDER BY startedAt DESC")
+    suspend fun all(): List<DecisionEntity>
+}
+
+/** Access to stored message verdicts. */
+@Dao
+interface MessageCheckDao {
+    @Insert
+    suspend fun insert(check: MessageCheckEntity): Long
+
+    @Query("SELECT * FROM message_checks ORDER BY ts DESC LIMIT 500")
+    fun observeAll(): Flow<List<MessageCheckEntity>>
+
+    @Query("SELECT * FROM message_checks WHERE id = :id")
+    fun observe(id: Long): Flow<MessageCheckEntity?>
+
+    @Query("SELECT * FROM message_checks WHERE simulated = 0 AND verdict IN ('LIKELY_SCAM', 'SUSPICIOUS') ORDER BY ts DESC LIMIT 1")
+    fun observeLatestSuspicious(): Flow<MessageCheckEntity?>
+
+    @Query("SELECT * FROM message_checks ORDER BY ts DESC")
+    suspend fun all(): List<MessageCheckEntity>
+}
+
+/** Access to the user's verdicts on predictions. */
+@Dao
+interface PredictionFeedbackDao {
+    @Insert
+    suspend fun insert(feedback: PredictionFeedbackEntity): Long
+
+    @Query("SELECT * FROM prediction_feedback WHERE targetId = :targetId ORDER BY ts DESC LIMIT 1")
+    fun observeLatest(targetId: String): Flow<PredictionFeedbackEntity?>
+
+    @Query("SELECT * FROM prediction_feedback ORDER BY ts DESC")
+    suspend fun all(): List<PredictionFeedbackEntity>
+
+    @Query("SELECT COUNT(*) FROM prediction_feedback")
+    fun observeCount(): Flow<Int>
 }
 
 /** Access to the local reputation cache. */

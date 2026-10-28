@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Scam Call Guard</string>
-    <string name="privacy_promise">We only look at events (an OTP arrived, a debit happened, forwarding changed). We never read or store message text, OTP values, contacts or call audio.</string>
+    <string name="privacy_promise">Everything is checked on this phone. Message text is read by the on-device model and then dropped: it is never stored or uploaded. We never record call audio or read contacts beyond a yes/no match.</string>
 
     <!-- Common actions -->
     <string name="action_back">Back</string>
@@ -32,8 +32,8 @@
     <!-- Consent -->
     <string name="consent_events_title">Events only (required)</string>
     <string name="consent_events_desc">Notice events such as an OTP arriving, a debit, forwarding switched on, and score them on this phone.</string>
-    <string name="consent_voice_title">Voice layer (experimental)</string>
-    <string name="consent_voice_desc">With the call on speaker, listen for scam phrases like \"arrest\" or \"share OTP\". Nothing is recorded or stored; only the matched phrase type is kept. The other person on the call is also heard, so use it only where that is lawful.</string>
+    <string name="consent_voice_title">Voice layer (not available)</string>
+    <string name="consent_voice_desc">Not implemented in this build. The app cannot hear or transcribe calls, and no score uses call audio.</string>
     <string name="consent_training_title">Help improve detection</string>
     <string name="consent_training_desc">Allow sharing event scores (never text or audio) to improve detection. Not used in this build, which has no internet access.</string>
     <string name="consent_case_title">Case sharing</string>
@@ -96,16 +96,16 @@
     <string name="channel_warning">Scam warnings</string>
     <string name="channel_red_flag">Scam red flags</string>
     <string name="warning_title">Possible scam: %1$s</string>
-    <string name="red_flag_title">Scam alert · risk %1$d/100</string>
+    <string name="red_flag_title">Potential scam detected · risk %1$d/100</string>
     <string name="test_alert_title">Test alert from Scam Call Guard</string>
     <string name="test_alert_body">If you can see this, alerts will reach you.</string>
     <string name="service_notification_title">Scam Call Guard is protecting you</string>
     <string name="service_notification_body">Calls from unknown numbers are checked on this phone.</string>
 
     <!-- Red flag screen -->
-    <string name="red_flag_heading">This looks like a scam call</string>
-    <string name="risk_score_label">Risk score</string>
-    <string name="risk_score_value">Risk score %1$d/100</string>
+    <string name="red_flag_heading">High-risk signs on this call</string>
+    <string name="risk_score_label">Model risk estimate</string>
+    <string name="risk_score_value">Model risk estimate %1$d/100</string>
     <string name="red_flag_advice">Do not share any OTP or PIN. Banks and police never ask for one on a call.</string>
     <string name="action_end_call">End call</string>
     <string name="end_call_manually">End the call now using your phone\'s red button.</string>
@@ -118,9 +118,9 @@
     <string name="test_alert_banner">TEST ALERT · no real call</string>
     <string name="cd_score">Risk score %1$d out of 100, %2$s</string>
     <string name="score_out_of">out of 100</string>
-    <string name="layer_l1">Voice phrases (L1)</string>
-    <string name="layer_l2">Caller signals (L2)</string>
-    <string name="layer_l3">Events on your phone (L3)</string>
+    <string name="layer_l1">Voice phrases (not available)</string>
+    <string name="layer_l2">Caller signals</string>
+    <string name="layer_l3">Messages and events on your phone</string>
 
     <!-- Home -->
     <string name="status_on">Protection ON</string>
@@ -175,7 +175,8 @@
 
     <!-- Simulator -->
     <string name="simulator_title">Scenario Simulator</string>
-    <string name="simulator_intro">Demo only. Each scenario plays fake events through the real detection pipeline. Results are tagged as simulated in History.</string>
+    <string name="simulator_intro">Demo only. Each scenario plays invented events through the real detection pipeline, and invented SMS texts through the real on-device message model. Results are tagged as simulated in History.</string>
+    <string name="simulator_sms">Demo SMS: “%1$s”</string>
     <string name="simulator_run_all">Run all scenarios (no alerts)</string>
     <string name="simulator_play">Play with alerts</string>
     <string name="simulator_expected">Expected</string>
@@ -207,7 +208,7 @@
     <string name="language_hindi">हिन्दी (Hindi)</string>
     <string name="settings_demo">Demo Mode</string>
     <string name="demo_mode_title">Demo Mode (demo only)</string>
-    <string name="demo_mode_desc">For demonstrations: enables the simulator, and on a red flag ends the call and locks the phone after a 5-second countdown you can cancel.</string>
+    <string name="demo_mode_desc">For demonstrations: shows the Scenario Simulator. Simulated results are always tagged as simulated. Ending a call always needs your tap.</string>
 
     <!-- Health and permissions -->
     <string name="health_title">Health and permissions</string>
@@ -246,9 +247,155 @@
     <string name="cap_battery">Battery: unrestricted</string>
     <string name="cap_battery_desc">Stops the phone from putting protection to sleep. Samsung, Xiaomi, Oppo and Vivo phones may need this.</string>
     <string name="cap_microphone">Microphone</string>
-    <string name="cap_microphone_desc">Only for the experimental voice layer.</string>
+    <string name="cap_microphone_desc">Not used: the voice layer is not implemented in this build.</string>
     <string name="cap_device_admin">Screen lock (Demo Mode)</string>
     <string name="cap_device_admin_desc">Lets Demo Mode lock the screen after a red flag. Only the lock policy is requested.</string>
     <string name="device_admin_explanation">Scam Call Guard will only be able to lock your screen, and only in Demo Mode after a red-flag alert. You can turn this off at any time in Health and permissions.</string>
     <string name="number_unavailable">Number not available</string>
+
+    <!-- On-device ML -->
+    <string name="reason_hidden_number">The caller\'s number was hidden</string>
+    <string name="reason_link_received">A message with a link arrived during the call</string>
+    <string name="reason_scam_message">The message model flagged a message during the call</string>
+    <string name="reason_sms_impersonation">A message threatened legal action or claimed to be police, court or an agency</string>
+    <string name="reason_sms_credential">A message asked for an OTP, PIN, card or account details</string>
+    <string name="reason_sms_payment">A message pushed for a payment or money transfer</string>
+    <string name="reason_sms_remote">A message asked you to install an app or share your screen</string>
+    <string name="reason_suspicious_link">The link model rated a link in a message as likely phishing</string>
+
+    <string name="cat_credential">Asks for OTP, PIN or account details</string>
+    <string name="cat_impersonation">Impersonation or arrest / legal threat</string>
+    <string name="cat_payment">Payment, UPI or money-transfer request</string>
+    <string name="cat_remote">Asks you to install an app or share your screen</string>
+    <string name="cat_prize">Prize, lottery, job or reward bait</string>
+    <string name="cat_phishing">Link-based phishing</string>
+    <string name="cat_other">Unsolicited or spam message</string>
+
+    <string name="mv_likely_scam">Potential scam message</string>
+    <string name="mv_suspicious">Some suspicious signs</string>
+    <string name="mv_no_signal">No strong scam signal found</string>
+    <string name="mv_unknown">Cannot judge this text</string>
+    <string name="mv_empty">Nothing to check</string>
+    <string name="mv_unavailable">Message model unavailable</string>
+    <string name="mv_unknown_body">The text is too short or mostly in words the model has not seen (for example a language it was not trained on). No prediction is shown rather than a guess.</string>
+    <string name="mv_no_signal_body">This does not mean the message is safe. The model can miss new scam styles.</string>
+
+    <string name="uv_suspicious">Likely phishing domain</string>
+    <string name="uv_uncertain">Uncertain</string>
+    <string name="uv_no_signal">No strong signal</string>
+    <string name="uv_invalid">Not a web address</string>
+    <string name="uv_unavailable">Link model unavailable</string>
+
+    <string name="fb_title">Was this prediction right?</string>
+    <string name="fb_correct">Correctly flagged</string>
+    <string name="fb_false_positive">False positive</string>
+    <string name="fb_missed">Missed scam</string>
+    <string name="fb_unsure">Unsure</string>
+    <string name="fb_saved">Saved on this phone: %1$s. It is not used to retrain the model automatically.</string>
+
+    <string name="source_model">On-device call model</string>
+    <string name="source_rules">Rule baseline (call model unavailable)</string>
+    <string name="source_gated">Not scored (known caller)</string>
+    <string name="tag_experimental">Experimental</string>
+    <string name="tag_rules">Rules, not ML</string>
+    <string name="model_estimate">Model estimate: %1$d%%</string>
+    <string name="detail_scored_by">Scored by: %1$s</string>
+    <string name="detail_model_version">Model version %1$s</string>
+    <string name="detail_experimental_note">The call model is experimental: it was trained on synthetic data because no public labelled call dataset exists. Treat the score as a prompt to be careful, not as proof.</string>
+    <string name="detail_rules_note">The trained call model could not be loaded, so this score comes from fixed rules.</string>
+    <string name="detail_factors">What moved the estimate</string>
+    <string name="detail_factor_up">+%1$d points</string>
+    <string name="detail_factor_down">−%1$d points</string>
+    <string name="detail_red_needs_two">A red flag needs more than one warning sign. When the estimate rests mostly on one signal, it is shown as a warning.</string>
+    <string name="ev_sms_ml">Message checked on this phone: %1$s (%2$d%%)</string>
+    <string name="ev_sms_ml_ood">Message checked on this phone: model could not judge it</string>
+
+    <string name="nav_check">Check</string>
+    <string name="check_title">Check a message or link</string>
+    <string name="check_intro">Paste a message or a link. It is checked on this phone by trained models and is not saved or sent anywhere. Links are never opened.</string>
+    <string name="check_input">Message or link</string>
+    <string name="check_button">Check</string>
+    <string name="check_clear">Clear</string>
+    <string name="check_checking">Checking…</string>
+    <string name="check_indicators">Words that raised the score</string>
+    <string name="check_category">Looks most like: %1$s</string>
+    <string name="check_links">Links (not opened)</string>
+    <string name="check_link_row">%1$s · %2$s (%3$d%%)</string>
+    <string name="check_link_row_plain">%1$s · %2$s</string>
+    <string name="check_limits">Models can be wrong. The message model learned from public English SMS datasets plus synthetic Indian examples; the link model only looks at the domain name. Never rely on this alone.</string>
+    <string name="check_advice">Never share an OTP, PIN or screen access. Police, courts and banks do not demand money over a call. If money was taken, call your bank and dial 1930 or visit cybercrime.gov.in.</string>
+
+    <string name="message_alert_title">Potential scam message</string>
+    <string name="message_alert_title_simulated">Potential scam message (simulated)</string>
+    <string name="message_alert_body">Do not tap links or share OTPs. Tap to see why.</string>
+    <string name="message_detail_title">Message check</string>
+    <string name="message_detail_no_text">The message text is not stored, so only the model\'s result is shown.</string>
+    <string name="message_detail_trusted">From a known bank or service sender ID; no alert was raised.</string>
+    <string name="message_detail_links">%1$d link(s); highest link-model estimate %2$d%%</string>
+
+    <string name="history_tab_calls">Calls</string>
+    <string name="history_tab_messages">Messages</string>
+    <string name="history_messages_empty_title">No suspicious messages</string>
+    <string name="history_messages_empty_body">Messages the model flags will appear here. Their text is never stored.</string>
+    <string name="home_last_message">Last suspicious message</string>
+    <string name="home_check_message">Check a message or link</string>
+    <string name="home_models">On-device models</string>
+    <string name="home_models_ready">%1$d of %2$d models loaded</string>
+
+    <string name="models_title">Models and signals</string>
+    <string name="models_intro">All predictions run on this phone. No API key, cloud service or internet connection is used.</string>
+    <string name="model_text">Message model</string>
+    <string name="model_text_desc">TF-IDF + logistic regression. Predicts whether a message is spam or smishing; a second, experimental head suggests the scam category.</string>
+    <string name="model_url">Link model</string>
+    <string name="model_url_desc">Logistic regression on the domain name only (no page content, never opened). Weak on its own: used as supporting evidence.</string>
+    <string name="model_call">Call risk model</string>
+    <string name="model_call_desc">Gradient-boosted trees over call-window signals (caller, SMS model outputs, debits, forwarding, apps). Experimental: trained on synthetic data.</string>
+    <string name="model_state_ready">Loaded</string>
+    <string name="model_state_loading">Loading…</string>
+    <string name="model_state_missing">Missing: %1$s</string>
+    <string name="model_state_failed">Failed: %1$s</string>
+    <string name="model_metrics">Held-out test: precision %1$s · recall %2$s · F1 %3$s · PR-AUC %4$s (n=%5$s)</string>
+    <string name="model_metrics_synthetic">Synthetic test only (not real-world accuracy): precision %1$s · recall %2$s · F1 %3$s</string>
+    <string name="model_unavailable_effect">Without this model the related checks are off or limited. Reinstall the app to restore it.</string>
+    <string name="signals_title">What the app can and cannot see</string>
+    <string name="signals_can">Can see (with your permission): call state and whether the caller is unknown, incoming SMS (checked in memory), debits and OTP arrivals, call-forwarding status where your carrier answers *#21#, remote-access apps opened during a call (usage access), new app installs, mobile-data loss, numbers you reported.</string>
+    <string name="signals_cannot">Cannot see: call audio or what the caller says, messages in WhatsApp or other apps, links\' page content, your bank app, or calls on another phone. Forwarding status is unavailable on many carriers.</string>
+    <string name="signals_open_health">Check permissions</string>
+
+    <string name="numbers_title">Reported and trusted numbers</string>
+    <string name="numbers_intro">Numbers are stored only as one-way codes and shown masked. A report counts as one piece of evidence, not proof.</string>
+    <string name="numbers_input">Phone number</string>
+    <string name="numbers_trust">Trust</string>
+    <string name="numbers_report">Report as scam</string>
+    <string name="numbers_invalid">That does not look like a phone number.</string>
+    <string name="numbers_reported">Reported</string>
+    <string name="numbers_trusted">Trusted</string>
+    <string name="numbers_none">None yet.</string>
+    <string name="numbers_remove">Remove %1$s</string>
+
+    <string name="data_title">Privacy and data</string>
+    <string name="data_intro">Stored on this phone: call windows (masked numbers, events, scores), suspicious-message verdicts without text, and your feedback. Nothing is uploaded.</string>
+    <string name="data_feedback_count">Feedback entries: %1$d</string>
+    <string name="data_export">Export feedback and predictions</string>
+    <string name="data_export_confirm_title">Export your data?</string>
+    <string name="data_export_confirm_body">The file contains model scores, feature values and your feedback, but no message text, phone numbers or number codes. You choose where it is saved. Share it only if you want to help review the models.</string>
+    <string name="data_export_done">Exported.</string>
+    <string name="data_export_failed">Export failed.</string>
+    <string name="data_delete">Delete all my data</string>
+    <string name="data_delete_confirm_title">Delete everything?</string>
+    <string name="data_delete_confirm_body">This removes all call history, message verdicts, reports, trusted numbers and feedback from this phone. Settings are kept. This cannot be undone.</string>
+    <string name="data_deleted">All data deleted.</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_export">Export</string>
+    <string name="action_delete">Delete</string>
+    <string name="settings_models">Models and signals</string>
+    <string name="settings_numbers">Reported and trusted numbers</string>
+    <string name="settings_data">Privacy and data</string>
+
+    <string name="sc8_title">Digital arrest</string>
+    <string name="sc8_desc">A long call from an international number, a message threatening arrest, then a large transfer to a new payee.</string>
+    <string name="sc9_title">KYC link and app install</string>
+    <string name="sc9_desc">A message with a fake KYC link arrives during the call, then an app is installed from outside the store.</string>
+    <string name="sc10_title">Genuine delivery call</string>
+    <string name="sc10_desc">A short call from an unknown delivery agent and a normal order message. Should stay quiet.</string>
 </resources>

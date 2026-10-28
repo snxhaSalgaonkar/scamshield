@@ -1,0 +1,435 @@
+{
+ "urls": [
+  {
+   "url": "http://sbi-kyc-update.top/login",
+   "host": "sbi-kyc-update.top",
+   "domain": "sbi-kyc-update.top",
+   "features": [
+    "t:top",
+    "c:^sb",
+    "c:sbi",
+    "c:bi-",
+    "c:i-k",
+    "c:-ky",
+    "c:kyc",
+    "c:yc-",
+    "c:c-u",
+    "c:-up",
+    "c:upd",
+    "c:pda",
+    "c:dat",
+    "c:ate",
+    "c:te$",
+    "c:^sbi",
+    "c:sbi-",
+    "c:bi-k",
+    "c:i-ky",
+    "c:-kyc",
+    "c:kyc-",
+    "c:yc-u",
+    "c:c-up",
+    "c:-upd",
+    "c:upda",
+    "c:pdat",
+    "c:date",
+    "c:ate$",
+    "c:^sbi-",
+    "c:sbi-k",
+    "c:bi-ky",
+    "c:i-kyc",
+    "c:-kyc-",
+    "c:kyc-u",
+    "c:yc-up",
+    "c:c-upd",
+    "c:-upda",
+    "c:updat",
+    "c:pdate",
+    "c:date$",
+    "len:3",
+    "hy:2",
+    "dg:0"
+   ],
+   "proba": 0.9904147027011292
+  },
+  {
+   "url": "https://www.onlinesbi.sbi/",
+   "host": "onlinesbi.sbi",
+   "domain": "onlinesbi.sbi",
+   "features": [
+    "t:sbi",
+    "c:^on",
+    "c:onl",
+    "c:nli",
+    "c:lin",
+    "c:ine",
+    "c:nes",
+    "c:esb",
+    "c:sbi",
+    "c:bi$",
+    "c:^onl",
+    "c:onli",
+    "c:nlin",
+    "c:line",
+    "c:ines",
+    "c:nesb",
+    "c:esbi",
+    "c:sbi$",
+    "c:^onli",
+    "c:onlin",
+    "c:nline",
+    "c:lines",
+    "c:inesb",
+    "c:nesbi",
+    "c:esbi$",
+    "len:2",
+    "hy:0",
+    "dg:0"
+   ],
+   "proba": 0.634083973334849
+  },
+  {
+   "url": "HTTPS://NetBanking.HDFCBank.com/x?y=1",
+   "host": "netbanking.hdfcbank.com",
+   "domain": "hdfcbank.com",
+   "features": [
+    "t:com",
+    "c:^hd",
+    "c:hdf",
+    "c:dfc",
+    "c:fcb",
+    "c:cba",
+    "c:ban",
+    "c:ank",
+    "c:nk$",
+    "c:^hdf",
+    "c:hdfc",
+    "c:dfcb",
+    "c:fcba",
+    "c:cban",
+    "c:bank",
+    "c:ank$",
+    "c:^hdfc",
+    "c:hdfcb",
+    "c:dfcba",
+    "c:fcban",
+    "c:cbank",
+    "c:bank$",
+    "len:2",
+    "hy:0",
+    "dg:0"
+   ],
+   "proba": 0.29914825546463747
+  },
+  {
+   "url": "user:pass@evil-site.xyz:8080/path",
+   "host": "evil-site.xyz",
+   "domain": "evil-site.xyz",
+   "features": [
+    "t:xyz",
+    "c:^ev",
+    "c:evi",
+    "c:vil",
+    "c:il-",
+    "c:l-s",
+    "c:-si",
+    "c:sit",
+    "c:ite",
+    "c:te$",
+    "c:^evi",
+    "c:evil",
+    "c:vil-",
+    "c:il-s",
+    "c:l-si",
+    "c:-sit",
+    "c:site",
+    "c:ite$",
+    "c:^evil",
+    "c:evil-",
+    "c:vil-s",
+    "c:il-si",
+    "c:l-sit",
+    "c:-site",
+    "c:site$",
+    "len:2",
+    "hy:1",
+    "dg:0"
+   ],
+   "proba": 0.9301383861757773
+  },
+  {
+   "url": "192.168.1.10/pay",
+   "host": "192.168.1.10",
+   "domain": "192.168.1.10",
+   "features": [
+    "ip"
+   ],
+   "proba": 0.9575178754041372
+  },
+  {
+   "url": "http://xn--pypal-4ve.com",
+   "host": "xn--pypal-4ve.com",
+   "domain": "xn--pypal-4ve.com",
+   "features": [
+    "t:com",
+    "c:^xn",
+    "c:xn-",
+    "c:n--",
+    "c:--p",
+    "c:-py",
+    "c:pyp",
+    "c:ypa",
+    "c:pal",
+    "c:al-",
+    "c:l-4",
+    "c:-4v",
+    "c:4ve",
+    "c:ve$",
+    "c:^xn-",
+    "c:xn--",
+    "c:n--p",
+    "c:--py",
+    "c:-pyp",
+    "c:pypa",
+    "c:ypal",
+    "c:pal-",
+    "c:al-4",
+    "c:l-4v",
+    "c:-4ve",
+    "c:4ve$",
+    "c:^xn--",
+    "c:xn--p",
+    "c:n--py",
+    "c:--pyp",
+    "c:-pypa",
+    "c:pypal",
+    "c:ypal-",
+    "c:pal-4",
+    "c:al-4v",
+    "c:l-4ve",
+    "c:-4ve$",
+    "len:3",
+    "hy:3",
+    "dg:1",
+    "puny"
+   ],
+   "proba": 0.9177730245875814
+  },
+  {
+   "url": "www.co.uk",
+   "host": "co.uk",
+   "domain": "co.uk",
+   "features": [
+    "t:uk",
+    "c:^co",
+    "c:co$",
+    "c:^co$",
+    "len:0",
+    "hy:0",
+    "dg:0"
+   ],
+   "proba": 0.04968604877727348
+  },
+  {
+   "url": "https://a.b.example.co.in/q",
+   "host": "a.b.example.co.in",
+   "domain": "example.co.in",
+   "features": [
+    "t:in",
+    "s2:co.in",
+    "c:^ex",
+    "c:exa",
+    "c:xam",
+    "c:amp",
+    "c:mpl",
+    "c:ple",
+    "c:le$",
+    "c:^exa",
+    "c:exam",
+    "c:xamp",
+    "c:ampl",
+    "c:mple",
+    "c:ple$",
+    "c:^exam",
+    "c:examp",
+    "c:xampl",
+    "c:ample",
+    "c:mple$",
+    "len:1",
+    "hy:0",
+    "dg:0"
+   ],
+   "proba": 0.14400416528182342
+  },
+  {
+   "url": "not a url",
+   "host": null,
+   "domain": null,
+   "features": [],
+   "proba": null
+  },
+  {
+   "url": "",
+   "host": null,
+   "domain": null,
+   "features": [],
+   "proba": null
+  },
+  {
+   "url": "bit.ly/abc123",
+   "host": "bit.ly",
+   "domain": "bit.ly",
+   "features": [
+    "t:ly",
+    "c:^bi",
+    "c:bit",
+    "c:it$",
+    "c:^bit",
+    "c:bit$",
+    "c:^bit$",
+    "len:0",
+    "hy:0",
+    "dg:0"
+   ],
+   "proba": 0.5733761124930284
+  },
+  {
+   "url": "www2.paytm-cashback-offer.online/claim",
+   "host": "paytm-cashback-offer.online",
+   "domain": "paytm-cashback-offer.online",
+   "features": [
+    "t:online",
+    "c:^pa",
+    "c:pay",
+    "c:ayt",
+    "c:ytm",
+    "c:tm-",
+    "c:m-c",
+    "c:-ca",
+    "c:cas",
+    "c:ash",
+    "c:shb",
+    "c:hba",
+    "c:bac",
+    "c:ack",
+    "c:ck-",
+    "c:k-o",
+    "c:-of",
+    "c:off",
+    "c:ffe",
+    "c:fer",
+    "c:er$",
+    "c:^pay",
+    "c:payt",
+    "c:aytm",
+    "c:ytm-",
+    "c:tm-c",
+    "c:m-ca",
+    "c:-cas",
+    "c:cash",
+    "c:ashb",
+    "c:shba",
+    "c:hbac",
+    "c:back",
+    "c:ack-",
+    "c:ck-o",
+    "c:k-of",
+    "c:-off",
+    "c:offe",
+    "c:ffer",
+    "c:fer$",
+    "c:^payt",
+    "c:paytm",
+    "c:aytm-",
+    "c:ytm-c",
+    "c:tm-ca",
+    "c:m-cas",
+    "c:-cash",
+    "c:cashb",
+    "c:ashba",
+    "c:shbac",
+    "c:hback",
+    "c:back-",
+    "c:ack-o",
+    "c:ck-of",
+    "c:k-off",
+    "c:-offe",
+    "c:offer",
+    "c:ffer$",
+    "len:4",
+    "hy:2",
+    "dg:0"
+   ],
+   "proba": 0.7940454115509029
+  }
+ ],
+ "extract": [
+  {
+   "text": "",
+   "urls": []
+  },
+  {
+   "text": "   ",
+   "urls": []
+  },
+  {
+   "text": "Hi, are we meeting at 5?",
+   "urls": []
+  },
+  {
+   "text": "Your OTP for login is 482913. Do not share it with anyone.",
+   "urls": []
+  },
+  {
+   "text": "URGENT! Your SBI account is blocked. Update KYC now at http://sbi-kyc-update.top/verify or call +91 98765 43210",
+   "urls": [
+    "http://sbi-kyc-update.top/verify"
+   ]
+  },
+  {
+   "text": "This is Inspector Sharma from Cyber Crime. You are under digital arrest. Transfer Rs. 50,000 to the safe account.",
+   "urls": []
+  },
+  {
+   "text": "Install AnyDesk and share the code so we can process your refund of ₹2,499.50",
+   "urls": []
+  },
+  {
+   "text": "Congratulations!!! You have WON £1000 cash prize. Txt CLAIM to 80086 now",
+   "urls": []
+  },
+  {
+   "text": "आपका खाता बंद कर दिया जाएगा। तुरंत KYC अपडेट करें",
+   "urls": []
+  },
+  {
+   "text": "Aapka parcel customs mein ruka hai, fee bharo warna police case hoga",
+   "urls": []
+  },
+  {
+   "text": "Price drop on www.Example-Shop.com/deals?id=7 today",
+   "urls": [
+    "www.example-shop.com/deals?id=7"
+   ]
+  },
+  {
+   "text": "Mail me at someone.name@example.org about the 3 tickets",
+   "urls": []
+  },
+  {
+   "text": "Ünïcödé ﬁ ligature and full-width ＯＴＰ １２３４ test",
+   "urls": []
+  },
+  {
+   "text": "zero​width and emoji 🎉🎉 party tonight",
+   "urls": []
+  },
+  {
+   "text": "Rs.500 debited from a/c XX1234 via UPI to merchant@okaxis. Avl bal Rs 12,000.00",
+   "urls": []
+  },
+  {
+   "text": "WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN WIN ",
+   "urls": []
+  }
+ ]
+}

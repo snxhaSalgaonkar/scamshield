@@ -63,4 +63,6 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    // Real org.json for JVM unit tests (android.jar only has stubs); the app uses Android's copy.
+    testImplementation(libs.org.json)
 }

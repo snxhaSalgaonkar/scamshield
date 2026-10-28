@@ -21,6 +21,7 @@ enum class Layer { L1_VOICE, L2_CALLER, L3_CORRELATION }
 /** Why a score was given. Mapped to plain-language strings in the UI. */
 enum class ReasonCode(val layer: Layer) {
     UNKNOWN_CALLER(Layer.L2_CALLER),
+    HIDDEN_NUMBER(Layer.L2_CALLER),
     INTERNATIONAL_OR_VOIP(Layer.L2_CALLER),
     REPEATED_CALLS(Layer.L2_CALLER),
     REPORTED_NUMBER(Layer.L2_CALLER),
@@ -41,6 +42,15 @@ enum class ReasonCode(val layer: Layer) {
     SIDELOADED_APK(Layer.L3_CORRELATION),
     LINK_THEN_INSTALL(Layer.L3_CORRELATION),
     NETWORK_LOST(Layer.L3_CORRELATION),
+    LINK_RECEIVED(Layer.L3_CORRELATION),
+
+    // From the on-device message and link models.
+    SCAM_MESSAGE(Layer.L3_CORRELATION),
+    SMS_IMPERSONATION(Layer.L3_CORRELATION),
+    SMS_CREDENTIAL_REQUEST(Layer.L3_CORRELATION),
+    SMS_PAYMENT_REQUEST(Layer.L3_CORRELATION),
+    SMS_REMOTE_ACCESS(Layer.L3_CORRELATION),
+    SUSPICIOUS_LINK(Layer.L3_CORRELATION),
 
     COMBO_OTP_DEBIT(Layer.L3_CORRELATION),
     COMBO_FORWARDING_OTP(Layer.L3_CORRELATION),
@@ -86,6 +96,19 @@ data class TransactionHistory(
     }
 }
 
+/** What produced a decision's score. */
+enum class ScoreSource {
+    /** The trained on-device call model. */
+    MODEL,
+    /** The call model could not be loaded; the transparent rule baseline was used instead. */
+    RULE_FALLBACK,
+    /** Known caller: nothing was scored. */
+    GATED,
+}
+
+/** One piece of evidence and how much it raised (or lowered) the model's scam probability. */
+data class Factor(val feature: String, val code: ReasonCode?, val delta: Double)
+
 /** The engine's verdict for one call window. */
 data class Decision(
     val windowId: String,
@@ -101,4 +124,12 @@ data class Decision(
     val comboFired: Boolean,
     /** True when the caller was known, so the engine stayed silent. */
     val gated: Boolean,
+    val source: ScoreSource = if (gated) ScoreSource.GATED else ScoreSource.RULE_FALLBACK,
+    /** Model scam probability (0-1); null when the score came from rules. */
+    val probability: Double? = null,
+    val modelVersion: String? = null,
+    val experimental: Boolean = false,
+    val factors: List<Factor> = emptyList(),
+    /** The feature vector the model scored, kept for consented feedback export. */
+    val features: List<Double>? = null,
 )

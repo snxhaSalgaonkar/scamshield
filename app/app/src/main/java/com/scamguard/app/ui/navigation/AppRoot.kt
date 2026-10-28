@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -28,7 +29,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.scamguard.app.R
 import com.scamguard.app.service.GuardService
+import com.scamguard.app.ui.screens.check.CheckScreen
+import com.scamguard.app.ui.screens.check.MessageDetailScreen
+import com.scamguard.app.ui.screens.data.DataScreen
 import com.scamguard.app.ui.screens.detail.AlertDetailScreen
+import com.scamguard.app.ui.screens.models.ModelStatusScreen
+import com.scamguard.app.ui.screens.numbers.NumbersScreen
 import com.scamguard.app.ui.screens.health.HealthScreen
 import com.scamguard.app.ui.screens.history.HistoryScreen
 import com.scamguard.app.ui.screens.home.HomeScreen
@@ -44,20 +50,27 @@ object Routes {
     const val SIMULATOR = "simulator"
     const val HEALTH = "health"
     const val DETAIL = "detail/{id}"
+    const val CHECK = "check"
+    const val MESSAGE = "message/{id}"
+    const val MODELS = "models"
+    const val NUMBERS = "numbers"
+    const val DATA = "data"
     fun detail(id: String) = "detail/$id"
+    fun message(id: Long) = "message/$id"
 }
 
 private data class TopLevel(val route: String, val label: Int, val icon: ImageVector)
 
 private val topLevel = listOf(
     TopLevel(Routes.HOME, R.string.nav_home, Icons.Filled.Home),
+    TopLevel(Routes.CHECK, R.string.nav_check, Icons.Filled.Search),
     TopLevel(Routes.HISTORY, R.string.nav_history, Icons.AutoMirrored.Filled.List),
     TopLevel(Routes.SETTINGS, R.string.nav_settings, Icons.Filled.Settings),
 )
 
 /** Shows onboarding until it is finished, then the main navigation. */
 @Composable
-fun AppRoot(openWindowId: String?, onWindowOpened: () -> Unit) {
+fun AppRoot(openWindowId: String?, onWindowOpened: () -> Unit, openMessageId: Long? = null, onMessageOpened: () -> Unit = {}) {
     val container = LocalAppContainer.current
     val context = LocalContext.current
     val settings by container.settings.settings.collectAsStateWithLifecycle(initialValue = null)
@@ -77,6 +90,12 @@ fun AppRoot(openWindowId: String?, onWindowOpened: () -> Unit) {
             onWindowOpened()
         }
     }
+    LaunchedEffect(openMessageId) {
+        if (openMessageId != null) {
+            nav.navigate(Routes.message(openMessageId))
+            onMessageOpened()
+        }
+    }
     val backStack by nav.currentBackStackEntryAsState()
     val route = backStack?.destination?.route
 
@@ -90,13 +109,28 @@ fun AppRoot(openWindowId: String?, onWindowOpened: () -> Unit) {
                     onOpenAlert = { nav.navigate(Routes.detail(it)) },
                     onOpenHealth = { nav.navigate(Routes.HEALTH) },
                     onOpenSimulator = { nav.navigate(Routes.SIMULATOR) },
+                    onOpenMessage = { nav.navigate(Routes.message(it)) },
+                    onOpenCheck = { nav.navigate(Routes.CHECK) },
+                    onOpenModels = { nav.navigate(Routes.MODELS) },
                 )
             }
-            composable(Routes.HISTORY) { HistoryScreen(onOpen = { nav.navigate(Routes.detail(it)) }) }
+            composable(Routes.CHECK) { CheckScreen() }
+            composable(Routes.HISTORY) {
+                HistoryScreen(onOpen = { nav.navigate(Routes.detail(it)) }, onOpenMessage = { nav.navigate(Routes.message(it)) })
+            }
             composable(Routes.SETTINGS) { SettingsScreen(
                     onOpenSimulator = { nav.navigate(Routes.SIMULATOR) },
                     onOpenHealth = { nav.navigate(Routes.HEALTH) },
+                    onOpenModels = { nav.navigate(Routes.MODELS) },
+                    onOpenNumbers = { nav.navigate(Routes.NUMBERS) },
+                    onOpenData = { nav.navigate(Routes.DATA) },
                 ) }
+            composable(Routes.MESSAGE) { entry ->
+                MessageDetailScreen(id = entry.arguments?.getString("id")?.toLongOrNull() ?: -1, onBack = nav::popBackStack)
+            }
+            composable(Routes.MODELS) { ModelStatusScreen(onBack = nav::popBackStack, onOpenHealth = { nav.navigate(Routes.HEALTH) }) }
+            composable(Routes.NUMBERS) { NumbersScreen(onBack = nav::popBackStack) }
+            composable(Routes.DATA) { DataScreen(onBack = nav::popBackStack) }
             composable(Routes.SIMULATOR) { SimulatorScreen(onBack = nav::popBackStack) }
             composable(Routes.HEALTH) { HealthScreen(onBack = nav::popBackStack) }
             composable(Routes.DETAIL) { entry ->

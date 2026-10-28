@@ -6,7 +6,9 @@ import com.scamguard.app.AppContainer
 import com.scamguard.app.bus.FeedbackKind
 import com.scamguard.app.data.db.CallEventEntity
 import com.scamguard.app.data.db.DecisionEntity
+import com.scamguard.app.data.db.PredictionFeedbackEntity
 import com.scamguard.app.data.db.SignalEventEntity
+import com.scamguard.app.data.ModelFeedback
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -30,5 +32,13 @@ class AlertDetailViewModel(private val container: AppContainer, private val wind
         .mapLatest { d -> d?.let { AlertDetail(it, db.callEvents().byWindow(windowId), db.signalEvents().byWindow(windowId)) } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
+    val modelFeedback: StateFlow<PredictionFeedbackEntity?> = db.feedback().observeLatest(windowId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
     fun feedback(kind: FeedbackKind) = viewModelScope.launch { container.sessionManager.submitFeedback(windowId, kind) }
+
+    /** Feedback on the model's prediction; stored separately and never used to retrain automatically. */
+    fun modelFeedback(f: ModelFeedback) = viewModelScope.launch {
+        detail.value?.decision?.let { container.feedback.onCallWindow(it, f) }
+    }
 }

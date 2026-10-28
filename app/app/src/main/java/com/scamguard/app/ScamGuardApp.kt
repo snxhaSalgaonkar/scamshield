@@ -19,6 +19,7 @@ class ScamGuardApp : Application() {
         // Subscribe before any receiver can emit, so an SMS that woke the process is not lost.
         container.sessionManager.start(container.appScope)
         container.appScope.launch { container.reputation.importSeed() }
+        container.appScope.launch { container.predictions.ensureLoaded() }
     }
 }
 

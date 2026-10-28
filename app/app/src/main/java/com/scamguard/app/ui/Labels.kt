@@ -6,6 +6,11 @@ import com.scamguard.app.bus.VoiceCategory
 import com.scamguard.app.engine.ReasonCode
 import com.scamguard.app.engine.RiskLevel
 import com.scamguard.app.engine.ScamType
+import com.scamguard.app.engine.ScoreSource
+import com.scamguard.app.data.ModelFeedback
+import com.scamguard.app.ml.MessageCategory
+import com.scamguard.app.ml.MessageVerdict
+import com.scamguard.app.ml.UrlVerdict
 
 /** Plain-language labels for engine enums, usable from Compose and notifications. */
 object Labels {
@@ -29,6 +34,14 @@ object Labels {
 
     @StringRes fun reason(code: ReasonCode): Int = when (code) {
         ReasonCode.UNKNOWN_CALLER -> R.string.reason_unknown_caller
+        ReasonCode.HIDDEN_NUMBER -> R.string.reason_hidden_number
+        ReasonCode.LINK_RECEIVED -> R.string.reason_link_received
+        ReasonCode.SCAM_MESSAGE -> R.string.reason_scam_message
+        ReasonCode.SMS_IMPERSONATION -> R.string.reason_sms_impersonation
+        ReasonCode.SMS_CREDENTIAL_REQUEST -> R.string.reason_sms_credential
+        ReasonCode.SMS_PAYMENT_REQUEST -> R.string.reason_sms_payment
+        ReasonCode.SMS_REMOTE_ACCESS -> R.string.reason_sms_remote
+        ReasonCode.SUSPICIOUS_LINK -> R.string.reason_suspicious_link
         ReasonCode.INTERNATIONAL_OR_VOIP -> R.string.reason_international
         ReasonCode.REPEATED_CALLS -> R.string.reason_repeated_calls
         ReasonCode.REPORTED_NUMBER -> R.string.reason_reported
@@ -64,6 +77,49 @@ object Labels {
         VoiceCategory.PAYMENT_PRESSURE.name -> R.string.voice_cat_payment
         else -> R.string.voice_cat_remote
     }
+
+    @StringRes fun category(c: MessageCategory): Int = when (c) {
+        MessageCategory.CREDENTIAL_THEFT -> R.string.cat_credential
+        MessageCategory.IMPERSONATION_THREAT -> R.string.cat_impersonation
+        MessageCategory.PAYMENT_FRAUD -> R.string.cat_payment
+        MessageCategory.REMOTE_ACCESS -> R.string.cat_remote
+        MessageCategory.PRIZE_LURE -> R.string.cat_prize
+        MessageCategory.PHISHING_LINK -> R.string.cat_phishing
+        MessageCategory.OTHER_SPAM -> R.string.cat_other
+    }
+
+    @StringRes fun messageVerdict(v: MessageVerdict): Int = when (v) {
+        MessageVerdict.LIKELY_SCAM -> R.string.mv_likely_scam
+        MessageVerdict.SUSPICIOUS -> R.string.mv_suspicious
+        MessageVerdict.NO_STRONG_SIGNAL -> R.string.mv_no_signal
+        MessageVerdict.UNKNOWN -> R.string.mv_unknown
+        MessageVerdict.EMPTY -> R.string.mv_empty
+        MessageVerdict.MODEL_UNAVAILABLE -> R.string.mv_unavailable
+    }
+
+    @StringRes fun urlVerdict(v: UrlVerdict): Int = when (v) {
+        UrlVerdict.SUSPICIOUS -> R.string.uv_suspicious
+        UrlVerdict.UNCERTAIN -> R.string.uv_uncertain
+        UrlVerdict.NO_STRONG_SIGNAL -> R.string.uv_no_signal
+        UrlVerdict.INVALID -> R.string.uv_invalid
+        UrlVerdict.MODEL_UNAVAILABLE -> R.string.uv_unavailable
+    }
+
+    @StringRes fun feedback(f: ModelFeedback): Int = when (f) {
+        ModelFeedback.CORRECT -> R.string.fb_correct
+        ModelFeedback.FALSE_POSITIVE -> R.string.fb_false_positive
+        ModelFeedback.MISSED_SCAM -> R.string.fb_missed
+        ModelFeedback.UNSURE -> R.string.fb_unsure
+    }
+
+    @StringRes fun scoreSource(stored: String): Int = when (stored) {
+        ScoreSource.MODEL.name -> R.string.source_model
+        ScoreSource.GATED.name -> R.string.source_gated
+        else -> R.string.source_rules
+    }
+
+    fun parseMessageVerdict(stored: String): MessageVerdict =
+        MessageVerdict.entries.firstOrNull { it.name == stored } ?: MessageVerdict.UNKNOWN
 
     /** Parses the comma-separated reason codes stored in Room, skipping unknown names. */
     fun parseReasons(stored: String): List<ReasonCode> =

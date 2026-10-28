@@ -14,6 +14,7 @@ import com.scamguard.app.bus.SignalEvent
 import com.scamguard.app.engine.CallWindow
 import com.scamguard.app.engine.Decision
 import com.scamguard.app.engine.RiskLevel
+import com.scamguard.app.ml.MessagePrediction
 import com.scamguard.app.ui.Labels
 import com.scamguard.app.util.Permissions
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -70,6 +71,31 @@ class AlertDispatcher(private val context: Context) {
             .build()
         notify(TEST_ID, n)
         _redFlags.tryEmit(FullScreenAlertActivity.TEST_WINDOW)
+    }
+
+    /** Heads-up for a suspicious SMS. Worded as a possibility, never as a verdict. */
+    fun notifyMessage(checkId: Long, p: MessagePrediction, simulated: Boolean) {
+        val open = Intent(context, MainActivity::class.java)
+            .putExtra(MainActivity.EXTRA_MESSAGE_ID, checkId)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        val id = (checkId.toInt() and 0x0fff) or 0x2000
+        val pi = PendingIntent.getActivity(context, id, open, PI_FLAGS)
+        val title = context.getString(if (simulated) R.string.message_alert_title_simulated else R.string.message_alert_title)
+        val body = buildString {
+            p.topCategory?.let { append(context.getString(Labels.category(it))).append(". ") }
+            append(context.getString(R.string.message_alert_body))
+        }
+        val n = NotificationCompat.Builder(context, NotificationChannels.WARNING)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setContentIntent(pi)
+            .setAutoCancel(true)
+            .build()
+        notify(id, n)
     }
 
     fun cancel(windowId: String) {

@@ -61,6 +61,9 @@ private fun ScenarioCard(scenario: Scenario, result: ScenarioResult?, enabled: B
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("${scenario.id}. " + stringResource(scenario.title), style = MaterialTheme.typography.titleMedium)
             Text(stringResource(scenario.description), style = MaterialTheme.typography.bodyMedium)
+            scenario.messages(0).forEach { (_, text) ->
+                Text(stringResource(R.string.simulator_sms, text), style = MaterialTheme.typography.bodySmall)
+            }
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.semantics(mergeDescendants = true) {}) {
                 Text(stringResource(R.string.simulator_expected), style = MaterialTheme.typography.labelLarge)
                 ChipGap()

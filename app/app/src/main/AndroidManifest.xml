@@ -23,6 +23,14 @@
 
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
 
+    <!-- Package visibility (Android 11+): only the remote-access tools the app monitors. -->
+    <queries>
+        <package android:name="com.anydesk.anydeskandroid" />
+        <package android:name="com.teamviewer.quicksupport.market" />
+        <package android:name="com.teamviewer.teamviewer.market.mobile" />
+        <package android:name="com.rustdesk.rustdesk" />
+    </queries>
+
     <application
         android:name=".ScamGuardApp"
         android:allowBackup="false"

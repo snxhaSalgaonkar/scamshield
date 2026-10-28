@@ -33,13 +33,12 @@ class SettingsRepository(private val context: Context) {
         it[RISK_OVERRIDES] = overrides.entries.joinToString(",") { (k, v) -> "$k=$v" }
     }
 
-    suspend fun setForwardingResult(status: ForwardingStatus, enabled: Boolean?, checkedAt: Long) = edit {
+    /** Stores the latest check; [baseline] is the last reliable reading, kept when null. */
+    suspend fun setForwardingResult(status: ForwardingStatus, baseline: Boolean?, checkedAt: Long) = edit {
         it[FWD_STATUS] = status.name
         it[FWD_CHECKED_AT] = checkedAt
-        if (enabled != null && it[FWD_BASELINE] == null) it[FWD_BASELINE] = enabled
+        if (baseline != null) it[FWD_BASELINE] = baseline
     }
-
-    suspend fun setForwardingBaseline(enabled: Boolean) = edit { it[FWD_BASELINE] = enabled }
 
     /** Wipes every stored preference. */
     suspend fun clear() = edit { it.clear() }

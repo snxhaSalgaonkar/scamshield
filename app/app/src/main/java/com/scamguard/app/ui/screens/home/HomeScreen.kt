@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.scamguard.app.R
 import com.scamguard.app.engine.RiskLevel
+import com.scamguard.app.ml.MessageCategory
+import com.scamguard.app.ml.ModelId
 import com.scamguard.app.service.LiveWindow
 import com.scamguard.app.ui.Labels
 import com.scamguard.app.ui.components.maskOrUnknown
@@ -46,6 +48,9 @@ fun HomeScreen(
     onOpenAlert: (String) -> Unit,
     onOpenHealth: () -> Unit,
     onOpenSimulator: () -> Unit,
+    onOpenMessage: (Long) -> Unit,
+    onOpenCheck: () -> Unit,
+    onOpenModels: () -> Unit,
 ) {
     val vm = containerViewModel { HomeViewModel(it) }
     val state by vm.state.collectAsStateWithLifecycle()
@@ -75,6 +80,31 @@ fun HomeScreen(
                     Text(stringResource(Labels.scamType(Labels.parseScamType(last.scamType))), style = MaterialTheme.typography.titleMedium)
                     Text("${maskOrUnknown(last.mask)} · ${formatTime(last.startedAt)}", style = MaterialTheme.typography.bodyMedium)
                 }
+            }
+        }
+
+        state.lastMessage?.let { m ->
+            Text(stringResource(R.string.home_last_message), style = MaterialTheme.typography.titleMedium)
+            Card(Modifier.fillMaxWidth().clickable { onOpenMessage(m.id) }) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(stringResource(Labels.messageVerdict(Labels.parseMessageVerdict(m.verdict))), style = MaterialTheme.typography.titleMedium)
+                    MessageCategory.parse(m.category)?.let { Text(stringResource(Labels.category(it)), style = MaterialTheme.typography.bodyMedium) }
+                    Text(formatTime(m.ts), style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
+
+        OutlinedButton(onClick = onOpenCheck, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
+            Text(stringResource(R.string.home_check_message))
+        }
+        Card(Modifier.fillMaxWidth().clickable(onClick = onOpenModels)) {
+            Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.home_models), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                Text(
+                    stringResource(R.string.home_models_ready, state.modelsReady, ModelId.entries.size),
+                    color = if (state.modelsReady == ModelId.entries.size) SafeGreen else WarningAmber,
+                    style = MaterialTheme.typography.labelLarge,
+                )
             }
         }
 
@@ -132,6 +162,7 @@ private fun WarningBanner(live: LiveWindow, onClick: () -> Unit) {
                 style = MaterialTheme.typography.titleMedium,
             )
             Text(stringResource(R.string.risk_score_value, d.score), style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.detail_scored_by, stringResource(Labels.scoreSource(d.source.name))), style = MaterialTheme.typography.bodySmall)
             d.reasonCodes.take(3).forEach { Text("• " + stringResource(Labels.reason(it)), style = MaterialTheme.typography.bodyMedium) }
             Text(stringResource(R.string.banner_tap), style = MaterialTheme.typography.labelLarge)
         }

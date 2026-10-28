@@ -19,11 +19,12 @@ import kotlinx.coroutines.launch
 /** The single main activity hosting all Compose screens. */
 class MainActivity : AppCompatActivity() {
     private val openWindowId = mutableStateOf<String?>(null)
+    private val openMessageId = mutableStateOf<Long?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        openWindowId.value = intent.getStringExtra(EXTRA_WINDOW_ID)
+        readExtras(intent)
 
         // While the app is on screen, open red-flag alerts directly instead of relying on the
         // full-screen intent (which Android shows as a heads-up when the phone is in use).
@@ -38,7 +39,12 @@ class MainActivity : AppCompatActivity() {
         setContent {
             CompositionLocalProvider(LocalAppContainer provides appContainer) {
                 ScamGuardTheme {
-                    AppRoot(openWindowId.value, onWindowOpened = { openWindowId.value = null })
+                    AppRoot(
+                        openWindowId = openWindowId.value,
+                        onWindowOpened = { openWindowId.value = null },
+                        openMessageId = openMessageId.value,
+                        onMessageOpened = { openMessageId.value = null },
+                    )
                 }
             }
         }
@@ -46,10 +52,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        readExtras(intent)
+    }
+
+    private fun readExtras(intent: Intent) {
         openWindowId.value = intent.getStringExtra(EXTRA_WINDOW_ID)
+        openMessageId.value = intent.getLongExtra(EXTRA_MESSAGE_ID, -1).takeIf { it >= 0 }
     }
 
     companion object {
         const val EXTRA_WINDOW_ID = "open_window_id"
+        const val EXTRA_MESSAGE_ID = "open_message_id"
     }
 }

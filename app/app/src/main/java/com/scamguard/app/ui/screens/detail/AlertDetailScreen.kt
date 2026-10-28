@@ -24,6 +24,18 @@ import com.scamguard.app.R
 import com.scamguard.app.bus.FeedbackKind
 import com.scamguard.app.data.db.CallEventEntity
 import com.scamguard.app.data.db.SignalEventEntity
+import com.scamguard.app.data.EventMapping
+import com.scamguard.app.data.ModelFeedback
+import com.scamguard.app.engine.ReasonCode
+import com.scamguard.app.engine.RiskLevel
+import com.scamguard.app.engine.ScoreSource
+import com.scamguard.app.ml.CallFeatures
+import com.scamguard.app.ml.MessageCategory
+import com.scamguard.app.ml.ModelId
+import com.scamguard.app.ml.ModelState
+import com.scamguard.app.ui.navigation.LocalAppContainer
+import com.scamguard.app.ui.components.FeedbackButtons
+import kotlin.math.roundToInt
 import com.scamguard.app.ui.Labels
 import com.scamguard.app.ui.components.maskOrUnknown
 import com.scamguard.app.ui.components.ChipGap
@@ -43,6 +55,9 @@ import com.scamguard.app.ui.screens.history.feedbackLabel
 fun AlertDetailScreen(windowId: String, onBack: () -> Unit) {
     val vm = containerViewModel(key = windowId) { AlertDetailViewModel(it, windowId) }
     val detail by vm.detail.collectAsStateWithLifecycle()
+    val modelFeedback by vm.modelFeedback.collectAsStateWithLifecycle()
+    val health by LocalAppContainer.current.predictions.health.collectAsStateWithLifecycle()
+    val callModel = health.states[ModelId.CALL] as? ModelState.Ready
 
     ScreenFrame(stringResource(R.string.detail_title), onBack = onBack) {
         val data = detail ?: return@ScreenFrame
@@ -53,6 +68,8 @@ fun AlertDetailScreen(windowId: String, onBack: () -> Unit) {
             LevelChip(Labels.parseLevel(d.peakLevel))
             if (d.simulated) { ChipGap(); TagChip(stringResource(R.string.tag_simulated)) }
             if (d.feedback != null) { ChipGap(); TagChip(stringResource(feedbackLabel(d.feedback))) }
+            if (d.experimental) { ChipGap(); TagChip(stringResource(R.string.tag_experimental)) }
+            if (d.scoreSource == ScoreSource.RULE_FALLBACK.name) { ChipGap(); TagChip(stringResource(R.string.tag_rules)) }
         }
         Text(stringResource(Labels.scamType(Labels.parseScamType(d.scamType))), style = MaterialTheme.typography.headlineMedium)
         Text("${maskOrUnknown(d.mask)} · ${formatTime(d.startedAt)}", style = MaterialTheme.typography.bodyMedium)
@@ -63,6 +80,12 @@ fun AlertDetailScreen(windowId: String, onBack: () -> Unit) {
                 Text(stringResource(R.string.detail_peak, d.peakScore), style = MaterialTheme.typography.bodyMedium)
             }
         }
+        Text(stringResource(R.string.detail_scored_by, stringResource(Labels.scoreSource(d.scoreSource))), style = MaterialTheme.typography.bodyMedium)
+        d.modelVersion?.let { Text(stringResource(R.string.detail_model_version, it), style = MaterialTheme.typography.bodySmall) }
+        when {
+            d.scoreSource == ScoreSource.RULE_FALLBACK.name -> Text(stringResource(R.string.detail_rules_note), style = MaterialTheme.typography.bodySmall)
+            d.experimental -> Text(stringResource(R.string.detail_experimental_note), style = MaterialTheme.typography.bodySmall)
+        }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp)) { LayerBars(d.l1, d.l2, d.l3) }
         }
@@ -71,6 +94,25 @@ fun AlertDetailScreen(windowId: String, onBack: () -> Unit) {
         val reasons = Labels.parseReasons(d.reasonCodes)
         if (reasons.isEmpty()) Text(stringResource(R.string.detail_no_reasons))
         reasons.forEach { Text("• " + stringResource(Labels.reason(it)), style = MaterialTheme.typography.bodyLarge) }
+        val factors = parseFactors(d.factors)
+        if (factors.isNotEmpty()) {
+            SectionTitle(stringResource(R.string.detail_factors))
+            Card(Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    factors.forEach { (code, delta) ->
+                        Row(Modifier.fillMaxWidth()) {
+                            Text(stringResource(Labels.reason(code)), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                            val pts = kotlin.math.abs(delta * 100).roundToInt()
+                            Text(stringResource(if (delta >= 0) R.string.detail_factor_up else R.string.detail_factor_down, pts), style = MaterialTheme.typography.labelLarge)
+                        }
+                    }
+                }
+            }
+            val redAt = (callModel?.info?.thresholds?.get("red_flag") ?: 1.0) * 100
+            if (d.scoreSource == ScoreSource.MODEL.name && Labels.parseLevel(d.peakLevel) != RiskLevel.RED_FLAG && d.peakScore >= redAt) {
+                Text(stringResource(R.string.detail_red_needs_two), style = MaterialTheme.typography.bodySmall)
+            }
+        }
 
         SectionTitle(stringResource(R.string.detail_timeline))
         Timeline(data.callEvents, data.signalEvents)
@@ -83,8 +125,17 @@ fun AlertDetailScreen(windowId: String, onBack: () -> Unit) {
         Button(onClick = { vm.feedback(FeedbackKind.CONFIRMED_SCAM) }, modifier = wide) {
             Text(stringResource(R.string.action_report_scam))
         }
+        FeedbackButtons(modelFeedback?.verdict?.let { v -> ModelFeedback.entries.firstOrNull { it.name == v } }, vm::modelFeedback)
     }
 }
+
+/** "feature:delta" pairs with a reason code and a visible effect (at least one point). */
+private fun parseFactors(stored: String?): List<Pair<ReasonCode, Double>> =
+    stored.orEmpty().split(",").mapNotNull { pair ->
+        val (name, delta) = pair.split(":").takeIf { it.size == 2 } ?: return@mapNotNull null
+        val code = CallFeatures.REASONS[name] ?: return@mapNotNull null
+        delta.toDoubleOrNull()?.takeIf { kotlin.math.abs(it) >= 0.01 }?.let { code to it }
+    }.distinctBy { it.first }.take(6)
 
 @Composable
 private fun SectionTitle(text: String) {
@@ -135,6 +186,17 @@ private fun signalLine(e: SignalEventEntity): @Composable () -> String = {
         "NETWORK_LOST" -> stringResource(R.string.ev_network_lost)
         "FEEDBACK" -> stringResource(if (e.detail == "THIS_WAS_ME") R.string.ev_feedback_me else R.string.ev_feedback_scam)
         "VOICE_KEYWORD" -> stringResource(R.string.ev_voice, stringResource(Labels.voiceCategory(e.detail)))
+        "SMS_ML" -> {
+            val f = EventMapping.parseSmsDetail(e.detail)
+            val p = ((f["p"]?.toDoubleOrNull() ?: 0.0) * 100).roundToInt()
+            if (f["ood"] == "1") stringResource(R.string.ev_sms_ml_ood)
+            else {
+                val flagged = f["f"] == "1"
+                val verdict = MessageCategory.parse(f["cat"])?.takeIf { flagged }?.let { stringResource(Labels.category(it)) }
+                    ?: stringResource(if (flagged) R.string.mv_likely_scam else R.string.mv_no_signal)
+                stringResource(R.string.ev_sms_ml, verdict, p)
+            }
+        }
         else -> e.type
     }
 }
