@@ -91,6 +91,9 @@ interface ReputationDao {
     @Query("DELETE FROM reputation WHERE numberHash = :hash AND source = 'LOCAL'")
     suspend fun deleteLocal(hash: String)
 
+    @Query("DELETE FROM reputation WHERE source = 'SEED'")
+    suspend fun deleteSeed()
+
     @Query("DELETE FROM reputation WHERE expiresAt IS NOT NULL AND expiresAt < :now")
     suspend fun deleteExpired(now: Long)
 }

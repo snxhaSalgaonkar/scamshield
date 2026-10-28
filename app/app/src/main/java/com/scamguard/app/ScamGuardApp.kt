@@ -2,6 +2,8 @@ package com.scamguard.app
 
 import android.app.Application
 import com.scamguard.app.alerts.NotificationChannels
+import com.scamguard.app.util.Hashing
+import com.scamguard.app.util.PepperStore
 import kotlinx.coroutines.launch
 
 /** Application entry point; owns the [AppContainer] and starts the event pipeline. */
@@ -11,6 +13,7 @@ class ScamGuardApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        Hashing.install(PepperStore.loadOrCreate(this))
         container = AppContainer(this)
         NotificationChannels.create(this)
         // Subscribe before any receiver can emit, so an SMS that woke the process is not lost.

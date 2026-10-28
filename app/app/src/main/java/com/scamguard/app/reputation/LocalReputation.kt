@@ -3,6 +3,7 @@ package com.scamguard.app.reputation
 import android.content.Context
 import com.scamguard.app.data.db.ReputationDao
 import com.scamguard.app.data.db.ReputationEntity
+import com.scamguard.app.util.PhoneNumbers
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -14,7 +15,8 @@ enum class ReputationSource { SEED, LOCAL }
 
 /**
  * Local reputation cache backed by Room and seeded from assets/reputation_seed.json
- * (known bank numbers and demo scam numbers, all as hashes). User reports add LOCAL rows.
+ * (public bank helplines and fictional demo scam numbers, hashed here with this install's
+ * pepper). User reports add LOCAL rows.
  */
 class LocalReputation(private val context: Context, private val dao: ReputationDao) {
 
@@ -23,6 +25,7 @@ class LocalReputation(private val context: Context, private val dao: ReputationD
         val json = JSONObject(context.assets.open("reputation_seed.json").bufferedReader().use { it.readText() })
         val entries = json.getJSONArray("knownBankNumbers").toEntries(ReputationStatus.TRUSTED_ORG, now) +
             json.getJSONArray("scamNumbers").toEntries(ReputationStatus.SCAM, now)
+        dao.deleteSeed()
         dao.insertIgnore(entries)
         dao.deleteExpired(now)
     }
@@ -57,11 +60,11 @@ class LocalReputation(private val context: Context, private val dao: ReputationD
     suspend fun removeReport(hash: String) = dao.deleteLocal(hash)
 
     private fun JSONArray.toEntries(status: ReputationStatus, now: Long) = (0 until length()).map {
-        val o = getJSONObject(it)
+        val parsed = requireNotNull(PhoneNumbers.parse(getJSONObject(it).getString("number")))
         ReputationEntity(
-            numberHash = o.getString("hash"),
-            prefix = o.getString("prefix"),
-            mask = o.optString("mask").ifEmpty { null },
+            numberHash = parsed.hash,
+            prefix = parsed.prefix,
+            mask = parsed.mask,
             localReports = 0,
             status = status.name,
             source = ReputationSource.SEED.name,

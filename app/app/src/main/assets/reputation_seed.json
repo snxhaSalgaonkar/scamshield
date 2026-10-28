@@ -1,78 +1,54 @@
 {
- "version": 1,
- "comment": "Hashes use the app pepper (util/Hashing.kt). Scam entries are fictional demo numbers from the Ofcom drama range +44 7700 900xxx.",
+ "version": 2,
+ "comment": "Public bank helpline numbers and fictional demo scam numbers (Ofcom drama range +44 7700 900xxx). Hashed with the per-install pepper when imported; never user data.",
  "knownBankNumbers": [
   {
-   "hash": "17940dce50b6dc0bab8500d61ff15615a1d85b792eccb9d57ef1aded0bc020e5",
-   "prefix": "+91 18",
-   "mask": "+91 18•••••34",
+   "number": "+9118001234",
    "label": "SBI"
   },
   {
-   "hash": "8d0dc47df8d90dcc2e4e45d7659b48e4086b75fd066bd5e8f4af9ec3ecd6e015",
-   "prefix": "+91 18",
-   "mask": "+91 18•••••00",
+   "number": "+9118002100",
    "label": "SBI"
   },
   {
-   "hash": "062b6e11ad0feebdb5edc3afeb42136baf599dce9ee463c091a870aabfdc456d",
-   "prefix": "+91 18",
-   "mask": "+91 18•••••61",
+   "number": "+9118002026161",
    "label": "HDFC Bank"
   },
   {
-   "hash": "6290ee07632180270857c2d6ef30611ccf72dd8efbbf9c3a49ba66774b3b681e",
-   "prefix": "+91 18",
-   "mask": "+91 18•••••61",
+   "number": "+9118602676161",
    "label": "HDFC Bank"
   },
   {
-   "hash": "2f4f19b81216c12ced666d623ff6296c87c01adc73848ff10b6ba0b69c71e6b8",
-   "prefix": "+91 18",
-   "mask": "+91 18•••••80",
+   "number": "+9118001080",
    "label": "ICICI Bank"
   },
   {
-   "hash": "87aba6b93062ccdc13350890652028e802412536dc8c68a88da1b27c503bb9ff",
-   "prefix": "+91 18",
-   "mask": "+91 18•••••55",
+   "number": "+9118604195555",
    "label": "Axis Bank"
   },
   {
-   "hash": "45e2a1cc3756fd3f3c68d2abbf85c48cef1229a2ef7966deeead2c204c8ff506",
-   "prefix": "+91 18",
-   "mask": "+91 18•••••55",
+   "number": "+9118605005555",
    "label": "Axis Bank"
   },
   {
-   "hash": "4038b711ad2101fbf6439d0d4697bbdf8fa813351c6bdd2ae1433057689c7e51",
-   "prefix": "+91 18",
-   "mask": "+91 18•••••66",
+   "number": "+9118602662666",
    "label": "Kotak Bank"
   },
   {
-   "hash": "ce563450a352a733a98dae250c19715c7a4c2eb3227769f8a752bb8a8a44ffbf",
-   "prefix": "+91 18",
-   "mask": "+91 18•••••90",
+   "number": "+9118001801290",
    "label": "Canara Bank"
   },
   {
-   "hash": "4958a48849dd8d18596d61a6b50f6f20583db960035477533204c5a91258e158",
-   "prefix": "+91 18",
-   "mask": "+91 18•••••22",
+   "number": "+9118001802222",
    "label": "Punjab National Bank"
   }
  ],
  "scamNumbers": [
   {
-   "hash": "399fb7ddef26dae6cecf6f6793a0ca6ad6ae825b99ab8f27ea7970dad29583fa",
-   "prefix": "+447",
-   "mask": "+447•••••23"
+   "number": "+447700900123"
   },
   {
-   "hash": "4416b71cddd5512fdc3a094daf5af2f806cc8a0e1c063f434c06e37b471386d1",
-   "prefix": "+447",
-   "mask": "+447•••••66"
+   "number": "+447700900666"
   }
  ]
 }

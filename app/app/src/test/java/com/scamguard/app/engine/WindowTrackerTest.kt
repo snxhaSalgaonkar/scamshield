@@ -74,4 +74,14 @@ class WindowTrackerTest {
         assertEquals(RiskLevel.SAFE, d.level)
         assertEquals(0, d.score)
     }
+
+    @Test fun `call states of a later unrelated call do not touch an ended window`() {
+        tracker.onEvent(ringing(), config)
+        tracker.onEvent(SignalEvent.CallActive(T0 + 1000), config)
+        val ended = tracker.onEvent(SignalEvent.CallEnded(T0 + MIN, MIN), config)!!
+        assertNull(tracker.onEvent(SignalEvent.CallActive(T0 + 2 * MIN), config))
+        assertNull(tracker.onEvent(SignalEvent.CallEnded(T0 + 9 * MIN, 7 * MIN), config))
+        assertNull(tracker.onEvent(SignalEvent.SecondCallConnected(T0 + 3 * MIN), config))
+        assertEquals(ended, tracker.current)
+    }
 }

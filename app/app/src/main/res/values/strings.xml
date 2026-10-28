@@ -250,4 +250,5 @@
     <string name="cap_device_admin">Screen lock (Demo Mode)</string>
     <string name="cap_device_admin_desc">Lets Demo Mode lock the screen after a red flag. Only the lock policy is requested.</string>
     <string name="device_admin_explanation">Scam Call Guard will only be able to lock your screen, and only in Demo Mode after a red-flag alert. You can turn this off at any time in Health and permissions.</string>
+    <string name="number_unavailable">Number not available</string>
 </resources>

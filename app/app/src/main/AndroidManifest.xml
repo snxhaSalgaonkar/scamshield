@@ -66,6 +66,16 @@
                 android:value="Keeps on-device scam call protection running: listens to call state, network and package events during calls from unknown numbers." />
         </service>
 
+        <!-- Screens nothing: every call is allowed. Only used to see whether a caller is unknown. -->
+        <service
+            android:name=".collectors.CallScreener"
+            android:exported="true"
+            android:permission="android.permission.BIND_SCREENING_SERVICE">
+            <intent-filter>
+                <action android:name="android.telecom.CallScreeningService" />
+            </intent-filter>
+        </service>
+
         <receiver
             android:name=".collectors.SmsReceiver"
             android:exported="true"

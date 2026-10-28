@@ -27,6 +27,7 @@ import com.scamguard.app.R
 import com.scamguard.app.engine.RiskLevel
 import com.scamguard.app.service.LiveWindow
 import com.scamguard.app.ui.Labels
+import com.scamguard.app.ui.components.maskOrUnknown
 import com.scamguard.app.ui.components.LevelChip
 import com.scamguard.app.ui.components.ScreenFrame
 import com.scamguard.app.ui.components.ShieldIcon
@@ -72,7 +73,7 @@ fun HomeScreen(
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     LevelChip(Labels.parseLevel(last.peakLevel))
                     Text(stringResource(Labels.scamType(Labels.parseScamType(last.scamType))), style = MaterialTheme.typography.titleMedium)
-                    Text("${last.mask} · ${formatTime(last.startedAt)}", style = MaterialTheme.typography.bodyMedium)
+                    Text("${maskOrUnknown(last.mask)} · ${formatTime(last.startedAt)}", style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }

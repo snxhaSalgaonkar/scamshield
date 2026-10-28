@@ -1,6 +1,7 @@
 package com.scamguard.app.util
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -40,11 +41,18 @@ class HashingAndNumbersTest {
         assertEquals(h, Hashing.numberHash("+919876543210"))
     }
 
-    @Test fun `seed list hashes match the app normalisation`() {
+    @Test fun `seed numbers are stored in the normalised form the app hashes`() {
         // org.json is stubbed in local unit tests, so read the raw file and search it.
         val seed = File("src/main/assets/reputation_seed.json").readText()
-        assertTrue(seed.contains(PhoneNumbers.parse("1800 1234")!!.hash))
-        assertTrue(seed.contains(PhoneNumbers.parse("1800-202-6161")!!.hash))
-        assertTrue(seed.contains(PhoneNumbers.parse("+44 7700 900123")!!.hash))
+        assertTrue(seed.contains("\"" + PhoneNumbers.parse("1800 1234")!!.normalized + "\""))
+        assertTrue(seed.contains("\"" + PhoneNumbers.parse("1800-202-6161")!!.normalized + "\""))
+        assertTrue(seed.contains("\"" + PhoneNumbers.parse("+44 7700 900123")!!.normalized + "\""))
+        assertTrue(!seed.contains("\"hash\""))
+    }
+
+    @Test fun `a different pepper gives a different hash`() {
+        val before = Hashing.numberHash("+919876543210")
+        Hashing.install(Hashing.randomPepper())
+        assertNotEquals(before, Hashing.numberHash("+919876543210"))
     }
 }

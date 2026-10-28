@@ -26,6 +26,7 @@ import com.scamguard.app.R
 import com.scamguard.app.data.db.DecisionDao
 import com.scamguard.app.data.db.DecisionEntity
 import com.scamguard.app.ui.Labels
+import com.scamguard.app.ui.components.maskOrUnknown
 import com.scamguard.app.ui.components.ChipGap
 import com.scamguard.app.ui.components.EmptyState
 import com.scamguard.app.ui.components.LevelChip
@@ -74,7 +75,7 @@ private fun HistoryRow(d: DecisionEntity, onClick: () -> Unit) {
                 if (d.feedback != null) { ChipGap(); TagChip(stringResource(feedbackLabel(d.feedback))) }
             }
             Text(stringResource(Labels.scamType(Labels.parseScamType(d.scamType))), style = MaterialTheme.typography.titleMedium)
-            Text(stringResource(R.string.history_row_detail, d.mask, d.peakScore), style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.history_row_detail, maskOrUnknown(d.mask), d.peakScore), style = MaterialTheme.typography.bodyMedium)
             Text(formatTime(d.startedAt), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }

@@ -12,6 +12,8 @@ import androidx.lifecycle.LifecycleService
 import com.scamguard.app.MainActivity
 import com.scamguard.app.R
 import com.scamguard.app.alerts.NotificationChannels
+import com.scamguard.app.appContainer
+import com.scamguard.app.collectors.CallMonitor
 
 /**
  * Foreground service that keeps the process (and therefore the call-state, network and
@@ -19,15 +21,24 @@ import com.scamguard.app.alerts.NotificationChannels
  * notification. Restarted after reboot by [BootReceiver].
  */
 class GuardService : LifecycleService() {
+    private lateinit var callMonitor: CallMonitor
 
     override fun onCreate() {
         super.onCreate()
         startInForeground()
+        callMonitor = CallMonitor(this, appContainer.eventBus)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
+        // Idempotent: also picks up permissions granted since the service started.
+        callMonitor.start()
         return START_STICKY
+    }
+
+    override fun onDestroy() {
+        callMonitor.stop()
+        super.onDestroy()
     }
 
     private fun startInForeground() {

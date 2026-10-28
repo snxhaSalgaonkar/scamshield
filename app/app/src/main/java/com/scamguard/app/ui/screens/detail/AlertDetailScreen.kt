@@ -25,6 +25,7 @@ import com.scamguard.app.bus.FeedbackKind
 import com.scamguard.app.data.db.CallEventEntity
 import com.scamguard.app.data.db.SignalEventEntity
 import com.scamguard.app.ui.Labels
+import com.scamguard.app.ui.components.maskOrUnknown
 import com.scamguard.app.ui.components.ChipGap
 import com.scamguard.app.ui.components.LayerBars
 import com.scamguard.app.ui.components.LevelChip
@@ -54,7 +55,7 @@ fun AlertDetailScreen(windowId: String, onBack: () -> Unit) {
             if (d.feedback != null) { ChipGap(); TagChip(stringResource(feedbackLabel(d.feedback))) }
         }
         Text(stringResource(Labels.scamType(Labels.parseScamType(d.scamType))), style = MaterialTheme.typography.headlineMedium)
-        Text("${d.mask} · ${formatTime(d.startedAt)}", style = MaterialTheme.typography.bodyMedium)
+        Text("${maskOrUnknown(d.mask)} · ${formatTime(d.startedAt)}", style = MaterialTheme.typography.bodyMedium)
 
         Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
             ScoreGauge(d.score, level)
