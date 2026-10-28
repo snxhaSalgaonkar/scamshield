@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Scam Call Guard</string>
+    <string name="privacy_promise">We only look at events (an OTP arrived, a debit happened, forwarding changed). We never read or store message text, OTP values, contacts or call audio.</string>
+
+    <!-- Common actions -->
+    <string name="action_back">Back</string>
+    <string name="action_next">Next</string>
+    <string name="action_finish">Finish</string>
+    <string name="action_grant_permissions">Grant permissions</string>
+    <string name="action_set_caller_id">Set as Caller ID &amp; spam app</string>
+    <string name="action_battery_optimisation">Turn off battery optimisation</string>
+    <string name="cd_back">Go back</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_step">Step %1$d of %2$d</string>
+    <string name="onboarding_intro_title">A guard for calls from unknown numbers</string>
+    <string name="onboarding_intro_body">Scammers call pretending to be your bank, the police or a courier, then ask for an OTP, ask you to forward calls, merge a call or install a screen-sharing app.</string>
+    <string name="onboarding_intro_signals">When an unknown number calls, Scam Call Guard watches what happens on your phone around that call and warns you in real time if it looks like a scam. Everything is checked on this phone.</string>
+    <string name="onboarding_privacy_title">Our privacy promise</string>
+    <string name="onboarding_privacy_body">Phone numbers are stored only as one-way codes (hashes) and shown masked. Nothing is uploaded: this version of the app has no internet access at all.</string>
+    <string name="onboarding_permissions_title">Permissions</string>
+    <string name="onboarding_permissions_body">SMS lets us notice that an OTP or debit message arrived. Phone and contacts let us check whether a caller is unknown. Notifications let us warn you. You can deny any of these; protection will be limited and the Health screen explains what is missing.</string>
+    <string name="onboarding_permissions_later">You can change all of this later in Health &amp; permissions.</string>
+    <string name="caller_id_legacy_instructions">On this Android version, open your Phone app settings and choose Scam Call Guard as the Caller ID &amp; spam app if your phone offers it. Otherwise caller numbers are read from the call state.</string>
+    <string name="oem_title">Keep protection running</string>
+    <string name="oem_samsung">Samsung: Settings › Apps › Scam Call Guard › Battery › Unrestricted.</string>
+    <string name="oem_xiaomi">Xiaomi / Redmi / POCO: Settings › Apps › Manage apps › Scam Call Guard › Autostart on, Battery saver › No restrictions.</string>
+    <string name="oem_oppo">Oppo / Realme / OnePlus: Settings › Battery › App battery management › Scam Call Guard › Allow background activity and Auto launch.</string>
+    <string name="oem_vivo">Vivo / iQOO: Settings › Battery › Background power consumption › Allow; i Manager › App manager › Autostart on.</string>
+
+    <!-- Consent -->
+    <string name="consent_events_title">Events only (required)</string>
+    <string name="consent_events_desc">Notice events such as an OTP arriving, a debit, forwarding switched on, and score them on this phone.</string>
+    <string name="consent_voice_title">Voice layer (experimental)</string>
+    <string name="consent_voice_desc">With the call on speaker, listen for scam phrases like \"arrest\" or \"share OTP\". Nothing is recorded or stored; only the matched phrase type is kept. The other person on the call is also heard, so use it only where that is lawful.</string>
+    <string name="consent_training_title">Help improve detection</string>
+    <string name="consent_training_desc">Allow sharing event scores (never text or audio) to improve detection. Not used in this build, which has no internet access.</string>
+    <string name="consent_case_title">Case sharing</string>
+    <string name="consent_case_desc">Allow building a complaint pack you can share with cybercrime.gov.in or your bank.</string>
+</resources>
