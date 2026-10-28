@@ -23,7 +23,7 @@ export function ChartCard({
         <h2 className="font-display text-lg leading-tight font-semibold text-navy">{title}</h2>
         <p className="text-[13px] text-muted-foreground">{description}</p>
       </div>
-      <div className={height}>{children}</div>
+      <div className={`w-full min-h-[224px] ${height}`}>{children}</div>
     </section>
   )
 }
@@ -35,7 +35,7 @@ export function OverTimeChart() {
       {!data ? (
         <Skeleton className="h-full w-full" />
       ) : (
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minHeight={220}>
           <LineChart data={data.overTime} margin={{ top: 8, right: 12, bottom: 0, left: -20 }}>
             <CartesianGrid stroke={GRID} vertical={false} />
             <XAxis dataKey="ts" tickFormatter={clockTime} tick={TICK} tickLine={false} axisLine={{ stroke: GRID }} interval={2} />
@@ -73,12 +73,12 @@ export function ScamTypeChart() {
       {!data ? (
         <Skeleton className="h-full w-full" />
       ) : (
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minHeight={220}>
           <BarChart data={rows} layout="vertical" margin={{ top: 4, right: 24, bottom: 0, left: 8 }} barCategoryGap={12}>
             <CartesianGrid stroke={GRID} horizontal={false} />
             <XAxis type="number" allowDecimals={false} tick={TICK} tickLine={false} axisLine={{ stroke: GRID }} />
             <YAxis type="category" dataKey="type" tick={TICK} tickLine={false} axisLine={false} width={104} />
-            <Tooltip contentStyle={tooltipStyle} cursor={{ fill: '#f1f5f9' }} formatter={(v) => [v, 'Alerts']} />
+            <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgb(7 32 63 / 0.06)' }} formatter={(v) => [v, 'Alerts']} />
             <Bar dataKey="count" fill={INK} radius={[0, 4, 4, 0]} barSize={18} isAnimationActive={false} />
           </BarChart>
         </ResponsiveContainer>

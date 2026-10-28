@@ -78,11 +78,12 @@ export function AlertsTable({ alerts, freshIds, emptyText = 'No alerts match thi
   return (
     <Table>
       <TableHeader>
-        <TableRow className="bg-navy-soft/60 hover:bg-navy-soft/60">
+        <TableRow style={{ background: 'var(--eth-teal-soft)' }} className="hover:bg-transparent">
           {HEADERS.map((h, i) => (
             <TableHead
               key={h || 'actions'}
-              className={cn('h-10 text-[13px] font-semibold text-navy/75', i === 0 && 'pl-4', i === HEADERS.length - 1 && 'w-24 pr-4')}
+              className={cn('h-10 text-[13px] font-semibold', i === 0 && 'pl-4', i === HEADERS.length - 1 && 'w-24 pr-4')}
+              style={{ color: 'var(--eth-teal-deep)' }}
             >
               {h || <span className="sr-only">Quick triage</span>}
             </TableHead>
@@ -112,13 +113,15 @@ export function AlertsTable({ alerts, freshIds, emptyText = 'No alerts match thi
             onClick={() => open(a.id)}
             onKeyDown={(e) => onRowKey(e, a)}
             className={cn(
-              'group cursor-pointer focus-visible:bg-navy-soft focus-visible:shadow-[inset_3px_0_0_var(--police-navy)] focus-visible:outline-none',
+              'group cursor-pointer transition-colors duration-100 focus-visible:outline-none',
+              'focus-visible:shadow-[inset_3px_0_0_var(--eth-teal)]',
+              { 'focus-visible:bg-[var(--eth-teal-soft)]': true },
               a.status === 'new' && 'font-medium',
               freshIds.has(a.id) && 'row-fresh',
             )}
           >
             <TableCell className="pl-4">
-              <div className="flex items-center gap-1.5 font-mono text-[12.5px] font-medium text-navy">
+              <div className="flex items-center gap-1.5 font-mono text-[12.5px] font-medium" style={{ color: 'var(--eth-teal-deep)' }}>
                 {caseRef(a)}
                 {a.complaintSubmitted && <FileCheck2 className="size-3.5 text-emerald-700" aria-label="Citizen filed a complaint" />}
               </div>
@@ -153,7 +156,10 @@ export function AlertsTable({ alerts, freshIds, emptyText = 'No alerts match thi
                       e.stopPropagation()
                       onTriage(a, 'reviewed')
                     }}
-                    className="flex size-8 items-center justify-center rounded-md text-navy hover:bg-navy hover:text-white disabled:opacity-30"
+                    className="flex size-8 items-center justify-center rounded-lg transition-colors duration-100 hover:text-white disabled:opacity-30"
+                    style={{ color: 'var(--eth-teal)' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--eth-teal)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = '')}
                   >
                     <Check className="size-4" />
                   </button>

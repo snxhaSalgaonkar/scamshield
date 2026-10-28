@@ -93,7 +93,7 @@ export function TrendsPage() {
                 <CartesianGrid stroke={GRID} horizontal={false} />
                 <XAxis type="number" allowDecimals={false} tick={TICK} tickLine={false} axisLine={{ stroke: GRID }} />
                 <YAxis type="category" dataKey="region" tick={TICK} tickLine={false} axisLine={false} width={84} />
-                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: '#eef1f6' }} formatter={(v) => [v, 'Alerts']} />
+                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgb(7 32 63 / 0.06)' }} formatter={(v) => [v, 'Alerts']} />
                 <Bar dataKey="count" fill={INK} radius={[0, 4, 4, 0]} isAnimationActive={false} />
               </BarChart>
             </ResponsiveContainer>
@@ -118,7 +118,7 @@ export function TrendsPage() {
                 <YAxis allowDecimals={false} tick={TICK} tickLine={false} axisLine={false} />
                 <Tooltip
                   contentStyle={tooltipStyle}
-                  cursor={{ fill: '#eef1f6' }}
+                  cursor={{ fill: 'rgb(7 32 63 / 0.06)' }}
                   labelFormatter={(h) => `${String(h).padStart(2, '0')}:00–${String(h).padStart(2, '0')}:59`}
                   formatter={(v) => [v, 'Alerts']}
                 />

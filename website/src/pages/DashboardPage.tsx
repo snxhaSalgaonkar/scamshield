@@ -111,7 +111,7 @@ export function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="font-display text-[32px] leading-tight font-semibold tracking-tight text-navy">Live alert feed</h1>
+          <h1 className="font-display text-[32px] leading-tight font-semibold tracking-tight" style={{ color: 'var(--eth-teal-deep)' }}>Live alert feed</h1>
           <p className="text-[15px] text-muted-foreground">
             Fraud-call alerts raised by citizens&apos; phones, newest first. Only events and scores reach this console.
           </p>
@@ -140,7 +140,7 @@ export function DashboardPage() {
         <div className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-3">
           <div className="flex items-center gap-2.5">
             <span className="live-dot" data-paused={paused} aria-hidden />
-            <h2 className="font-display text-lg font-semibold text-navy">{paused ? 'Feed paused' : 'Receiving live'}</h2>
+            <h2 className="font-display text-lg font-semibold" style={{ color: 'var(--eth-teal-deep)' }}>{paused ? 'Feed paused' : 'Receiving live'}</h2>
             <span className="text-xs text-muted-foreground">
               {lastAlertAt ? `Last alert ${timeAgo(lastAlertAt, now)}` : 'Waiting for new alerts'}
             </span>
@@ -157,7 +157,8 @@ export function DashboardPage() {
                   setLimit(PAGE)
                 }}
                 placeholder="Case, number or city"
-                className="h-8 w-48 rounded-md border border-input bg-white pr-2 pl-8 text-sm outline-none focus-visible:border-navy focus-visible:ring-2 focus-visible:ring-navy/20"
+                className="h-8 w-48 rounded-lg border border-input pr-2 pl-8 text-sm outline-none transition-shadow focus-visible:ring-2"
+                style={{ background: 'var(--neu-base)', boxShadow: 'inset 2px 2px 5px var(--neu-inset-dark), inset -2px -2px 5px var(--neu-inset-light)', outline: 'none' }}
               />
             </label>
             <div role="tablist" aria-label="Risk level" className="flex rounded-md border border-border p-0.5">
@@ -171,9 +172,12 @@ export function DashboardPage() {
                     setLimit(PAGE)
                   }}
                   className={cn(
-                    'rounded px-2.5 py-1 text-xs font-medium',
-                    risk === r ? 'bg-navy text-white' : 'text-muted-foreground hover:text-foreground',
+                    'rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all duration-120',
+                    risk === r
+                      ? 'text-white'
+                      : 'text-muted-foreground hover:text-foreground',
                   )}
+                  style={risk === r ? { background: 'var(--eth-teal)', boxShadow: 'inset 1px 1px 3px rgb(0 0 0 / 0.15)' } : {}}
                 >
                   {r === 'all' ? 'All' : riskLabel[r]} <span className="tabular-nums opacity-70">{riskCounts[r]}</span>
                 </button>
