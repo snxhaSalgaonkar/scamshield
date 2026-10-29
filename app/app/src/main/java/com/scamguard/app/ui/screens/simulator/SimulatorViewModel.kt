@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.scamguard.app.AppContainer
 import com.scamguard.app.bus.SignalEvent
+import com.scamguard.app.collectors.SpeechText
 import com.scamguard.app.engine.RiskLevel
 import com.scamguard.app.service.MessageGuard
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,8 @@ data class ScenarioResult(val level: RiskLevel, val score: Int) {
 /**
  * Plays scripted scenarios through the real pipeline (EventBus -> CallSessionManager ->
  * on-device call model -> Room -> AlertDispatcher) in the simulator lane. Demo SMS texts
- * go through the real on-device message model. Every result is tagged as simulated.
+ * go through the real on-device message model, and scripted speech through the same
+ * transcript matcher the voice layer uses. Every result is tagged as simulated.
  */
 class SimulatorViewModel(private val container: AppContainer) : ViewModel() {
     private val _results = MutableStateFlow<Map<Int, ScenarioResult>>(emptyMap())
@@ -50,7 +52,9 @@ class SimulatorViewModel(private val container: AppContainer) : ViewModel() {
         val session = container.sessionManager
         session.resetSimulation()
         val base = baseTime()
-        val steps = scenario.events(base).map { it.ts to it } + scenario.messages(base).map { (ts, text) -> ts to text }
+        val steps = scenario.events(base).map { it.ts to it } +
+            scenario.messages(base).map { (ts, text) -> ts to text } +
+            scenario.speech(base).flatMap { (ts, line) -> SpeechText.events(ts, line).map { ts to it } }
         var last = 0L
         for ((ts, step) in steps.sortedBy { it.first }) {
             val event = when (step) {

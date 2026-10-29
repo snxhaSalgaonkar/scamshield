@@ -8,6 +8,8 @@ import com.scamguard.app.data.NumbersRepository
 import com.scamguard.app.data.db.AppDatabase
 import com.scamguard.app.data.settings.SettingsRepository
 import com.scamguard.app.remote.BackendGateway
+import com.scamguard.app.remote.CallerNumbers
+import com.scamguard.app.remote.CentralReporter
 import com.scamguard.app.remote.LocalOnlyGateway
 import com.scamguard.app.reputation.LocalReputation
 import com.scamguard.app.reputation.TrustedSenders
@@ -16,7 +18,10 @@ import com.scamguard.app.ml.ModelSource
 import com.scamguard.app.ml.OnDeviceScamPredictionService
 import com.scamguard.app.ml.ScamPredictionService
 import com.scamguard.app.service.CallSessionManager
+import com.scamguard.app.service.InboxScanner
 import com.scamguard.app.service.MessageGuard
+import com.scamguard.app.voice.TranscriptStore
+import com.scamguard.app.voice.VoiceGuard
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -46,11 +51,19 @@ class AppContainer(context: Context) {
     val messageGuard = MessageGuard(
         predictions, eventBus, database.messageChecks(), settings, alertDispatcher, { sessionManager.liveWindowId },
     )
+    val inboxScanner = InboxScanner(appContext, messageGuard, { trustedSenders }, database.messageChecks())
     val feedback = FeedbackRepository(database)
+    val voiceGuard = VoiceGuard(appContext, sessionManager, settings)
+    /** Sends flagged calls to the authority dashboard; does nothing unless a server is configured. */
+    val centralReporter = CentralReporter(appContext, sessionManager.live, database.decisions())
 
     /** "Delete all my data": every table, in-memory windows and notifications. Settings are kept. */
     suspend fun deleteAllData() {
-        withContext(Dispatchers.IO) { database.clearAllTables() }
+        withContext(Dispatchers.IO) {
+            database.clearAllTables()
+            TranscriptStore.clearAll(appContext)
+            CallerNumbers.clear()
+        }
         sessionManager.resetAll()
         reputation.importSeed()
     }

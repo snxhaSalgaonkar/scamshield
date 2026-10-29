@@ -12,12 +12,11 @@ import { spikeHref, spikeText } from '@/components/SpikeBanner'
 import { StatCard } from '@/components/StatCard'
 import { Button } from '@/components/ui/button'
 import { useRealtime, useWindowReports } from '@/hooks/realtime'
-import { useClusters, useNumbers, useSpikes } from '@/hooks/useData'
+import { useNumbers, useSpikes } from '@/hooks/useData'
 import { useNow } from '@/hooks/useNow'
 import { useTriage } from '@/hooks/useTriage'
 import { computeStats } from '@/lib/analytics'
-import { AVG_LOSS_PREVENTED_INR } from '@/lib/estimate'
-import { inr, timeAgo } from '@/lib/format'
+import { timeAgo } from '@/lib/format'
 import type { StatsRange } from '@/lib/types'
 
 const FEED_SIZE = 25
@@ -28,7 +27,6 @@ export default function OverviewPage() {
   const now = useNow(30_000)
   const { data: reports } = useWindowReports()
   const { data: numbers } = useNumbers()
-  const clusters = useClusters()
   const spikes = useSpikes()
   const { freshIds, lastInsertAt, status } = useRealtime()
   const triage = useTriage()
@@ -61,7 +59,7 @@ export default function OverviewPage() {
         />
       </div>
 
-      <section aria-label="Summary" className="grid grid-cols-6 gap-4 max-xl:grid-cols-3">
+      <section aria-label="Summary" className="grid grid-cols-4 gap-4 max-xl:grid-cols-2">
         <StatCard
           label="Total reports"
           loading={!stats}
@@ -70,14 +68,11 @@ export default function OverviewPage() {
         >
           {stats && <AnimatedNumber value={stats.total} />}
         </StatCard>
-        <StatCard label="Scam calls disconnected" accent="#b42318" loading={!stats} note="Phone ended the call automatically">
-          {stats && <AnimatedNumber value={stats.disconnected} />}
+        <StatCard label="Red-flag calls" accent="#b42318" loading={!stats} note="Risk score 75 or more">
+          {stats && <AnimatedNumber value={stats.byBand.scam + stats.byBand.high} />}
         </StatCard>
         <StatCard label="Numbers flagged" accent="#b42318" loading={flagged === undefined} note="Reported by 3+ independent devices">
           {flagged !== undefined && <AnimatedNumber value={flagged} />}
-        </StatCard>
-        <StatCard label="Active clusters" loading={!clusters} note="Number series used by likely gangs (7 d)">
-          {clusters && <AnimatedNumber value={clusters.length} />}
         </StatCard>
         <StatCard
           label="False-positive rate · 7 d"
@@ -85,13 +80,6 @@ export default function OverviewPage() {
           note={fpr && (fpr.reviewed ? `${fpr.falsePositives} of ${fpr.reviewed} officer-reviewed or citizen-rated` : 'Nothing reviewed yet')}
         >
           {fpr && (fpr.rate === null ? '—' : <AnimatedNumber value={Math.round(fpr.rate * 1000)} format={(n) => `${(n / 10).toFixed(1)}%`} />)}
-        </StatCard>
-        <StatCard
-          label="Est. money protected"
-          loading={!stats}
-          note={<>Estimate: disconnected × {inr.format(AVG_LOSS_PREVENTED_INR)} (placeholder)</>}
-        >
-          {stats && <AnimatedNumber value={stats.moneyProtectedEstimate} format={(n) => inr.format(n)} />}
         </StatCard>
       </section>
 

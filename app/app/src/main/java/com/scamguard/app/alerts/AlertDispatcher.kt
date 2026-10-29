@@ -16,6 +16,7 @@ import com.scamguard.app.engine.Decision
 import com.scamguard.app.engine.RiskLevel
 import com.scamguard.app.ml.MessagePrediction
 import com.scamguard.app.ui.Labels
+import com.scamguard.app.util.LatencyLog
 import com.scamguard.app.util.Permissions
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -45,6 +46,8 @@ class AlertDispatcher(private val context: Context) {
         lastLevel[window.id] = decision.level
         while (lastLevel.size > MAX_TRACKED) lastLevel.remove(lastLevel.keys.first())
 
+        // Measurement only: times the alert against the spoken phrase that led to it.
+        LatencyLog.alertShown(window.id, System.currentTimeMillis())
         when (decision.level) {
             RiskLevel.WARNING -> notifyWarning(window.id, decision)
             RiskLevel.RED_FLAG -> {

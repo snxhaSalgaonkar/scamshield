@@ -1,12 +1,10 @@
 // Pure functions over reports, shared by every page and by the tests (scripts/test-logic.ts).
-import { AVG_LOSS_PREVENTED_INR } from './estimate'
 import { bandOf } from './risk'
 import type {
   Band,
   DetectedVia,
   FalsePositiveRate,
   NumberRecord,
-  NumberSeries,
   Report,
   ScamType,
   Stats,
@@ -76,7 +74,6 @@ export function computeStats(reports: Report[], range: StatsRange, now = Date.no
     byScamType: countBy<ScamType>(rows.map((r) => r.scam_type)),
     byDetectedVia: countBy<DetectedVia>(rows.flatMap((r) => r.detected_via)),
     disconnected,
-    moneyProtectedEstimate: disconnected * AVG_LOSS_PREVENTED_INR,
     falsePositive: falsePositiveRate(rows),
     overTime: timeBuckets(rows, range, now),
     awaitingReview: rows.filter((r) => r.status === 'new').length,
@@ -154,82 +151,7 @@ export function detectSpikes(reports: Report[], now = Date.now()): Spike[] {
 }
 
 // ---------------------------------------------------------------------------
-// Number-series clusters
-// ---------------------------------------------------------------------------
-
-export interface Cluster {
-  prefix: string
-  numbers: string[]
-  reportCount: number
-  deviceCount: number
-  topScamType: ScamType
-  circle: string | null
-  operator: string | null
-  firstSeen: string
-  lastSeen: string
-  maxRisk: number
-  /** Reports in the last 24 h vs the average day of the 6 days before. */
-  trend: 'up' | 'down' | 'flat'
-  last24h: number
-}
-
-export const CLUSTER_MIN_NUMBERS = 3
-export const CLUSTER_MIN_REPORTS = 5
-
-/** Most frequent value; on a tie, the value that reached the top count first. */
-function mode<T>(values: T[]): T | undefined {
-  const counts = new Map<T, number>()
-  let best: T | undefined
-  let bestN = 0
-  for (const v of values) {
-    const n = (counts.get(v) ?? 0) + 1
-    counts.set(v, n)
-    if (n > bestN) {
-      best = v
-      bestN = n
-    }
-  }
-  return best
-}
-
-/**
- * Groups the last 7 days of reports by number_prefix (first 5 digits). A prefix is a cluster when
- * ≥ 3 distinct numbers or ≥ 5 reports came from it — scammers rotating through a block of SIMs.
- */
-export function groupClusters(reports: Report[], series: NumberSeries[] = [], now = Date.now()): Cluster[] {
-  const recent = inWindow(reports, now - 7 * DAY, now + 60_000)
-  const byPrefix = new Map<string, Report[]>()
-  for (const r of recent) byPrefix.set(r.number_prefix, [...(byPrefix.get(r.number_prefix) ?? []), r])
-  const operatorOf = new Map(series.map((s) => [s.prefix, s.operator]))
-
-  const clusters: Cluster[] = []
-  for (const [prefix, rows] of byPrefix) {
-    const numbers = [...new Set(rows.map((r) => r.caller_number))]
-    if (numbers.length < CLUSTER_MIN_NUMBERS && rows.length < CLUSTER_MIN_REPORTS) continue
-    const times = rows.map(ts).sort((a, b) => a - b)
-    const last24h = rows.filter((r) => ts(r) >= now - DAY).length
-    const avgPrevDay = (rows.length - last24h) / 6
-    const trend = last24h > avgPrevDay * 1.2 && last24h > 0 ? 'up' : last24h < avgPrevDay * 0.8 ? 'down' : 'flat'
-    clusters.push({
-      prefix,
-      numbers,
-      reportCount: rows.length,
-      deviceCount: new Set(rows.map((r) => r.device_id)).size,
-      topScamType: mode(rows.map((r) => r.scam_type)) ?? 'other',
-      circle: mode(rows.map((r) => r.telecom_circle).filter((c): c is string => !!c)) ?? null,
-      operator: operatorOf.get(prefix.slice(0, 4)) ?? null,
-      firstSeen: new Date(times[0]).toISOString(),
-      lastSeen: new Date(times[times.length - 1]).toISOString(),
-      maxRisk: Math.max(...rows.map((r) => r.risk_score)),
-      trend,
-      last24h,
-    })
-  }
-  return clusters.sort((a, b) => b.reportCount - a.reportCount || b.numbers.length - a.numbers.length)
-}
-
-// ---------------------------------------------------------------------------
-// numbers aggregate (mock mode; mirrors refresh_number() in 003_triggers_rpcs.sql)
+// numbers aggregate (mirrors refresh_number() in 003_triggers_rpcs.sql; checked by test:logic)
 // ---------------------------------------------------------------------------
 
 export const FLAG_MIN_REPORTERS = 3
@@ -257,31 +179,4 @@ export function aggregateNumbers(reports: Report[]): NumberRecord[] {
   const byNumber = new Map<string, Report[]>()
   for (const r of reports) byNumber.set(r.caller_number, [...(byNumber.get(r.caller_number) ?? []), r])
   return [...byNumber.entries()].map(([n, rows]) => aggregateNumber(n, rows))
-}
-
-// ---------------------------------------------------------------------------
-// Per-circle totals (map page)
-// ---------------------------------------------------------------------------
-
-export interface CircleActivity {
-  circle: string
-  count: number
-  topScamType: ScamType
-  highRisk: number
-}
-
-export function circleActivity(reports: Report[]): CircleActivity[] {
-  const byCircle = new Map<string, Report[]>()
-  for (const r of reports) {
-    if (!r.telecom_circle) continue
-    byCircle.set(r.telecom_circle, [...(byCircle.get(r.telecom_circle) ?? []), r])
-  }
-  return [...byCircle.entries()]
-    .map(([circle, rows]) => ({
-      circle,
-      count: rows.length,
-      topScamType: mode(rows.map((r) => r.scam_type)) ?? 'other',
-      highRisk: rows.filter((r) => r.risk_score >= 75).length,
-    }))
-    .sort((a, b) => b.count - a.count)
 }

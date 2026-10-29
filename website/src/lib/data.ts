@@ -1,11 +1,7 @@
-import { mockDataSource } from './data.mock'
 import { supabaseDataSource } from './data.supabase'
-import { isMock } from './env'
 import type { DataSource } from './types'
 
-// NEXT_PUBLIC_DATA_SOURCE: "mock" (default, no backend) | "supabase".
-// Every page goes through `dataSource`, so switching needs no other code changes.
-export const dataSource: DataSource = isMock ? mockDataSource : supabaseDataSource
+// Every page reads through `dataSource`: the shared Supabase project the phones report into.
+export const dataSource: DataSource = supabaseDataSource
 
-export { isMock }
 export * from './types'

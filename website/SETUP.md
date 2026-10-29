@@ -6,7 +6,7 @@
    1. `supabase/001_schema.sql`
    2. `supabase/002_rls.sql`
    3. `supabase/003_triggers_rpcs.sql` (also enables Realtime on `reports` + `numbers`)
-   4. `supabase/004_seed.sql` (demo data; safe to re-run before the demo, it refreshes timestamps)
+   4. `supabase/004_number_series.sql` (prefix → telecom circle lookup; no reports)
 3. **Authentication → Sign In / Providers** → turn on **Allow anonymous sign-ins** (citizen phones use it).
 4. **Authentication → Users → Add user → Create new user** twice (two officers, tick *Auto Confirm User*).
 5. Edit the two emails in `supabase/005_authority_users.sql`, paste it in the SQL Editor, Run. It should list both emails with role `authority`.
@@ -15,17 +15,15 @@
 ## 2. Configure the dashboard
 `cp .env.example .env.local`, then fill in from **Project Settings → API**:
 ```
-NEXT_PUBLIC_DATA_SOURCE=supabase
 NEXT_PUBLIC_SUPABASE_URL=<Project URL>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon / publishable key>
 SUPABASE_SERVICE_ROLE_KEY=<service_role / secret key>   # server only
 LLM_PROVIDER=anthropic          # or gemini, or none
 LLM_API_KEY=<optional>
 LLM_MODEL=claude-haiku-5-5
-SIMULATOR_ENABLED=true
 ```
 Then `npm install`, `npm run build`, `npm start` (or `npm run dev`). Sign in with an officer from step 1.4.
-`NEXT_PUBLIC_*` and `SIMULATOR_ENABLED` are read at **build** time, so rebuild after changing them.
+`NEXT_PUBLIC_*` values are read at **build** time, so rebuild after changing them.
 
 ## 3. Send to the Kotlin team
 ```
@@ -38,7 +36,6 @@ What the app must do (all enforced by RLS):
 - Insert reports with `device_id` = that same value. Max 20 per device per hour. `number_prefix`/`telecom_circle` may be left empty (the trigger fills them).
 - Pre-ring lookup: `rpc("get_number_reputation", { p_number: "+919811255501" })` returns one object.
 - "This was safe": `rpc("mark_report_safe", { p_report_id: "<uuid>" })`.
-- Demo numbers: Scenario B is `+919811255501` (already reported by 2 seed devices; the phone's report makes it flagged).
 
 Sample insert body:
 ```json
@@ -56,10 +53,18 @@ run locally instead: `npm run build && npm start`, then `ngrok http 3000`, and s
 ## 5. Phase 9: integration test against real Supabase
 After steps 1–2: `OFFICER_EMAIL=… OFFICER_PASSWORD=… npm run test:integration -- 3`
 (PowerShell: `$env:OFFICER_EMAIL='…'; $env:OFFICER_PASSWORD='…'; npm run test:integration -- 3`).
-It plays three phones and the officer: Scenario A/B/C, the false-positive mark, "This was safe", realtime arrival under 2 s, and RLS, 3 rounds.
+It plays three phones and the officer: Scenario A/B/C, the false-positive mark, "This was safe", realtime arrival under 2 s, and RLS, 3 rounds. It writes `itest-` test rows into the real project; delete them afterwards (see the cleanup SQL below).
 Then run the same scenarios with the real Kotlin app and watch the dashboard. Pitch kit: `docs/PITCH.md`.
 
 ## 6. Tests
 - `npm test`: SQL (RLS, triggers, RPCs on an in-process Postgres) + logic tests.
 - `npm run test:analyze`: 15 scam / 10 genuine lines through the semantic model (add `-- <url> <token>` to hit a running endpoint).
-- Demo without a phone: `/dev/simulate` (flask icon in the header).
+
+## 7. Remove demo / test data (run in the SQL Editor)
+Earlier versions loaded demo reports (devices starting `5eed`) and the integration test leaves `itest-` users. The dashboard shows whatever is in the tables, so delete them once:
+```sql
+delete from public.reports where device_id like '5eed%' or device_id like 'itest-%';
+delete from public.numbers n where not exists (select 1 from public.reports r where r.caller_number = n.number);
+delete from auth.users where id in (select id from public.profiles where device_id like 'itest-%');
+```
+Officer accounts and `number_series` are kept.

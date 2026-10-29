@@ -4,6 +4,7 @@ import android.Manifest
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,9 +39,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.scamguard.app.R
 import com.scamguard.app.actions.CallActions
+import com.scamguard.app.actions.GuardDeviceAdmin
+import com.scamguard.app.actions.PhoneFreeze
 import com.scamguard.app.ui.Labels
 import com.scamguard.app.ui.navigation.containerViewModel
 import com.scamguard.app.ui.theme.AlertRed
+import kotlinx.coroutines.launch
 
 /** Full-screen red alert: score, scam type, three reasons and big actions. */
 @Composable
@@ -62,6 +67,8 @@ fun RedFlagScreen(windowId: String, onClose: () -> Unit) {
         }
     }
     val reported = stringResource(R.string.reported_toast)
+    val freezeSetup = stringResource(R.string.freeze_phone_setup)
+    val scope = rememberCoroutineScope()
 
     Column(
         Modifier
@@ -108,6 +115,24 @@ fun RedFlagScreen(windowId: String, onClose: () -> Unit) {
 
         val outline = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
         val mid = Modifier.fillMaxWidth().heightIn(min = 56.dp)
+        // Reversible stand-in for switching the phone off: end the call, lock the screen now.
+        OutlinedButton(
+            onClick = {
+                scope.launch {
+                    when (PhoneFreeze.freeze(context, endCall = !s.isTest)) {
+                        PhoneFreeze.Result.LOCKED -> onClose()
+                        PhoneFreeze.Result.NEEDS_SETUP -> {
+                            Toast.makeText(context, freezeSetup, Toast.LENGTH_LONG).show()
+                            context.startActivity(GuardDeviceAdmin.activationIntent(context))
+                        }
+                    }
+                }
+            },
+            modifier = big,
+            colors = outline,
+            border = BorderStroke(2.dp, Color.White),
+        ) { Text(stringResource(R.string.action_freeze_phone), style = MaterialTheme.typography.titleMedium) }
+        WhiteText(stringResource(R.string.freeze_phone_hint), MaterialTheme.typography.bodyMedium)
         OutlinedButton(onClick = { vm.thisWasMe(onClose) }, modifier = mid, colors = outline) {
             Text(stringResource(R.string.action_know_caller))
         }

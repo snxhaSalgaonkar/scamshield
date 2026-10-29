@@ -13,7 +13,7 @@ class CapabilitiesTest {
     private val all = HealthSnapshot(
         sms = true, phoneState = true, contacts = true, callPhone = true, answerCalls = true,
         notifications = true, fullScreenIntent = true, screeningRole = true, usageAccess = true,
-        batteryUnrestricted = true, microphone = true,
+        batteryUnrestricted = true, microphone = true, notificationAccess = true,
     )
 
     private fun state(h: HealthSnapshot, id: CapabilityId, sdk: Int = 35, phone: Boolean = true, fwd: ForwardingStatus = ForwardingStatus.AVAILABLE) =

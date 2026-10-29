@@ -28,6 +28,16 @@ class SettingsRepository(private val context: Context) {
     suspend fun setCaseSharing(enabled: Boolean) = edit { it[CASE_SHARING] = enabled }
     suspend fun setLanguage(tag: String) = edit { it[LANGUAGE] = tag }
     suspend fun setDemoMode(enabled: Boolean) = edit { it[DEMO] = enabled }
+    suspend fun setContactsAsUnknown(enabled: Boolean) = edit { it[CONTACTS_AS_UNKNOWN] = enabled }
+
+    suspend fun setResponseMode(mode: ResponseMode) = edit { it[RESPONSE_MODE] = mode.name }
+    suspend fun setAutoProtect(enabled: Boolean) = edit { it[AUTO_PROTECT] = enabled }
+    suspend fun setPaymentGuard(enabled: Boolean) = edit { it[PAYMENT_GUARD] = enabled }
+    suspend fun setSwitchOff(enabled: Boolean) = edit { it[SWITCH_OFF] = enabled }
+    suspend fun setSendReports(enabled: Boolean) = edit { it[SEND_REPORTS] = enabled }
+    suspend fun setMessagesDuringCalls(enabled: Boolean) = edit { it[MESSAGES_DURING_CALLS] = enabled }
+
+    suspend fun setListenLanguage(tag: String) = edit { it[LISTEN_LANGUAGE] = tag }
 
     suspend fun setRiskOverrides(overrides: Map<String, Int>) = edit {
         it[RISK_OVERRIDES] = overrides.entries.joinToString(",") { (k, v) -> "$k=$v" }
@@ -55,12 +65,20 @@ class SettingsRepository(private val context: Context) {
         caseSharing = this[CASE_SHARING] ?: false,
         language = this[LANGUAGE] ?: "system",
         demoMode = this[DEMO] ?: false,
+        contactsAsUnknown = this[CONTACTS_AS_UNKNOWN] ?: false,
         riskOverrides = parseOverrides(this[RISK_OVERRIDES]),
         forwardingBaseline = this[FWD_BASELINE],
         forwardingStatus = this[FWD_STATUS]
             ?.let { runCatching { ForwardingStatus.valueOf(it) }.getOrNull() }
             ?: ForwardingStatus.NOT_CHECKED,
         forwardingCheckedAt = this[FWD_CHECKED_AT] ?: 0,
+        responseMode = this[RESPONSE_MODE]?.let { runCatching { ResponseMode.valueOf(it) }.getOrNull() } ?: ResponseMode.STANDARD,
+        autoProtect = this[AUTO_PROTECT] ?: false,
+        paymentGuard = this[PAYMENT_GUARD] ?: false,
+        switchOff = this[SWITCH_OFF] ?: false,
+        sendReports = this[SEND_REPORTS] ?: false,
+        messagesDuringCalls = this[MESSAGES_DURING_CALLS] ?: false,
+        listenLanguage = this[LISTEN_LANGUAGE] ?: "en-IN",
     )
 
     private fun parseOverrides(raw: String?): Map<String, Int> =
@@ -77,9 +95,17 @@ class SettingsRepository(private val context: Context) {
         val CASE_SHARING = booleanPreferencesKey("consent_case_sharing")
         val LANGUAGE = stringPreferencesKey("language")
         val DEMO = booleanPreferencesKey("demo_mode")
+        val CONTACTS_AS_UNKNOWN = booleanPreferencesKey("test_contacts_as_unknown")
         val RISK_OVERRIDES = stringPreferencesKey("risk_overrides")
         val FWD_BASELINE = booleanPreferencesKey("forwarding_baseline")
         val FWD_STATUS = stringPreferencesKey("forwarding_status")
         val FWD_CHECKED_AT = longPreferencesKey("forwarding_checked_at")
+        val RESPONSE_MODE = stringPreferencesKey("response_mode")
+        val AUTO_PROTECT = booleanPreferencesKey("consent_auto_protect")
+        val PAYMENT_GUARD = booleanPreferencesKey("consent_payment_guard")
+        val SWITCH_OFF = booleanPreferencesKey("consent_switch_off")
+        val SEND_REPORTS = booleanPreferencesKey("consent_send_reports")
+        val MESSAGES_DURING_CALLS = booleanPreferencesKey("consent_messages_during_calls")
+        val LISTEN_LANGUAGE = stringPreferencesKey("listen_language")
     }
 }

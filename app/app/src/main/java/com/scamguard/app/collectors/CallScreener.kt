@@ -10,6 +10,7 @@ import android.telecom.CallScreeningService
 import android.telecom.TelecomManager
 import com.scamguard.app.appContainer
 import com.scamguard.app.bus.SignalEvent
+import com.scamguard.app.remote.CallerNumbers
 import com.scamguard.app.util.Permissions
 import com.scamguard.app.util.PhoneNumbers
 import kotlinx.coroutines.launch
@@ -17,7 +18,8 @@ import kotlinx.coroutines.launch
 /**
  * Call-screening service (role on Android 10+). It is the only place the caller's number
  * is seen: it is hashed at once, checked against contacts and the trusted list in memory,
- * and dropped. Every call is allowed straight away; this app never blocks, silences or
+ * and dropped (when an authority server is configured, [CallerNumbers] keeps it in memory
+ * for a while so a flagged call can be reported). Every call is allowed straight away; this app never blocks, silences or
  * rejects a call.
  */
 class CallScreener : CallScreeningService() {
@@ -31,6 +33,7 @@ class CallScreener : CallScreeningService() {
         val hidden = details.handlePresentation != TelecomManager.PRESENTATION_ALLOWED
         val raw = if (hidden) null else details.handle?.schemeSpecificPart
         val parsed = PhoneNumbers.parse(raw)
+        CallerNumbers.remember(parsed)
         val inContacts = raw != null && isInContacts(this, raw)
         val container = applicationContext.appContainer
 

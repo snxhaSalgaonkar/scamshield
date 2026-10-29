@@ -119,6 +119,12 @@ data class MessageCheckEntity(
     val windowId: String?,
     val modelVersion: String?,
     val simulated: Boolean,
+    /** Text of a flagged SMS, kept on this phone only so the user can see what was flagged. */
+    val body: String? = null,
+    /** Sender address or ID of a flagged SMS. */
+    val sender: String? = null,
+    /** Signals besides the model that flagged it, e.g. "OTP during a call" (comma-separated). */
+    val reasons: String = "",
 )
 
 /**

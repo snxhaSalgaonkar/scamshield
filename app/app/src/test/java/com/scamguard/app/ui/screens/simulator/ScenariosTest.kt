@@ -1,6 +1,7 @@
 package com.scamguard.app.ui.screens.simulator
 
 import com.scamguard.app.bus.SignalEvent
+import com.scamguard.app.collectors.SpeechText
 import com.scamguard.app.engine.CallRiskScorer
 import com.scamguard.app.engine.Decision
 import com.scamguard.app.engine.RiskConfig
@@ -35,7 +36,8 @@ class ScenariosTest {
         val messages = scenario.messages(T0).mapNotNull { (ts, text) ->
             MessageGuard.toEvent(runBlocking { predictions.analyzeMessage(text) }, ts)
         }
-        return (scenario.events(T0) + messages).sortedBy { it.ts }
+        val speech = scenario.speech(T0).flatMap { (ts, line) -> SpeechText.events(ts, line) }
+        return (scenario.events(T0) + messages + speech).sortedBy { it.ts }
     }
 
     /** Mirrors CallSessionManager.process for the simulator lane; returns the last decision. */
@@ -47,14 +49,14 @@ class ScenariosTest {
             last = if (w == null) {
                 if (tracker.current == null) null else last
             } else {
-                score(RiskInput(w, voiceLayerEnabled = false, now = e.ts, zone = ZoneOffset.UTC))
+                score(RiskInput(w, voiceLayerEnabled = true, now = e.ts, zone = ZoneOffset.UTC))
             }
         }
         return last
     }
 
     @Test fun `all scenarios reach their expected level with the shipped models`() {
-        assertEquals(10, Scenarios.all.size)
+        assertEquals(16, Scenarios.all.size)
         Scenarios.all.forEach { sc ->
             val d = play(sc)
             assertEquals("scenario ${sc.id} (p=${d?.probability})", sc.expected, d?.level ?: RiskLevel.SAFE)
@@ -76,6 +78,15 @@ class ScenariosTest {
     @Test fun `forwarding and merge scenarios get their scam type`() {
         assertEquals(ScamType.CALL_FORWARDING_HIJACK, play(Scenarios.all.first { it.id == 3 })!!.scamType)
         assertEquals(ScamType.CALL_MERGE_FRAUD, play(Scenarios.all.first { it.id == 4 })!!.scamType)
+        assertEquals(ScamType.DIGITAL_ARREST, play(Scenarios.all.first { it.id == 11 })!!.scamType)
+    }
+
+    @Test fun `spoken digital-arrest scripts reach the scam floor in both languages`() {
+        listOf(12, 13).forEach { id ->
+            val d = play(Scenarios.all.first { it.id == id })!!
+            assertEquals("scenario $id", ScamType.DIGITAL_ARREST, d.scamType)
+            assertTrue("scenario $id score ${d.score}", d.score >= 90)
+        }
     }
 
     @Test fun `saved contact is gated and scores zero`() {

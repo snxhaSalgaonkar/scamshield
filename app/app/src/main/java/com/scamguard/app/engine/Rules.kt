@@ -69,16 +69,20 @@ internal object Rules {
         return capHits(raw, c.txnCap)
     }
 
-    /** Voice keyword evidence (L1), only when the voice layer is on; capped. */
+    /**
+     * The original four voice categories (L1), only when the voice layer is on; capped. The
+     * digital-arrest stages and their combinations are added on top by [VoiceRules].
+     */
     fun voice(input: RiskInput, c: RiskConfig): List<Hit> {
         if (!input.voiceLayerEnabled) return emptyList()
         val categories = input.window.events.filterIsInstance<SignalEvent.VoiceKeyword>().map { it.category }.toSet()
-        val raw = categories.map {
+        val raw = categories.mapNotNull {
             when (it) {
                 VoiceCategory.OTP_REQUEST -> Hit(ReasonCode.VOICE_OTP_REQUEST, c.voiceOtpRequest)
                 VoiceCategory.ARREST_THREAT -> Hit(ReasonCode.VOICE_ARREST_THREAT, c.voiceArrestThreat)
                 VoiceCategory.PAYMENT_PRESSURE -> Hit(ReasonCode.VOICE_PAYMENT_PRESSURE, c.voicePaymentPressure)
                 VoiceCategory.REMOTE_APP_REQUEST -> Hit(ReasonCode.VOICE_REMOTE_APP, c.voiceRemoteApp)
+                else -> null
             }
         }.sortedByDescending { it.points }
         return capHits(raw, c.voiceCap)

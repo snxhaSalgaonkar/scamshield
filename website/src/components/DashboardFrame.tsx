@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { RealtimeProvider } from '@/hooks/realtime'
 import { useAuth } from '@/lib/auth'
 
-/** Client-side guard. In Supabase mode the proxy already blocked non-authorities; this covers mock mode and sign-out. */
+/** Client-side guard. The proxy already blocked non-authorities; this covers sign-out in an open tab. */
 export function RequireOfficer({ children, fallback }: { children: ReactNode; fallback?: ReactNode }) {
   const { officer, ready } = useAuth()
   const router = useRouter()
@@ -19,7 +19,7 @@ export function RequireOfficer({ children, fallback }: { children: ReactNode; fa
   return <>{children}</>
 }
 
-export function DashboardFrame({ children, simulatorEnabled }: { children: ReactNode; simulatorEnabled: boolean }) {
+export function DashboardFrame({ children }: { children: ReactNode }) {
   return (
     <RequireOfficer
       fallback={
@@ -30,7 +30,7 @@ export function DashboardFrame({ children, simulatorEnabled }: { children: React
       }
     >
       <RealtimeProvider>
-        <AppShell simulatorEnabled={simulatorEnabled}>{children}</AppShell>
+        <AppShell>{children}</AppShell>
       </RealtimeProvider>
     </RequireOfficer>
   )

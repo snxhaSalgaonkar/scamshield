@@ -18,11 +18,20 @@ import org.junit.Test
 
 class PrivacyAndExportTest {
 
-    @Test fun `model events and stored message checks have no field that could hold message text`() {
+    @Test fun `model events carry no message text`() {
         val smsFields = SignalEvent.SmsAnalyzed::class.java.declaredFields.filter { it.type == String::class.java }.map { it.name }
         assertEquals(listOf("topCategory"), smsFields)
-        val checkFields = MessageCheckEntity::class.java.declaredFields.map { it.name }
-        listOf("text", "body", "message", "url", "sender", "number").forEach { assertFalse(it, it in checkFields) }
+    }
+
+    @Test fun `flagged message text and sender stay on the phone and never reach the export`() {
+        val msg = MessageCheckEntity(
+            ts = 1L, source = "SMS", verdict = "SUSPICIOUS", scamProbability = 0.9, category = null,
+            categoryProbability = null, indicators = "", linkCount = 0, maxUrlProbability = null,
+            senderTrusted = false, windowId = null, modelVersion = "t1", simulated = false,
+            body = "SECRET-BODY your OTP 482913", sender = "SECRET-SENDER", reasons = "OTP during a call",
+        )
+        val out = FeedbackRepository.buildExport(emptyList(), emptyList(), listOf(msg)).toString()
+        listOf("SECRET-BODY", "482913", "SECRET-SENDER").forEach { assertFalse(it, out.contains(it)) }
     }
 
     @Test fun `message prediction becomes probabilities only`() {

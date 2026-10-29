@@ -1,0 +1,324 @@
+{
+  "generated_by": "EvalHarnessTest (app/src/test/java/com/scamguard/app/eval)",
+  "thresholds": {
+    "red_flag": "level RED_FLAG (score >= 75, never on one signal)",
+    "warning": "level WARNING or above (score >= 40)"
+  },
+  "latency": {
+    "scoring_runs": 355,
+    "scoring_ms_max": 1.124,
+    "scoring_note": "Text -> risk decision on the JVM (laptop). On-device speech-to-text and phrase-to-alert times are measured by the app (Settings -> Evaluation and metrics).",
+    "lines_to_red_flag_median": 2,
+    "scoring_ms_median": 0.111,
+    "lines_note": "How many spoken lines (about 30 s apart) a scam call needed before the red flag.",
+    "scoring_ms_p95": 0.206
+  },
+  "by_genuine_type": {
+    "customer_care": {
+      "warning_false_positives": 0,
+      "red_flag_false_positives": 0,
+      "n": 8
+    },
+    "doctor": {
+      "warning_false_positives": 0,
+      "red_flag_false_positives": 0,
+      "n": 5
+    },
+    "delivery": {
+      "warning_false_positives": 0,
+      "red_flag_false_positives": 0,
+      "n": 8
+    },
+    "family_money": {
+      "warning_false_positives": 0,
+      "red_flag_false_positives": 0,
+      "n": 8
+    },
+    "other": {
+      "warning_false_positives": 1,
+      "red_flag_false_positives": 1,
+      "n": 6
+    },
+    "government_info": {
+      "warning_false_positives": 0,
+      "red_flag_false_positives": 0,
+      "n": 6
+    },
+    "job": {
+      "warning_false_positives": 0,
+      "red_flag_false_positives": 0,
+      "n": 5
+    },
+    "bank_reminder": {
+      "warning_false_positives": 0,
+      "red_flag_false_positives": 0,
+      "n": 10
+    }
+  },
+  "by_language": {
+    "hi": {
+      "red_flag": {
+        "false_negative_rate": 0.538,
+        "precision": 1,
+        "recall": 0.462,
+        "fn": 7,
+        "accuracy": 0.731,
+        "fp": 0,
+        "tn": 13,
+        "f1": 0.632,
+        "tp": 6,
+        "n": 26,
+        "false_positive_rate": 0
+      },
+      "warning": {
+        "false_negative_rate": 0.538,
+        "precision": 1,
+        "recall": 0.462,
+        "fn": 7,
+        "accuracy": 0.731,
+        "fp": 0,
+        "tn": 13,
+        "f1": 0.632,
+        "tp": 6,
+        "n": 26,
+        "false_positive_rate": 0
+      }
+    },
+    "hinglish": {
+      "red_flag": {
+        "false_negative_rate": 0.5,
+        "precision": 1,
+        "recall": 0.5,
+        "fn": 8,
+        "accuracy": 0.742,
+        "fp": 0,
+        "tn": 15,
+        "f1": 0.667,
+        "tp": 8,
+        "n": 31,
+        "false_positive_rate": 0
+      },
+      "warning": {
+        "false_negative_rate": 0.5,
+        "precision": 1,
+        "recall": 0.5,
+        "fn": 8,
+        "accuracy": 0.742,
+        "fp": 0,
+        "tn": 15,
+        "f1": 0.667,
+        "tp": 8,
+        "n": 31,
+        "false_positive_rate": 0
+      }
+    },
+    "en": {
+      "red_flag": {
+        "false_negative_rate": 0.741,
+        "precision": 0.875,
+        "recall": 0.259,
+        "fn": 20,
+        "accuracy": 0.618,
+        "fp": 1,
+        "tn": 27,
+        "f1": 0.4,
+        "tp": 7,
+        "n": 55,
+        "false_positive_rate": 0.036
+      },
+      "warning": {
+        "false_negative_rate": 0.741,
+        "precision": 0.875,
+        "recall": 0.259,
+        "fn": 20,
+        "accuracy": 0.618,
+        "fp": 1,
+        "tn": 27,
+        "f1": 0.4,
+        "tp": 7,
+        "n": 55,
+        "false_positive_rate": 0.036
+      }
+    }
+  },
+  "metrics": {
+    "all": {
+      "red_flag": {
+        "false_negative_rate": 0.625,
+        "precision": 0.955,
+        "recall": 0.375,
+        "fn": 35,
+        "accuracy": 0.679,
+        "fp": 1,
+        "tn": 55,
+        "f1": 0.538,
+        "tp": 21,
+        "n": 112,
+        "false_positive_rate": 0.018
+      },
+      "warning": {
+        "false_negative_rate": 0.625,
+        "precision": 0.955,
+        "recall": 0.375,
+        "fn": 35,
+        "accuracy": 0.679,
+        "fp": 1,
+        "tn": 55,
+        "f1": 0.538,
+        "tp": 21,
+        "n": 112,
+        "false_positive_rate": 0.018
+      }
+    },
+    "test": {
+      "red_flag": {
+        "false_negative_rate": 0.667,
+        "precision": 1,
+        "recall": 0.333,
+        "fn": 14,
+        "accuracy": 0.674,
+        "fp": 0,
+        "tn": 22,
+        "f1": 0.5,
+        "tp": 7,
+        "n": 43,
+        "false_positive_rate": 0
+      },
+      "warning": {
+        "false_negative_rate": 0.667,
+        "precision": 1,
+        "recall": 0.333,
+        "fn": 14,
+        "accuracy": 0.674,
+        "fp": 0,
+        "tn": 22,
+        "f1": 0.5,
+        "tp": 7,
+        "n": 43,
+        "false_positive_rate": 0
+      }
+    },
+    "validation": {
+      "red_flag": {
+        "false_negative_rate": 0.6,
+        "precision": 0.933,
+        "recall": 0.4,
+        "fn": 21,
+        "accuracy": 0.681,
+        "fp": 1,
+        "tn": 33,
+        "f1": 0.56,
+        "tp": 14,
+        "n": 69,
+        "false_positive_rate": 0.029
+      },
+      "warning": {
+        "false_negative_rate": 0.6,
+        "precision": 0.933,
+        "recall": 0.4,
+        "fn": 21,
+        "accuracy": 0.681,
+        "fp": 1,
+        "tn": 33,
+        "f1": 0.56,
+        "tp": 14,
+        "n": 69,
+        "false_positive_rate": 0.029
+      }
+    }
+  },
+  "dataset": {
+    "note": "Team-written synthetic transcripts (English, Hinglish, Hindi), text only: speech-to-text errors are not included.",
+    "calls": 112,
+    "scam": 56,
+    "by_language": {
+      "en": 55,
+      "hi": 26,
+      "hinglish": 31
+    },
+    "genuine": 56
+  },
+  "errors": {
+    "false_alarms_at_warning": ["G-OT-05 (other, peak 75)"],
+    "false_alarms_at_red_flag": ["G-OT-05 (other, peak 75)"],
+    "missed_scams_at_red_flag": [
+      "S-OT-01 (otp_theft, peak 20)",
+      "S-OT-02 (otp_theft, peak 14)",
+      "S-OT-03 (otp_theft, peak 14)",
+      "S-OT-04 (otp_theft, peak 19)",
+      "S-OT-05 (otp_theft, peak 18)",
+      "S-OT-06 (otp_theft, peak 14)",
+      "S-OT-07 (otp_theft, peak 14)",
+      "S-OT-08 (otp_theft, peak 18)",
+      "S-KY-01 (kyc_bank_impersonation, peak 24)",
+      "S-KY-02 (kyc_bank_impersonation, peak 34)",
+      "S-KY-04 (kyc_bank_impersonation, peak 24)",
+      "S-KY-06 (kyc_bank_impersonation, peak 34)",
+      "S-KY-07 (kyc_bank_impersonation, peak 14)",
+      "S-KY-08 (kyc_bank_impersonation, peak 23)",
+      "S-RA-01 (remote_access, peak 20)",
+      "S-RA-02 (remote_access, peak 19)",
+      "S-RA-03 (remote_access, peak 29)",
+      "S-RA-04 (remote_access, peak 18)",
+      "S-RA-05 (remote_access, peak 18)",
+      "S-RA-06 (remote_access, peak 29)",
+      "S-RQ-01 (refund_lottery_qr, peak 19)",
+      "S-RQ-03 (refund_lottery_qr, peak 19)",
+      "S-RQ-04 (refund_lottery_qr, peak 18)",
+      "S-RQ-05 (refund_lottery_qr, peak 18)",
+      "S-RQ-06 (refund_lottery_qr, peak 18)",
+      "S-UD-01 (utility_disconnection, peak 19)",
+      "S-UD-02 (utility_disconnection, peak 29)",
+      "S-UD-03 (utility_disconnection, peak 14)",
+      "S-UD-04 (utility_disconnection, peak 14)",
+      "S-UD-05 (utility_disconnection, peak 18)",
+      "S-WN-01 (wrong_number_distraction, peak 14)",
+      "S-WN-02 (wrong_number_distraction, peak 14)",
+      "S-WN-03 (wrong_number_distraction, peak 19)",
+      "S-WN-04 (wrong_number_distraction, peak 14)",
+      "S-VC-03 (voice_clone_impersonation, peak 19)"
+    ]
+  },
+  "by_scam_type": {
+    "digital_arrest": {
+      "warning_recall": 1,
+      "n": 16,
+      "red_flag_recall": 1
+    },
+    "wrong_number_distraction": {
+      "warning_recall": 0,
+      "n": 4,
+      "red_flag_recall": 0
+    },
+    "kyc_bank_impersonation": {
+      "warning_recall": 0.25,
+      "n": 8,
+      "red_flag_recall": 0.25
+    },
+    "otp_theft": {
+      "warning_recall": 0,
+      "n": 8,
+      "red_flag_recall": 0
+    },
+    "voice_clone_impersonation": {
+      "warning_recall": 0.667,
+      "n": 3,
+      "red_flag_recall": 0.667
+    },
+    "utility_disconnection": {
+      "warning_recall": 0,
+      "n": 5,
+      "red_flag_recall": 0
+    },
+    "refund_lottery_qr": {
+      "warning_recall": 0.167,
+      "n": 6,
+      "red_flag_recall": 0.167
+    },
+    "remote_access": {
+      "warning_recall": 0,
+      "n": 6,
+      "red_flag_recall": 0
+    }
+  }
+}

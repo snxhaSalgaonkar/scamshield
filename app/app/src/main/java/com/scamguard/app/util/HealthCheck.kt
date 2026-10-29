@@ -20,6 +20,7 @@ data class HealthSnapshot(
     val usageAccess: Boolean,
     val batteryUnrestricted: Boolean,
     val microphone: Boolean,
+    val notificationAccess: Boolean = false,
 ) {
     /** The minimum for scoring calls and SMS and warning the user. */
     val coreReady: Boolean
@@ -48,6 +49,7 @@ object HealthCheck {
             usageAccess = Permissions.hasUsageAccess(context),
             batteryUnrestricted = Permissions.isIgnoringBatteryOptimizations(context),
             microphone = granted(Manifest.permission.RECORD_AUDIO),
+            notificationAccess = Permissions.hasNotificationAccess(context),
         )
     }
 }

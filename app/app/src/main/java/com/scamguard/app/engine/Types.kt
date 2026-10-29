@@ -29,6 +29,9 @@ enum class ReasonCode(val layer: Layer) {
     ODD_HOURS(Layer.L2_CALLER),
     KNOWN_BANK_NUMBER(Layer.L2_CALLER),
     USER_MARKED_SAFE(Layer.L2_CALLER),
+    VIDEO_CALL_UNKNOWN(Layer.L2_CALLER),
+    VIDEO_CALL_LONG(Layer.L2_CALLER),
+    AUTHORITY_CALLER_NAME(Layer.L2_CALLER),
 
     OTP_DURING_CALL(Layer.L3_CORRELATION),
     DEBIT_DURING_CALL(Layer.L3_CORRELATION),
@@ -53,14 +56,33 @@ enum class ReasonCode(val layer: Layer) {
     SUSPICIOUS_LINK(Layer.L3_CORRELATION),
 
     COMBO_OTP_DEBIT(Layer.L3_CORRELATION),
+    /** The caller asked for an OTP and an OTP SMS arrived during the same call. */
+    COMBO_OTP_ASKED(Layer.L3_CORRELATION),
     COMBO_FORWARDING_OTP(Layer.L3_CORRELATION),
     COMBO_MERGE_OTP(Layer.L3_CORRELATION),
     COMBO_REMOTE_DEBIT(Layer.L3_CORRELATION),
+    COMBO_VIDEO_AUTHORITY(Layer.L3_CORRELATION),
+
+    // From the on-demand screen check during a video call (content of the call, like voice).
+    SCREEN_LAW_ENFORCEMENT(Layer.L1_VOICE),
+    SCREEN_LEGAL_THREAT(Layer.L1_VOICE),
+    SCREEN_PAYMENT_DEMAND(Layer.L1_VOICE),
 
     VOICE_OTP_REQUEST(Layer.L1_VOICE),
     VOICE_ARREST_THREAT(Layer.L1_VOICE),
     VOICE_PAYMENT_PRESSURE(Layer.L1_VOICE),
     VOICE_REMOTE_APP(Layer.L1_VOICE),
+    VOICE_AUTHORITY_CLAIM(Layer.L1_VOICE),
+    VOICE_ACCUSATION(Layer.L1_VOICE),
+    VOICE_ISOLATION(Layer.L1_VOICE),
+    VOICE_CARD_DETAILS(Layer.L1_VOICE),
+    VOICE_LINK_REQUEST(Layer.L1_VOICE),
+
+    // Stages of a spoken script seen together in one call (see VoiceRules).
+    COMBO_VOICE_ACCUSED(Layer.L1_VOICE),
+    COMBO_VOICE_THREAT(Layer.L1_VOICE),
+    COMBO_VOICE_IMPERSONATION(Layer.L1_VOICE),
+    COMBO_VOICE_DIGITAL_ARREST(Layer.L1_VOICE),
 }
 
 /** One rule that fired, with the points it contributed. */

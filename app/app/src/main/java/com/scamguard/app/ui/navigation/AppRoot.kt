@@ -1,5 +1,6 @@
 package com.scamguard.app.ui.navigation
 
+import android.net.Uri
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
@@ -16,6 +17,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -41,6 +45,8 @@ import com.scamguard.app.ui.screens.home.HomeScreen
 import com.scamguard.app.ui.screens.onboarding.OnboardingScreen
 import com.scamguard.app.ui.screens.settings.SettingsScreen
 import com.scamguard.app.ui.screens.simulator.SimulatorScreen
+import com.scamguard.app.ui.screens.listen.ListenScreen
+import com.scamguard.app.ui.screens.eval.EvaluationScreen
 
 /** Navigation routes. */
 object Routes {
@@ -55,6 +61,8 @@ object Routes {
     const val MODELS = "models"
     const val NUMBERS = "numbers"
     const val DATA = "data"
+    const val LISTEN = "listen"
+    const val EVALUATION = "evaluation"
     fun detail(id: String) = "detail/$id"
     fun message(id: Long) = "message/$id"
 }
@@ -70,7 +78,16 @@ private val topLevel = listOf(
 
 /** Shows onboarding until it is finished, then the main navigation. */
 @Composable
-fun AppRoot(openWindowId: String?, onWindowOpened: () -> Unit, openMessageId: Long? = null, onMessageOpened: () -> Unit = {}) {
+fun AppRoot(
+    openWindowId: String?,
+    onWindowOpened: () -> Unit,
+    openMessageId: Long? = null,
+    onMessageOpened: () -> Unit = {},
+    openListen: Boolean = false,
+    onListenOpened: () -> Unit = {},
+    sharedImage: Uri? = null,
+    onSharedImageOpened: () -> Unit = {},
+) {
     val container = LocalAppContainer.current
     val context = LocalContext.current
     val settings by container.settings.settings.collectAsStateWithLifecycle(initialValue = null)
@@ -96,6 +113,20 @@ fun AppRoot(openWindowId: String?, onWindowOpened: () -> Unit, openMessageId: Lo
             onMessageOpened()
         }
     }
+    LaunchedEffect(openListen) {
+        if (openListen) {
+            nav.navigate(Routes.LISTEN) { launchSingleTop = true }
+            onListenOpened()
+        }
+    }
+    var pendingImage by remember { mutableStateOf<Uri?>(null) }
+    LaunchedEffect(sharedImage) {
+        if (sharedImage != null) {
+            pendingImage = sharedImage
+            nav.navigate(Routes.CHECK) { launchSingleTop = true }
+            onSharedImageOpened()
+        }
+    }
     val backStack by nav.currentBackStackEntryAsState()
     val route = backStack?.destination?.route
 
@@ -114,7 +145,7 @@ fun AppRoot(openWindowId: String?, onWindowOpened: () -> Unit, openMessageId: Lo
                     onOpenModels = { nav.navigate(Routes.MODELS) },
                 )
             }
-            composable(Routes.CHECK) { CheckScreen() }
+            composable(Routes.CHECK) { CheckScreen(pendingImage, onSharedImageChecked = { pendingImage = null }) }
             composable(Routes.HISTORY) {
                 HistoryScreen(onOpen = { nav.navigate(Routes.detail(it)) }, onOpenMessage = { nav.navigate(Routes.message(it)) })
             }
@@ -124,6 +155,8 @@ fun AppRoot(openWindowId: String?, onWindowOpened: () -> Unit, openMessageId: Lo
                     onOpenModels = { nav.navigate(Routes.MODELS) },
                     onOpenNumbers = { nav.navigate(Routes.NUMBERS) },
                     onOpenData = { nav.navigate(Routes.DATA) },
+                    onOpenListen = { nav.navigate(Routes.LISTEN) },
+                    onOpenEvaluation = { nav.navigate(Routes.EVALUATION) },
                 ) }
             composable(Routes.MESSAGE) { entry ->
                 MessageDetailScreen(id = entry.arguments?.getString("id")?.toLongOrNull() ?: -1, onBack = nav::popBackStack)
@@ -132,7 +165,11 @@ fun AppRoot(openWindowId: String?, onWindowOpened: () -> Unit, openMessageId: Lo
             composable(Routes.NUMBERS) { NumbersScreen(onBack = nav::popBackStack) }
             composable(Routes.DATA) { DataScreen(onBack = nav::popBackStack) }
             composable(Routes.SIMULATOR) { SimulatorScreen(onBack = nav::popBackStack) }
+            composable(Routes.LISTEN) {
+                ListenScreen(onBack = nav::popBackStack, onOpenCall = { nav.navigate(Routes.detail(it)) })
+            }
             composable(Routes.HEALTH) { HealthScreen(onBack = nav::popBackStack) }
+            composable(Routes.EVALUATION) { EvaluationScreen(onBack = nav::popBackStack) }
             composable(Routes.DETAIL) { entry ->
                 AlertDetailScreen(windowId = entry.arguments?.getString("id").orEmpty(), onBack = nav::popBackStack)
             }

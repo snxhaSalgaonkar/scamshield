@@ -7,7 +7,6 @@ import { Wordmark } from '@/components/Wordmark'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RESTRICTED_MESSAGE, useAuth } from '@/lib/auth'
-import { isMock } from '@/lib/env'
 
 const LAYERS = [
   { code: 'L1', title: 'Content', text: 'Scam phrases and tactics, detected on the phone', icon: MessageSquareText },
@@ -121,13 +120,6 @@ function LoginForm() {
           {pending ? 'Checking credentials…' : 'Sign in'}
         </button>
       </form>
-
-      {isMock && (
-        <div className="mt-5 rounded-xl px-4 py-3 text-[13px] leading-relaxed" style={{ background: 'var(--police-brass-soft)', color: '#6b3a26' }}>
-          <strong>Demo mode.</strong> No backend: any email and password work. Use an email containing{' '}
-          <code className="font-mono">citizen</code> to see how a non-authority account is rejected.
-        </div>
-      )}
     </div>
   )
 }

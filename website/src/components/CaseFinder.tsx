@@ -1,6 +1,6 @@
 'use client'
 
-import { FileText, LayoutDashboard, Map, MonitorPlay, Network, PhoneOff, Rows3, Search } from 'lucide-react'
+import { FileText, LayoutDashboard, PhoneOff, Rows3, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { RiskBadge } from '@/components/RiskBadge'
@@ -24,9 +24,6 @@ const PAGES: Result[] = [
   { id: 'p-overview', icon: <LayoutDashboard className="size-4" />, title: 'Overview', detail: 'Live feed and summary', to: '/dashboard' },
   { id: 'p-reports', icon: <Rows3 className="size-4" />, title: 'Reports', detail: 'Filter, page and export', to: '/dashboard/reports' },
   { id: 'p-numbers', icon: <PhoneOff className="size-4" />, title: 'Numbers', detail: 'Reported and flagged numbers', to: '/dashboard/numbers' },
-  { id: 'p-clusters', icon: <Network className="size-4" />, title: 'Clusters', detail: 'Number-series gangs', to: '/dashboard/clusters' },
-  { id: 'p-map', icon: <Map className="size-4" />, title: 'Map', detail: 'Reports by telecom circle', to: '/dashboard/map' },
-  { id: 'p-wall', icon: <MonitorPlay className="size-4" />, title: 'Command wall', detail: 'Full-screen projector view', to: '/command' },
 ]
 
 const norm = (s: string) => s.toLowerCase().replace(/[\s/+-]+/g, '')

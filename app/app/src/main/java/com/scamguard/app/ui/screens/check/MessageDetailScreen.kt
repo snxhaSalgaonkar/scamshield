@@ -19,6 +19,17 @@ import com.scamguard.app.ui.components.FeedbackButtons
 import com.scamguard.app.ui.components.MessageVerdictCard
 import com.scamguard.app.ui.components.ScreenFrame
 import com.scamguard.app.ui.components.formatTime
+import com.scamguard.app.ui.components.highlightScamPhrases
+import com.scamguard.app.ui.components.TagChip
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.scamguard.app.ui.navigation.containerViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -39,7 +50,8 @@ class MessageDetailViewModel(private val container: AppContainer, id: Long) : Vi
     }
 }
 
-/** A suspicious-message verdict. The text itself was never stored. */
+/** A flagged message: its text with scam words marked, why it was flagged and the model's verdict. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MessageDetailScreen(id: Long, onBack: () -> Unit) {
     val vm = containerViewModel(key = "msg-$id") { MessageDetailViewModel(it, id) }
@@ -48,7 +60,22 @@ fun MessageDetailScreen(id: Long, onBack: () -> Unit) {
 
     ScreenFrame(stringResource(R.string.message_detail_title), onBack = onBack) {
         val c = check ?: return@ScreenFrame
-        Text(formatTime(c.ts), style = MaterialTheme.typography.bodyMedium)
+        Text(
+            c.sender?.let { stringResource(R.string.message_detail_from, it, formatTime(c.ts)) } ?: formatTime(c.ts),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        c.body?.let { body ->
+            Card(Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(stringResource(R.string.check_highlighted), style = MaterialTheme.typography.titleMedium)
+                    Text(highlightScamPhrases(body), style = MaterialTheme.typography.bodyLarge)
+                }
+            }
+        }
+        val reasons = c.reasons.split(",").filter { it.isNotBlank() }
+        if (reasons.isNotEmpty()) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) { reasons.forEach { TagChip(it) } }
+        }
         MessageVerdictCard(
             Labels.parseMessageVerdict(c.verdict), c.scamProbability, MessageCategory.parse(c.category),
             c.indicators.split(",").filter { it.isNotBlank() }, simulated = c.simulated,
@@ -60,7 +87,7 @@ fun MessageDetailScreen(id: Long, onBack: () -> Unit) {
             )
         }
         if (c.senderTrusted) Text(stringResource(R.string.message_detail_trusted), style = MaterialTheme.typography.bodyMedium)
-        Text(stringResource(R.string.message_detail_no_text), style = MaterialTheme.typography.bodySmall)
+        if (c.body == null) Text(stringResource(R.string.message_detail_no_text), style = MaterialTheme.typography.bodySmall)
         c.modelVersion?.let { Text(stringResource(R.string.detail_model_version, it), style = MaterialTheme.typography.bodySmall) }
         FeedbackButtons(fb?.verdict?.let { v -> ModelFeedback.entries.firstOrNull { it.name == v } }, vm::feedback)
         Text(stringResource(R.string.check_advice), style = MaterialTheme.typography.bodyMedium)

@@ -45,13 +45,17 @@ await db.exec(`
   create publication supabase_realtime;
 `)
 
-for (const f of ['001_schema.sql', '002_rls.sql', '003_triggers_rpcs.sql', '004_seed.sql']) {
+const fixture = join(process.cwd(), 'scripts', 'fixtures', 'demo_reports.sql')
+for (const f of ['001_schema.sql', '002_rls.sql', '003_triggers_rpcs.sql', '004_number_series.sql']) {
   await db.exec(readFileSync(join(sqlDir, f), 'utf8'))
   console.log(`applied ${f}`)
 }
+await db.exec(readFileSync(fixture, 'utf8'))
+console.log('applied test fixture demo_reports.sql')
 // Re-running must be safe.
-for (const f of ['002_rls.sql', '003_triggers_rpcs.sql', '004_seed.sql']) await db.exec(readFileSync(join(sqlDir, f), 'utf8'))
-console.log('re-applied 002–004 (idempotency)')
+for (const f of ['002_rls.sql', '003_triggers_rpcs.sql', '004_number_series.sql']) await db.exec(readFileSync(join(sqlDir, f), 'utf8'))
+await db.exec(readFileSync(fixture, 'utf8'))
+console.log('re-applied 002–004 and the fixture (idempotency)')
 
 const one = async (sql, params) => (await db.query(sql, params)).rows[0]
 const all = async (sql, params) => (await db.query(sql, params)).rows
@@ -77,10 +81,10 @@ const OFFICER = '33333333-3333-4333-8333-333333333333'
 await db.query(`insert into auth.users (id, email) values ($1, null), ($2, null), ($3, 'officer@test')`, [CITIZEN, CITIZEN2, OFFICER])
 await db.query(`insert into public.profiles (id, role) values ($1, 'authority')`, [OFFICER])
 
-console.log('\nSeed')
-expectEq('45 seed reports', Number((await one(`select count(*) from reports where device_id like '5eed%'`)).count), 45)
+console.log('\nTest fixture')
+expectEq('45 fixture reports', Number((await one(`select count(*) from reports where device_id like '5eed%'`)).count), 45)
 expectEq('number_series has ≥ 60 prefixes', Number((await one(`select count(*) from number_series`)).count) >= 60, true)
-expectEq('every seed report got number_prefix + circle from the trigger',
+expectEq('every fixture report got number_prefix + circle from the trigger',
   Number((await one(`select count(*) from reports where number_prefix = '' or telecom_circle is null`)).count), 0)
 expectEq('98112 cluster: ≥ 6 reports, ≥ 3 numbers',
   await one(`select count(*)::int >= 6 as r, count(distinct caller_number)::int >= 3 as n from reports where number_prefix = '98112'`), { r: true, n: true })

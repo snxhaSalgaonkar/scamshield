@@ -1,5 +1,20 @@
 package com.scamguard.app.ui.screens.history
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.material3.Button
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
+import com.scamguard.app.service.InboxScanner
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
+import androidx.compose.ui.text.style.TextOverflow
+import com.scamguard.app.ui.components.highlightScamPhrases
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,17 +62,41 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
 /** Lists every scored call window and every flagged message, newest first. */
-class HistoryViewModel(dao: DecisionDao, messages: MessageCheckDao) : ViewModel() {
+class HistoryViewModel(dao: DecisionDao, messages: MessageCheckDao, private val scanner: InboxScanner) : ViewModel() {
     val items: StateFlow<List<DecisionEntity>?> =
         dao.observeAll().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
     val messages: StateFlow<List<MessageCheckEntity>?> =
         messages.observeAll().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    sealed interface ScanState {
+        data object Idle : ScanState
+        data class Running(val done: Int, val total: Int) : ScanState
+        data class Done(val result: InboxScanner.Result) : ScanState
+        data object Denied : ScanState
+    }
+
+    private val _scan = MutableStateFlow<ScanState>(ScanState.Idle)
+    val scan: StateFlow<ScanState> = _scan.asStateFlow()
+
+    fun scanInbox() {
+        if (_scan.value is ScanState.Running) return
+        _scan.value = ScanState.Running(0, 0)
+        viewModelScope.launch {
+            _scan.value = try {
+                ScanState.Done(scanner.scan { done, total -> _scan.value = ScanState.Running(done, total) })
+            } catch (_: SecurityException) {
+                ScanState.Denied
+            }
+        }
+    }
+
+    fun denied() { _scan.value = ScanState.Denied }
 }
 
 /** History: calls from unknown numbers, and messages the model flagged. */
 @Composable
 fun HistoryScreen(onOpen: (String) -> Unit, onOpenMessage: (Long) -> Unit) {
-    val vm = containerViewModel { HistoryViewModel(it.database.decisions(), it.database.messageChecks()) }
+    val vm = containerViewModel { HistoryViewModel(it.database.decisions(), it.database.messageChecks(), it.inboxScanner) }
     val items by vm.items.collectAsStateWithLifecycle()
     val messages by vm.messages.collectAsStateWithLifecycle()
     var tab by rememberSaveable { mutableIntStateOf(0) }
@@ -67,6 +106,7 @@ fun HistoryScreen(onOpen: (String) -> Unit, onOpenMessage: (Long) -> Unit) {
             Tab(selected = tab == 1, onClick = { tab = 1 }, text = { Text(stringResource(R.string.history_tab_messages)) })
         }
         if (tab == 1) {
+            InboxScanBar(vm)
             val list = messages ?: return@ScreenFrame
             if (list.isEmpty()) {
                 EmptyState(stringResource(R.string.history_messages_empty_title), stringResource(R.string.history_messages_empty_body))
@@ -109,6 +149,34 @@ private fun HistoryRow(d: DecisionEntity, onClick: () -> Unit) {
     }
 }
 
+/** "Scan my SMS inbox": asks for READ_SMS once, then classifies past messages into this list. */
+@Composable
+private fun InboxScanBar(vm: HistoryViewModel) {
+    val context = LocalContext.current
+    val scan by vm.scan.collectAsStateWithLifecycle()
+    val ask = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
+        if (ok) vm.scanInbox() else vm.denied()
+    }
+    val running = scan is HistoryViewModel.ScanState.Running
+    Button(
+        onClick = {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED) vm.scanInbox()
+            else ask.launch(Manifest.permission.READ_SMS)
+        },
+        enabled = !running,
+        modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+    ) { Text(stringResource(R.string.history_scan_inbox)) }
+    when (val s = scan) {
+        is HistoryViewModel.ScanState.Running ->
+            Text(stringResource(R.string.history_scan_running, s.done, s.total), style = MaterialTheme.typography.bodyMedium)
+        is HistoryViewModel.ScanState.Done ->
+            Text(stringResource(R.string.history_scan_done, s.result.scanned, s.result.flagged), style = MaterialTheme.typography.bodyMedium)
+        HistoryViewModel.ScanState.Denied ->
+            Text(stringResource(R.string.history_scan_denied), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
+        HistoryViewModel.ScanState.Idle -> Unit
+    }
+}
+
 @Composable
 private fun MessageRow(m: MessageCheckEntity, onClick: () -> Unit) {
     Card(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
@@ -118,7 +186,9 @@ private fun MessageRow(m: MessageCheckEntity, onClick: () -> Unit) {
                 if (m.simulated) { ChipGap(); TagChip(stringResource(R.string.tag_simulated)) }
             }
             MessageCategory.parse(m.category)?.let { Text(stringResource(Labels.category(it)), style = MaterialTheme.typography.bodyMedium) }
-            Text(formatTime(m.ts), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            m.reasons.split(",").firstOrNull { it.isNotBlank() }?.let { TagChip(it) }
+            m.body?.let { Text(highlightScamPhrases(it), style = MaterialTheme.typography.bodyMedium, maxLines = 3, overflow = TextOverflow.Ellipsis) }
+            Text(listOfNotNull(m.sender, formatTime(m.ts)).joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

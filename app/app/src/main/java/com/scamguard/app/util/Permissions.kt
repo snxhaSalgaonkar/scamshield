@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.AppOpsManager
 import android.app.NotificationManager
 import android.app.role.RoleManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -14,6 +15,8 @@ import android.os.Process
 import android.provider.Settings
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.scamguard.app.BuildConfig
+import com.scamguard.app.collectors.VideoCallMonitor
 
 /** Permission, role and special-access checks used by onboarding and the health screen. */
 object Permissions {
@@ -26,6 +29,8 @@ object Permissions {
         add(Manifest.permission.CALL_PHONE)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) add(Manifest.permission.ANSWER_PHONE_CALLS)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) add(Manifest.permission.POST_NOTIFICATIONS)
+        // Caller number for authority reports when the call-screening role is not held.
+        if (BuildConfig.SUPABASE_URL.isNotBlank()) add(Manifest.permission.READ_CALL_LOG)
     }
 
     fun isGranted(context: Context, permission: String): Boolean =
@@ -75,6 +80,21 @@ object Permissions {
     }
 
     fun usageAccessIntent(): Intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+
+    /** Notification access, used only to see video calls in WhatsApp, Skype and similar apps. */
+    fun hasNotificationAccess(context: Context): Boolean =
+        context.packageName in NotificationManagerCompat.getEnabledListenerPackages(context)
+
+    fun notificationAccessIntent(context: Context): Intent =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Intent(Settings.ACTION_NOTIFICATION_LISTENER_DETAIL_SETTINGS)
+                .putExtra(
+                    Settings.EXTRA_NOTIFICATION_LISTENER_COMPONENT_NAME,
+                    ComponentName(context, VideoCallMonitor::class.java).flattenToString(),
+                )
+        } else {
+            Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+        }
 
     fun isIgnoringBatteryOptimizations(context: Context): Boolean =
         context.getSystemService(PowerManager::class.java)?.isIgnoringBatteryOptimizations(context.packageName) == true

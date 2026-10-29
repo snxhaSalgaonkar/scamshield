@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -14,6 +16,16 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
+
+        // Authority server (Supabase) for flagged-call reports, from local.properties (not committed):
+        //   supabase.url=https://<project>.supabase.co
+        //   supabase.anonKey=<publishable / anon key>   (never the service-role key)
+        // Left empty, the app sends nothing, exactly as before.
+        val local = Properties().apply {
+            rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+        }
+        buildConfigField("String", "SUPABASE_URL", "\"${local.getProperty("supabase.url", "").trim().trimEnd('/')}\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${local.getProperty("supabase.anonKey", "").trim()}\"")
     }
 
     buildTypes {
@@ -29,6 +41,8 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+        // Interface of the Shizuku user service that records call audio.
+        aidl = true
     }
     testOptions {
         unitTests.isReturnDefaultValues = true
@@ -59,6 +73,11 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.coroutines.android)
+    // On-device OCR for the video-call screen check (bundled model, works offline).
+    implementation(libs.mlkit.text.recognition)
+    // Shizuku: lets call listening record call audio with ADB-shell rights (no root).
+    implementation(libs.shizuku.api)
+    implementation(libs.shizuku.provider)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     testImplementation(libs.junit)

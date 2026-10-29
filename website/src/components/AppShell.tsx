@@ -1,6 +1,6 @@
 'use client'
 
-import { FlaskConical, LogOut, MonitorPlay, Search } from 'lucide-react'
+import { LogOut, Search } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState, type ReactNode } from 'react'
@@ -9,15 +9,12 @@ import { SpikeBanner } from '@/components/SpikeBanner'
 import { Wordmark } from '@/components/Wordmark'
 import { useRealtime } from '@/hooks/realtime'
 import { useAuth } from '@/lib/auth'
-import { isMock } from '@/lib/env'
 import { cn } from '@/lib/utils'
 
 const NAV = [
   { href: '/dashboard', label: 'Overview', exact: true },
   { href: '/dashboard/reports', label: 'Reports' },
   { href: '/dashboard/numbers', label: 'Numbers' },
-  { href: '/dashboard/clusters', label: 'Clusters' },
-  { href: '/dashboard/map', label: 'Map' },
 ]
 
 const STATUS_TEXT = { live: 'Live', connecting: 'Connecting…', offline: 'Offline' } as const
@@ -32,7 +29,7 @@ function useClock() {
   return now
 }
 
-export function AppShell({ children, simulatorEnabled }: { children: ReactNode; simulatorEnabled: boolean }) {
+export function AppShell({ children }: { children: ReactNode }) {
   const { officer, signOut } = useAuth()
   const { status } = useRealtime()
   const router = useRouter()
@@ -116,35 +113,6 @@ export function AppShell({ children, simulatorEnabled }: { children: ReactNode; 
               <span className="hidden xl:inline">Find</span>
               <kbd className="ml-auto hidden rounded bg-white/10 px-1.5 py-0.5 font-mono text-[11px] text-white/55 xl:inline">Ctrl K</kbd>
             </button>
-
-            {isMock && (
-              <span
-                className="rounded-lg border px-2 py-0.5 text-xs font-medium whitespace-nowrap"
-                style={{ borderColor: 'rgb(166 94 70 / 0.5)', color: 'var(--police-brass)' }}
-                title="Showing generated demo data, not real reports"
-              >
-                Demo data
-              </span>
-            )}
-
-            {simulatorEnabled && (
-              <Link
-                href="/dev/simulate"
-                className="flex size-9 items-center justify-center rounded-lg text-white/70 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-white/70"
-                title="Demo simulator"
-                aria-label="Demo simulator"
-              >
-                <FlaskConical className="size-4" aria-hidden />
-              </Link>
-            )}
-            <Link
-              href="/command"
-              className="flex size-9 items-center justify-center rounded-lg text-white/70 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-white/70"
-              title="Command wall (projector view)"
-              aria-label="Command wall"
-            >
-              <MonitorPlay className="size-4" aria-hidden />
-            </Link>
 
             {officer && (
               <div className="ml-1 flex items-center gap-3 pl-3" style={{ borderLeft: '1px solid rgb(255 255 255 / 0.15)' }}>

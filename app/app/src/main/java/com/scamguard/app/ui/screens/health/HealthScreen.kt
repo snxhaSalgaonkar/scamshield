@@ -140,6 +140,7 @@ private fun action(c: Capability, context: Context): Fix? {
         CapabilityId.FORWARDING ->
             if (c.state == CapabilityState.DENIED) Fix.Request(arrayOf(Manifest.permission.CALL_PHONE, Manifest.permission.READ_PHONE_STATE)) else null
         CapabilityId.USAGE_ACCESS -> Fix.Open(Permissions.usageAccessIntent())
+        CapabilityId.VIDEO_CALLS -> Fix.Open(Permissions.notificationAccessIntent(context))
         CapabilityId.BATTERY -> Fix.Open(Permissions.batteryOptimizationIntent())
         CapabilityId.MICROPHONE -> Fix.Request(arrayOf(Manifest.permission.RECORD_AUDIO))
         CapabilityId.DEVICE_ADMIN -> Fix.Open(GuardDeviceAdmin.activationIntent(context))
@@ -165,6 +166,7 @@ private fun texts(id: CapabilityId): Pair<Int, Int> = when (id) {
     CapabilityId.END_CALL -> R.string.cap_end_call to R.string.cap_end_call_desc
     CapabilityId.FORWARDING -> R.string.cap_forwarding to R.string.cap_forwarding_desc
     CapabilityId.USAGE_ACCESS -> R.string.cap_usage to R.string.cap_usage_desc
+    CapabilityId.VIDEO_CALLS -> R.string.cap_video_calls to R.string.cap_video_calls_desc
     CapabilityId.BATTERY -> R.string.cap_battery to R.string.cap_battery_desc
     CapabilityId.MICROPHONE -> R.string.cap_microphone to R.string.cap_microphone_desc
     CapabilityId.DEVICE_ADMIN -> R.string.cap_device_admin to R.string.cap_device_admin_desc

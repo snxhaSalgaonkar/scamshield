@@ -2,6 +2,8 @@ package com.scamguard.app.ui.screens.simulator
 
 import androidx.annotation.StringRes
 import com.scamguard.app.R
+import com.scamguard.app.bus.CallChannel
+import com.scamguard.app.bus.ScreenCategory
 import com.scamguard.app.bus.SignalEvent
 import com.scamguard.app.engine.RiskLevel
 import com.scamguard.app.util.Hashing
@@ -12,7 +14,9 @@ private const val MIN = 60 * SEC
 /**
  * A scripted event stream with the level the pipeline should reach. [messages] are demo
  * SMS texts (timestamp to text) that the simulator runs through the real on-device message
- * model, exactly as a received SMS would be; they are invented for the demo.
+ * model, exactly as a received SMS would be; they are invented for the demo. [speech] lines
+ * are what the caller "says" (timestamp to text), run through the voice-layer transcript
+ * matcher as a speech-to-text chunk would be.
  */
 data class Scenario(
     val id: Int,
@@ -20,6 +24,7 @@ data class Scenario(
     @StringRes val description: Int,
     val expected: RiskLevel,
     val messages: (base: Long) -> List<Pair<Long, String>> = { emptyList() },
+    val speech: (base: Long) -> List<Pair<Long, String>> = { emptyList() },
     val events: (base: Long) -> List<SignalEvent>,
 )
 
@@ -40,6 +45,32 @@ object Scenarios {
         "Stay on the video call and do not inform family. Move your savings to the verification account today or face arrest."
     const val KYC_SMS = "Dear customer your SBI YONO KYC has expired and your account will be blocked today. " +
         "Update now: sbi-yono-kyc.top/update.apk"
+    /** The digital-arrest script from the demo plan, English and Hinglish, one line per stage. */
+    val DIGITAL_ARREST_SPEECH_EN = listOf(
+        "This is Inspector Rao from the CBI cyber cell. A parcel in your name was found with illegal items.",
+        "You are under digital arrest. Do not disconnect this call and do not tell anyone, not even your family.",
+        "To verify your accounts you must transfer your money to a safe RBI account right now.",
+    )
+    val DIGITAL_ARREST_SPEECH_HINGLISH = listOf(
+        "Main CBI cyber cell se bol raha hoon. Aapke naam par ek parcel mein drugs mile hain.",
+        "Aap abhi digital arrest mein hain. Phone mat kaatna aur kisi ko mat batana.",
+        "Verification ke liye paise abhi safe account mein transfer karo.",
+    )
+    const val BANK_REMINDER_SPEECH = "Hello, this is a reminder from HDFC Bank that your credit card bill is due on the fifth. " +
+        "You can pay it in the app. Please never share your OTP or PIN with anyone."
+    const val DELIVERY_SPEECH = "Hi, I am from Amazon, I am outside your gate with your order. Please tell me the delivery OTP."
+    const val TRAFFIC_POLICE_SPEECH = "This is Bengaluru traffic police. There is a pending challan on your vehicle. " +
+        "You can check it on the official Parivahan website."
+
+    private fun lines(base: Long, text: List<String>, gap: Long = 40 * SEC) =
+        text.mapIndexed { i, line -> base + 20 * SEC + i * gap to line }
+
+    private fun voiceCall(base: Long, n: Int, endAfter: Long = 3 * MIN) = listOf(
+        unknownCall(base, n),
+        SignalEvent.CallActive(base + 5 * SEC),
+        SignalEvent.CallEnded(base + endAfter, endAfter - 5 * SEC),
+    )
+
     const val DELIVERY_SMS = "Your Amazon order is out for delivery today and will arrive by 6 pm. Track it in the Amazon app."
 
     val all: List<Scenario> = listOf(
@@ -121,6 +152,30 @@ object Scenarios {
                 SignalEvent.CallActive(b + 5 * SEC),
                 SignalEvent.CallEnded(b + 90 * SEC, 85 * SEC),
             )
+        },
+        Scenario(11, R.string.sc11_title, R.string.sc11_desc, RiskLevel.RED_FLAG) { b ->
+            listOf(
+                unknownCall(b, 11).copy(channel = CallChannel.VIDEO_APP),
+                SignalEvent.CallActive(b + 10 * SEC),
+                SignalEvent.ScreenEvidence(b + 6 * MIN, setOf(ScreenCategory.LAW_ENFORCEMENT, ScreenCategory.LEGAL_THREAT)),
+                SignalEvent.DebitReceived(b + 40 * MIN, 2_00_000_00, Hashing.payeeHash("demo-cbi-verification@upi"), 1_500_00),
+                SignalEvent.CallEnded(b + 45 * MIN, 45 * MIN - 10 * SEC),
+            )
+        },
+        Scenario(12, R.string.sc12_title, R.string.sc12_desc, RiskLevel.RED_FLAG, speech = { b -> lines(b, DIGITAL_ARREST_SPEECH_EN) }) { b ->
+            voiceCall(b, 12)
+        },
+        Scenario(13, R.string.sc13_title, R.string.sc13_desc, RiskLevel.RED_FLAG, speech = { b -> lines(b, DIGITAL_ARREST_SPEECH_HINGLISH) }) { b ->
+            voiceCall(b, 13)
+        },
+        Scenario(14, R.string.sc14_title, R.string.sc14_desc, RiskLevel.SAFE, speech = { b -> lines(b, listOf(BANK_REMINDER_SPEECH)) }) { b ->
+            voiceCall(b, 14, endAfter = 90 * SEC)
+        },
+        Scenario(15, R.string.sc15_title, R.string.sc15_desc, RiskLevel.SAFE, speech = { b -> lines(b, listOf(DELIVERY_SPEECH)) }) { b ->
+            voiceCall(b, 15, endAfter = 90 * SEC)
+        },
+        Scenario(16, R.string.sc16_title, R.string.sc16_desc, RiskLevel.SAFE, speech = { b -> lines(b, listOf(TRAFFIC_POLICE_SPEECH)) }) { b ->
+            voiceCall(b, 16, endAfter = 2 * MIN)
         },
     )
 }

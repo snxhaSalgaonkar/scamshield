@@ -29,14 +29,16 @@ class SmsReceiver : BroadcastReceiver() {
         val container = context.appContainer
         val now = System.currentTimeMillis()
         val bySender = messages.groupBy { it.originatingAddress }.map { (sender, parts) ->
-            container.trustedSenders.isTrusted(sender) to parts.joinToString("") { it.messageBody.orEmpty() }
+            Triple(sender, container.trustedSenders.isTrusted(sender), parts.joinToString("") { it.messageBody.orEmpty() })
         }
-        bySender.forEach { (trusted, body) -> emit(container.eventBus, SmsParser.classify(body), trusted, now) }
+        val classified = bySender.map { (_, trusted, body) -> SmsParser.classify(body).also { emit(container.eventBus, it, trusted, now) } }
         // Model inference runs off the main thread; the receiver stays alive until it is done.
         val pending = goAsync()
         container.appScope.launch {
             try {
-                bySender.forEach { (trusted, body) -> container.messageGuard.onSms(body, trusted, now) }
+                bySender.forEachIndexed { i, (sender, trusted, body) ->
+                    container.messageGuard.onSms(body, trusted, now, isOtp = classified[i].isOtp, sender = sender)
+                }
             } finally {
                 pending.finish()
             }

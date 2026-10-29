@@ -93,6 +93,9 @@ interface MessageCheckDao {
 
     @Query("SELECT * FROM message_checks ORDER BY ts DESC")
     suspend fun all(): List<MessageCheckEntity>
+
+    @Query("SELECT COUNT(*) FROM message_checks WHERE ts = :ts AND sender IS :sender")
+    suspend fun countAt(ts: Long, sender: String?): Int
 }
 
 /** Access to the user's verdicts on predictions. */

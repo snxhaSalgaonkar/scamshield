@@ -6,16 +6,27 @@
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- The on-demand video-call screen check; Android asks the user for consent every time. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <!-- Call listening: only after the user taps Allow on a call, with a visible notification. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <!-- "Scan my SMS inbox" in History: only when the user taps it; checked on the phone only. -->
+    <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <!-- Needed for the call-forwarding USSD check. The app never places calls itself. -->
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <!-- Needed for TelecomManager.endCall on Android 9+, used only after a user tap or in Demo Mode. -->
     <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
-    <!-- Lets the network-loss monitor see connectivity changes. Does not allow internet access. -->
+    <!-- Lets the network-loss monitor see connectivity changes. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Only used to send flagged-call reports to the authority server, when one is configured. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Reads only the flagged call's own number for the authority report, when the app is not the Caller ID & spam app. -->
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <!-- Optional special access, granted by the user in system settings. -->
     <uses-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
@@ -29,6 +40,10 @@
         <package android:name="com.teamviewer.quicksupport.market" />
         <package android:name="com.teamviewer.teamviewer.market.mobile" />
         <package android:name="com.rustdesk.rustdesk" />
+        <!-- The phone's speech-to-text service, used by call listening. -->
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
     </queries>
 
     <application
@@ -51,6 +66,12 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- "Share" an image (e.g. from WhatsApp) to check it for scam text. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
 
@@ -83,6 +104,64 @@
                 <action android:name="android.telecom.CallScreeningService" />
             </intent-filter>
         </service>
+
+        <!-- Sees video calls in WhatsApp, Skype and similar apps from their call notifications. -->
+        <service
+            android:name=".collectors.VideoCallMonitor"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <activity
+            android:name=".screencheck.ScreenCheckActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:taskAffinity="com.scamguard.app.screencheck"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <service
+            android:name=".screencheck.ScreenCheckService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
+
+        <activity
+            android:name=".voice.ListenActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:taskAffinity="com.scamguard.app.listen"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <!-- Shizuku hands its binder to the app through this provider (call-audio recording). -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:enabled="true"
+            android:exported="true"
+            android:multiprocess="false"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
+        <!-- Call-audio helper: lets call listening hear the call; reads no screen content. -->
+        <service
+            android:name=".voice.CallAudioHelper"
+            android:exported="false"
+            android:label="@string/call_audio_helper_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/call_audio_helper" />
+        </service>
+
+        <service
+            android:name=".voice.CallListenService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
 
         <receiver
             android:name=".collectors.SmsReceiver"

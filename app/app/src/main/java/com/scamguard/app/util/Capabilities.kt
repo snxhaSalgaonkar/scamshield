@@ -8,7 +8,7 @@ enum class CapabilityState { AVAILABLE, DENIED, RESTRICTED, UNSUPPORTED, NOT_CON
 /** Every permission, role and special access the Health screen lists. */
 enum class CapabilityId {
     SMS, PHONE_STATE, CONTACTS, NOTIFICATIONS, FULL_SCREEN, CALL_SCREENING,
-    END_CALL, FORWARDING, USAGE_ACCESS, BATTERY, MICROPHONE, DEVICE_ADMIN,
+    END_CALL, FORWARDING, USAGE_ACCESS, VIDEO_CALLS, BATTERY, MICROPHONE, DEVICE_ADMIN,
 }
 
 data class Capability(val id: CapabilityId, val state: CapabilityState, val optional: Boolean)
@@ -69,6 +69,11 @@ object Capabilities {
                 optional = true,
             ),
             Capability(CapabilityId.USAGE_ACCESS, if (h.usageAccess) CapabilityState.AVAILABLE else CapabilityState.NOT_CONFIGURED, optional = true),
+            Capability(
+                CapabilityId.VIDEO_CALLS,
+                if (h.notificationAccess) CapabilityState.AVAILABLE else CapabilityState.NOT_CONFIGURED,
+                optional = true,
+            ),
             Capability(CapabilityId.BATTERY, if (h.batteryUnrestricted) CapabilityState.AVAILABLE else CapabilityState.RESTRICTED, optional = true),
             Capability(CapabilityId.MICROPHONE, perm(h.microphone), optional = true),
             Capability(CapabilityId.DEVICE_ADMIN, if (deviceAdmin) CapabilityState.AVAILABLE else CapabilityState.NOT_CONFIGURED, optional = true),

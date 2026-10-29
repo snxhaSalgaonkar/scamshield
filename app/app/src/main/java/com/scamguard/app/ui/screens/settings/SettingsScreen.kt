@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
@@ -27,15 +28,18 @@ import com.scamguard.app.ui.components.ConsentToggles
 import com.scamguard.app.ui.components.ScreenFrame
 import com.scamguard.app.ui.components.ToggleRow
 import com.scamguard.app.ui.navigation.containerViewModel
+import com.scamguard.app.voice.ListenActivity
 
 /** Settings: links to health, models, numbers and data; consent levels, language and Demo Mode. */
 @Composable
 fun SettingsScreen(
     onOpenSimulator: () -> Unit,
+    onOpenListen: () -> Unit,
     onOpenHealth: () -> Unit,
     onOpenModels: () -> Unit,
     onOpenNumbers: () -> Unit,
     onOpenData: () -> Unit,
+    onOpenEvaluation: () -> Unit = {},
 ) {
     val vm = containerViewModel { SettingsViewModel(it) }
     val state by vm.state.collectAsStateWithLifecycle()
@@ -47,6 +51,7 @@ fun SettingsScreen(
             R.string.settings_models to onOpenModels,
             R.string.settings_numbers to onOpenNumbers,
             R.string.settings_data to onOpenData,
+            R.string.eval_title to onOpenEvaluation,
         ).forEach { (label, onClick) ->
             OutlinedButton(onClick = onClick, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                 Text(stringResource(label))
@@ -79,9 +84,30 @@ fun SettingsScreen(
         }
 
         SectionTitle(stringResource(R.string.settings_demo))
+        val context = LocalContext.current
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
                 ToggleRow(stringResource(R.string.demo_mode_title), stringResource(R.string.demo_mode_desc), s.demoMode, vm::setDemoMode)
+                ToggleRow(
+                    stringResource(R.string.contacts_as_unknown_title),
+                    stringResource(R.string.contacts_as_unknown_desc),
+                    s.contactsAsUnknown,
+                    vm::setContactsAsUnknown,
+                )
+                Text(
+                    stringResource(R.string.listen_test_desc),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                OutlinedButton(
+                    onClick = { context.startActivity(ListenActivity.intent(context, ListenActivity.Mode.TEST)) },
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                ) {
+                    Text(stringResource(R.string.listen_test_button))
+                }
+                OutlinedButton(onClick = onOpenListen, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                    Text(stringResource(R.string.listen_screen_title))
+                }
                 if (s.demoMode) {
                     OutlinedButton(onClick = onOpenSimulator, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                         Text(stringResource(R.string.simulator_title))

@@ -12,11 +12,16 @@ import kotlin.math.roundToInt
  * Conventional code here only gates and words the result: known callers stay silent, a
  * red flag must not rest on a single signal (if removing the strongest piece of evidence
  * would drop the model's estimate below the warning threshold, the level is capped at
- * warning), and "This was me" silences the window.
+ * warning), and "This was me" silences the window. Video-call windows then get the
+ * [DigitalArrestRules] evidence on top, every window the spoken-content
+ * [VoiceRules] evidence when the voice layer is on, and the OTP-theft [OtpRules] last.
  */
 class CallRiskScorer(private val predictions: ScamPredictionService) {
 
-    fun evaluate(input: RiskInput, config: RiskConfig = RiskConfig()): Decision {
+    fun evaluate(input: RiskInput, config: RiskConfig = RiskConfig()): Decision =
+        OtpRules.apply(input, VoiceRules.apply(input, DigitalArrestRules.apply(input, evaluateCall(input, config), config), config), config)
+
+    private fun evaluateCall(input: RiskInput, config: RiskConfig): Decision {
         val w = input.window
         if (!w.isUnknown) return RiskEngine.evaluate(input, config)
         val x = CallFeatures.build(input, config)

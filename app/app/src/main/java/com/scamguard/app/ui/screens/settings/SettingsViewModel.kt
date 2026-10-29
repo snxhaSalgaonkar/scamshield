@@ -22,6 +22,7 @@ class SettingsViewModel(private val container: AppContainer) : ViewModel() {
     fun setTrainingUpload(on: Boolean) = viewModelScope.launch { settings.setTrainingUpload(on) }
     fun setCaseSharing(on: Boolean) = viewModelScope.launch { settings.setCaseSharing(on) }
     fun setDemoMode(on: Boolean) = viewModelScope.launch { settings.setDemoMode(on) }
+    fun setContactsAsUnknown(on: Boolean) = viewModelScope.launch { settings.setContactsAsUnknown(on) }
 
     /** "system", "en" or "hi". Applied through AppCompat so it also works below Android 13. */
     fun setLanguage(tag: String) {

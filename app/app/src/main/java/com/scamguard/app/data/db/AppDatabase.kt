@@ -18,7 +18,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         MessageCheckEntity::class,
         PredictionFeedbackEntity::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -33,13 +33,22 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         fun create(context: Context): AppDatabase =
             Room.databaseBuilder(context, AppDatabase::class.java, "scamguard.db")
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .build()
 
         /** v2: ML columns on decisions, message checks and the feedback table. Keeps all v1 data. */
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 MIGRATION_1_2_SQL.forEach(db::execSQL)
+            }
+        }
+
+        /** v3: flagged SMS keep their text, sender and rule reasons for the message history. */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE message_checks ADD COLUMN body TEXT")
+                db.execSQL("ALTER TABLE message_checks ADD COLUMN sender TEXT")
+                db.execSQL("ALTER TABLE message_checks ADD COLUMN reasons TEXT NOT NULL DEFAULT ''")
             }
         }
 

@@ -11,7 +11,7 @@ import { scamTypeLabel } from '@/lib/labels'
 import { THRESHOLDS } from '@/lib/risk'
 import type { RealtimeStatus, Report } from '@/lib/types'
 
-/** Reports of the last 7 days: the shared working set for overview, clusters, map and spikes. */
+/** Reports of the last 7 days: the shared working set for the overview, finder and spikes. */
 export const WINDOW_KEY = ['reports', 'window'] as const
 
 const FRESH_MS = 3_000

@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, BadgeCheck, Lock, Network, Printer, Rows3, Siren, Sparkles } from 'lucide-react'
+import { ArrowLeft, BadgeCheck, Lock, Printer, Rows3, Siren, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useState, type ReactNode } from 'react'
@@ -293,9 +293,6 @@ export default function ReportDetailPage() {
             <div className="mt-3 flex flex-col gap-1.5">
               <Link href={`/dashboard/reports?number=${report.caller_number.replace(/\D/g, '')}`} className="inline-flex items-center gap-1.5 text-sm font-medium text-navy underline underline-offset-2">
                 <Rows3 className="size-3.5" aria-hidden /> All reports for this number
-              </Link>
-              <Link href={`/dashboard/clusters?prefix=${report.number_prefix}`} className="inline-flex items-center gap-1.5 text-sm font-medium text-navy underline underline-offset-2">
-                <Network className="size-3.5" aria-hidden /> View number-series cluster {report.number_prefix}-XXXXX
               </Link>
             </div>
           </Section>

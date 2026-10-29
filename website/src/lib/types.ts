@@ -80,13 +80,6 @@ export interface NumberRecord {
   is_flagged: boolean
 }
 
-/** One row of `number_series`. */
-export interface NumberSeries {
-  prefix: string
-  operator: string | null
-  telecom_circle: string | null
-}
-
 export type StatsRange = '24h' | '7d'
 
 export interface TimeBucket {
@@ -102,8 +95,6 @@ export interface Stats {
   byScamType: Partial<Record<ScamType, number>>
   byDetectedVia: Partial<Record<DetectedVia, number>>
   disconnected: number
-  /** disconnected × AVG_LOSS_PREVENTED_INR — an estimate, always label it as one. */
-  moneyProtectedEstimate: number
   falsePositive: FalsePositiveRate
   overTime: TimeBucket[]
   awaitingReview: number
@@ -140,7 +131,7 @@ export interface ReportPage {
 
 export type RealtimeStatus = 'connecting' | 'live' | 'offline'
 
-/** Everything the UI needs from a backend. Implemented by data.supabase.ts and data.mock.ts. */
+/** Everything the UI needs from the backend. Implemented by data.supabase.ts. */
 export interface DataSource {
   getReports(filters?: ReportFilters): Promise<Report[]>
   /** One page of reports, newest first, with the total count for the same filters. */
@@ -151,7 +142,6 @@ export interface DataSource {
   updateReportStatus(id: string, status: ReportStatus): Promise<void>
   getNumbers(opts?: { flaggedOnly?: boolean }): Promise<NumberRecord[]>
   getNumber(number: string): Promise<NumberRecord | null>
-  getNumberSeries(): Promise<NumberSeries[]>
   getStats(range: StatsRange): Promise<Stats>
   /** CSV of all reports matching the filters (authority only). */
   exportCsv(filters: ReportFilters): Promise<Blob>

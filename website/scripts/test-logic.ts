@@ -3,11 +3,9 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import {
   aggregateNumbers,
-  circleActivity,
   computeStats,
   detectSpikes,
   falsePositiveRate,
-  groupClusters,
   HOUR,
   timeBuckets,
 } from '../src/lib/analytics'
@@ -15,12 +13,9 @@ import { reportsToCsv } from '../src/lib/csv'
 import { applyFilters, filtersFromParams, filtersToParams, matchesFilters } from '../src/lib/filters'
 import { caseRef, deviceHash, formatPhone, maskPhone } from '../src/lib/format'
 import { fuse } from '../src/lib/fusion'
-import { mockDataSource, simulateLocally } from '../src/lib/data.mock'
-import { circleOf, NUMBER_SERIES, prefixOf } from '../src/lib/numberSeries'
 import { bandOf, layersInAgreement } from '../src/lib/risk'
-import { buildScenario, DEMO_NUMBERS, SIM_SCENARIOS, seededRng } from '../src/lib/scenarios'
 import { groupTactics, tacticOf } from '../src/lib/tactics'
-import { ACTIONS_TAKEN, DETECTED_VIA, SCAM_TYPES, type Report } from '../src/lib/types'
+import type { Report } from '../src/lib/types'
 import { CIRCLE_NAMES } from '../src/lib/circles'
 
 let failures = 0
@@ -83,7 +78,6 @@ eq('maskPhone', maskPhone('+919876543210'), '+91 98XXX XX210')
 eq('formatPhone leaves non-Indian numbers', formatPhone('+447700900123'), '+447700900123')
 eq('deviceHash is stable and opaque', [deviceHash('abc'), deviceHash('abc') === deviceHash('abd')], ['dev-1a47e90b', false])
 eq('caseRef', caseRef({ id: '3f9a1c22-0000-4000-8000-000000000000', created_at: '2026-10-28T00:00:00Z' }), 'RC/CYB/2026/3F9A1C')
-eq('prefixOf / circleOf', [prefixOf('+919811255501'), circleOf('+919811255501'), circleOf('+910000000000')], ['98112', 'Delhi', null])
 
 console.log('\nFalse-positive rate')
 eq('none reviewed → null', falsePositiveRate([r({}), r({})]).rate, null)
@@ -112,7 +106,7 @@ const s7 = computeStats(statRows, '7d', NOW)
 eq('24h total / 7d total (8-day-old row excluded)', [s24.total, s7.total], [2, 3])
 eq('24h bands', s24.byBand, { safe: 0, warn: 1, high: 0, scam: 1 })
 eq('24h by detected_via', s24.byDetectedVia, { voice: 1, sms: 1, correlation: 1 })
-eq('disconnected + money estimate', [s24.disconnected, s24.moneyProtectedEstimate], [1, 85000])
+eq('disconnected', s24.disconnected, 1)
 eq('24 hourly / 7 daily buckets', [s24.overTime.length, s7.overTime.length], [24, 7])
 eq('bucket counts sum to total', [s24.overTime.reduce((a, b) => a + b.count, 0), s7.overTime.reduce((a, b) => a + b.count, 0)], [2, 3])
 eq('timeBuckets ignore rows outside range', timeBuckets([r({ hoursAgo: 25 })], '24h', NOW).reduce((a, b) => a + b.count, 0), 0)
@@ -132,20 +126,6 @@ eq('2 reports is below the minimum of 3', detectSpikes(burst.slice(0, 2), NOW).l
 const steady = Array.from({ length: 48 }, (_, i) => r({ hoursAgo: 1.2 + i * 0.5, scam_type: 'otp_theft', telecom_circle: 'Bihar' }))
 eq('3 in last hour vs 2/h baseline (1.5×) is not a spike', detectSpikes([...steady, ...[0.2, 0.4, 0.6].map((h) => r({ hoursAgo: h, scam_type: 'otp_theft', telecom_circle: 'Bihar' }))], NOW).length, 0)
 
-console.log('\nClusters')
-const clusterRows = [
-  ...['+919811200001', '+919811200002', '+919811200003'].map((n) => r({ caller_number: n, number_prefix: '98112', telecom_circle: 'Delhi', hoursAgo: 10 })),
-  ...Array.from({ length: 5 }, () => r({ caller_number: '+917042100001', number_prefix: '70421', scam_type: 'digital_arrest', hoursAgo: 50 })),
-  r({ caller_number: '+919999900001', number_prefix: '99999', hoursAgo: 3 }),
-  r({ caller_number: '+919999900002', number_prefix: '99999', hoursAgo: 3 }),
-  ...['+918888800001', '+918888800002', '+918888800003'].map((n) => r({ caller_number: n, number_prefix: '88888', hoursAgo: 24 * 8 })),
-]
-const clusters = groupClusters(clusterRows, NUMBER_SERIES, NOW)
-eq('≥3 numbers or ≥5 reports qualify; 2 numbers / old reports do not', clusters.map((c) => c.prefix).sort(), ['70421', '98112'])
-const c98 = clusters.find((c) => c.prefix === '98112')!
-eq('98112: 3 numbers, 3 reports, 3 devices, operator from number_series, trend up', [c98.numbers.length, c98.reportCount, c98.deviceCount, c98.operator, c98.trend], [3, 3, 3, 'Vi', 'up'])
-eq('70421: top type digital_arrest, trend down', [clusters.find((c) => c.prefix === '70421')!.topScamType, clusters.find((c) => c.prefix === '70421')!.trend], ['digital_arrest', 'down'])
-
 console.log('\nnumbers aggregate (mirrors refresh_number())')
 const agg = aggregateNumbers([
   r({ caller_number: '+911111111111', device_id: 'a' }),
@@ -162,7 +142,6 @@ const byN = Object.fromEntries(agg.map((n) => [n.number, n]))
 eq('3 reports from 2 devices → reporter_count 2, not flagged', [byN['+911111111111'].report_count, byN['+911111111111'].reporter_count, byN['+911111111111'].is_flagged], [3, 2, false])
 eq('3 devices → flagged, max risk', [byN['+912222222222'].is_flagged, byN['+912222222222'].max_risk_score], [true, 99])
 eq('3 devices, all marked safe → not flagged', [byN['+913333333333'].safe_count, byN['+913333333333'].is_flagged], [3, false])
-eq('circleActivity sorts by count', circleActivity(clusterRows.slice(0, 8)).map((c) => c.circle), ['Punjab', 'Delhi'])
 
 console.log('\nFilters')
 const fr = r({ scam_type: 'digital_arrest', risk_score: 92, status: 'escalated', detected_via: ['voice'], telecom_circle: 'Delhi', caller_number: '+919811255501', number_prefix: '98112' })
@@ -198,53 +177,11 @@ eq('tactic categories', ['CBI officer', "don't disconnect the call", 'share the 
 ])
 eq('groupTactics keeps category order', groupTactics(['digital arrest', 'CBI officer']).map((g) => g.tactic), ['authority', 'urgency'])
 
-console.log('\nnumber_series matches supabase/004_seed.sql')
-const seedSql = readFileSync(join(process.cwd(), 'supabase', '004_seed.sql'), 'utf8')
-const sqlSeries = [...seedSql.matchAll(/\('(\d{4})','([^']+)','([^']+)'\)/g)].map((m) => `${m[1]}|${m[2]}|${m[3]}`).sort()
-eq('same rows', sqlSeries, NUMBER_SERIES.map((s) => `${s.prefix}|${s.operator}|${s.telecom_circle}`).sort())
-truthy('every circle is a known telecom circle', NUMBER_SERIES.every((s) => CIRCLE_NAMES.includes(s.telecom_circle!)))
-
-console.log('\nScenarios')
-for (const s of SIM_SCENARIOS) {
-  const rows = buildScenario(s.id, seededRng(7), new Date(NOW))
-  const valid = rows.every(
-    (x) =>
-      SCAM_TYPES.includes(x.scam_type) &&
-      ACTIONS_TAKEN.includes(x.action_taken) &&
-      x.detected_via.every((v) => DETECTED_VIA.includes(v)) &&
-      x.risk_score >= 40 &&
-      x.risk_score <= 100 &&
-      /^\+91\d{10}$/.test(x.caller_number) &&
-      new Date(x.created_at!).getTime() <= NOW,
-  )
-  truthy(`${s.id}: ${rows.length} valid report(s)`, valid && rows.length > 0)
-}
-eq('delivery OTP stays a warning', buildScenario('delivery_otp', seededRng(1)).map((x) => [bandOf(x.risk_score), x.action_taken]), [['warn', 'warn']])
-eq('wrong-number OTP → SCAM band via sms + correlation', buildScenario('wrong_number_otp', seededRng(1)).map((x) => [x.risk_score, x.detected_via.sort()]), [[90, ['correlation', 'reputation', 'sms']]])
-const burstRows = buildScenario('burst_series', seededRng(3), new Date(NOW)).map((x, i) => ({ ...r({}), ...x, id: String(i), number_prefix: prefixOf(x.caller_number), telecom_circle: circleOf(x.caller_number) }) as Report)
-eq('burst_series forms a 93541 cluster', groupClusters(burstRows, NUMBER_SERIES, NOW).map((c) => c.prefix), ['93541'])
-const spikeRows = buildScenario('burst_spike', seededRng(3), new Date(NOW)).map((x, i) => ({ ...r({}), ...x, id: String(i), number_prefix: prefixOf(x.caller_number), telecom_circle: circleOf(x.caller_number) }) as Report)
-eq('burst_spike triggers a Maharashtra digital-arrest spike', detectSpikes(spikeRows, NOW).map((s) => [s.scamType, s.circle]), [['digital_arrest', 'Maharashtra']])
-
-console.log('\nMock data source (same story as the seed)')
-const numbers = await mockDataSource.getNumbers()
-const nb = (n: string) => numbers.find((x) => x.number === n)
-eq('Scenario B number: 2 reporters, not flagged', [nb(DEMO_NUMBERS.scenarioB)?.reporter_count, nb(DEMO_NUMBERS.scenarioB)?.is_flagged], [2, false])
-eq('seeded flagged numbers', [nb('+918448312276')?.is_flagged, nb('+919423556677')?.is_flagged], [true, true])
-const mockReports = await mockDataSource.getReports()
-const mockStats = await mockDataSource.getStats('7d')
-truthy(`~140 reports over 7 days (${mockReports.length})`, mockReports.length >= 120 && mockReports.length <= 160)
-truthy(`false-positive rate is not zero (${mockStats.falsePositive.falsePositives}/${mockStats.falsePositive.reviewed})`, (mockStats.falsePositive.rate ?? 0) > 0)
-const mockClusters = groupClusters(mockReports, NUMBER_SERIES).map((c) => c.prefix)
-truthy(`clusters include 98112 and 70421 (${mockClusters.join(', ')})`, mockClusters.includes('98112') && mockClusters.includes('70421'))
-truthy('every mock report has a known circle', mockReports.every((x) => x.telecom_circle && CIRCLE_NAMES.includes(x.telecom_circle)))
-simulateLocally('wrong_number_otp')
-eq('simulating Scenario B flags the number (3rd device)', (await mockDataSource.getNumber(DEMO_NUMBERS.scenarioB))?.is_flagged, true)
-const page = await mockDataSource.getReportsPage({ scamType: 'digital_arrest' }, 0, 50)
-truthy('paged query returns ≤ 50 rows and the full total', page.rows.length <= 50 && page.total >= page.rows.length && page.rows.every((x) => x.scam_type === 'digital_arrest'))
-const one = page.rows[0]
-await mockDataSource.updateReportStatus(one.id, 'false_positive')
-eq('updateReportStatus persists', (await mockDataSource.getReport(one.id))?.status, 'false_positive')
+console.log('\nnumber_series (supabase/004_number_series.sql)')
+const seriesSql = readFileSync(join(process.cwd(), 'supabase', '004_number_series.sql'), 'utf8')
+const sqlCircles = [...seriesSql.matchAll(/\('(\d{4})','([^']+)','([^']+)'\)/g)].map((m) => m[3])
+truthy(`has prefixes (${sqlCircles.length})`, sqlCircles.length >= 60)
+truthy('every circle is a known telecom circle (reports filter)', sqlCircles.every((c) => CIRCLE_NAMES.includes(c)))
 
 console.log(failures ? `\n${failures} check(s) FAILED` : '\nAll logic checks passed')
 process.exit(failures ? 1 : 0)

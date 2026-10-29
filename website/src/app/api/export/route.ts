@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { csvFilename, reportsToCsv } from '@/lib/csv'
-import { isMock, supabaseConfigured } from '@/lib/env'
+import { supabaseConfigured } from '@/lib/env'
 import { applyFilters, filtersFromParams } from '@/lib/filters'
 import { currentOfficer, supabaseServer } from '@/lib/supabase/server'
 import type { Report } from '@/lib/types'
@@ -13,9 +13,7 @@ const BATCH = 1000
 
 /** GET /api/export?scamType=…&band=…  → CSV of matching reports. Authority only; uses the officer's own session (RLS applies). */
 export async function GET(request: NextRequest) {
-  if (isMock || !supabaseConfigured) {
-    return NextResponse.json({ error: 'Export runs in the browser in mock mode.' }, { status: 400 })
-  }
+  if (!supabaseConfigured) return NextResponse.json({ error: 'Supabase is not configured' }, { status: 500 })
   const officer = await currentOfficer()
   if (!officer) return NextResponse.json({ error: 'Not signed in' }, { status: 401 })
   if (!officer.authority) return NextResponse.json({ error: 'Authority role required' }, { status: 403 })

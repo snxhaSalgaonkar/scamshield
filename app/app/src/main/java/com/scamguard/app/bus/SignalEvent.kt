@@ -7,7 +7,12 @@ package com.scamguard.app.bus
 sealed interface SignalEvent {
     val ts: Long
 
-    /** An incoming call started ringing. [mask] is display-only, e.g. "+91 98•••••21". */
+    /**
+     * An incoming call started ringing. [mask] is display-only, e.g. "+91 98•••••21".
+     * [channel] says whether it is a SIM call or a video call in a messaging app;
+     * [authorityName] is true when a video caller's display name claims to be police,
+     * CBI, a court or similar (only the flag is kept, never the name).
+     */
     data class CallRinging(
         override val ts: Long,
         val numberHash: String?,
@@ -16,6 +21,8 @@ sealed interface SignalEvent {
         val isInternational: Boolean,
         val isHidden: Boolean,
         val mask: String = "",
+        val channel: CallChannel = CallChannel.CELLULAR,
+        val authorityName: Boolean = false,
     ) : SignalEvent
 
     data class CallActive(override val ts: Long) : SignalEvent
@@ -39,8 +46,17 @@ sealed interface SignalEvent {
     data class NetworkLost(override val ts: Long, val durationMs: Long) : SignalEvent
     data class UserFeedback(override val ts: Long, val kind: FeedbackKind) : SignalEvent
 
-    /** Experimental voice layer: only the category of a matched phrase, never a transcript. */
-    data class VoiceKeyword(override val ts: Long, val category: VoiceCategory) : SignalEvent
+    /**
+     * The on-demand screen check read official-looking text (police, warrant, court...)
+     * on screen during a video call. Only the categories survive; the text is dropped.
+     */
+    data class ScreenEvidence(override val ts: Long, val categories: Set<ScreenCategory>) : SignalEvent
+
+    /**
+     * Voice layer: the category of a scam phrase heard on the call and the few words that
+     * matched it (e.g. "digital arrest"), never the transcript.
+     */
+    data class VoiceKeyword(override val ts: Long, val category: VoiceCategory, val phrase: String? = null) : SignalEvent
 
     /**
      * The on-device message model's output for one SMS: probabilities only, never text.
@@ -66,5 +82,21 @@ sealed interface SignalEvent {
 /** What the user told us about a call window. */
 enum class FeedbackKind { THIS_WAS_ME, CONFIRMED_SCAM }
 
-/** Categories of scam phrases the voice layer can recognise. */
-enum class VoiceCategory { OTP_REQUEST, ARREST_THREAT, PAYMENT_PRESSURE, REMOTE_APP_REQUEST }
+/**
+ * Categories of scam phrases the voice layer can recognise. The first four are the original
+ * set; the rest are the stages of a digital-arrest script (who they claim to be, what you are
+ * accused of, keeping you isolated) and other credential requests.
+ */
+enum class VoiceCategory {
+    OTP_REQUEST, ARREST_THREAT, PAYMENT_PRESSURE, REMOTE_APP_REQUEST,
+    AUTHORITY_CLAIM, ACCUSATION, ISOLATION, CARD_DETAILS, LINK_REQUEST,
+}
+
+/**
+ * Where a call happens: the SIM, a video call in WhatsApp, Skype, Telegram and similar, or a
+ * voice-only call in one of those apps (VoIP, so its audio is not on the phone's call path).
+ */
+enum class CallChannel { CELLULAR, VIDEO_APP, VOICE_APP }
+
+/** Kinds of official-looking text the screen check can recognise during a video call. */
+enum class ScreenCategory { LAW_ENFORCEMENT, LEGAL_THREAT, PAYMENT_DEMAND }

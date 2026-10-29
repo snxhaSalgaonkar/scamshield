@@ -64,7 +64,7 @@ fun ConsentToggles(
             ToggleRow(
                 stringResource(R.string.consent_voice_title),
                 stringResource(R.string.consent_voice_desc),
-                checked = false, onChange = onVoice, enabled = false,
+                settings.voiceLayer, onVoice,
             )
             ToggleRow(
                 stringResource(R.string.consent_training_title),

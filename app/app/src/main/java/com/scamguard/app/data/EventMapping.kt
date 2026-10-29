@@ -55,7 +55,11 @@ object EventMapping {
             is SignalEvent.ApkInstalled -> base.copy(type = "APK_INSTALLED", pkg = event.pkg, flag = event.sideloaded)
             is SignalEvent.NetworkLost -> base.copy(type = "NETWORK_LOST", detail = event.durationMs.toString())
             is SignalEvent.UserFeedback -> base.copy(type = "FEEDBACK", detail = event.kind.name)
-            is SignalEvent.VoiceKeyword -> base.copy(type = "VOICE_KEYWORD", detail = event.category.name)
+            is SignalEvent.VoiceKeyword -> base.copy(
+                type = "VOICE_KEYWORD",
+                detail = event.category.name + (event.phrase?.let { "|" + it.take(MAX_PHRASE) } ?: ""),
+            )
+            is SignalEvent.ScreenEvidence -> base.copy(type = "SCREEN", detail = event.categories.sorted().joinToString(","))
             is SignalEvent.SmsAnalyzed -> base.copy(
                 type = "SMS_ML",
                 flag = event.linkCount > 0,
@@ -64,4 +68,7 @@ object EventMapping {
             else -> null
         }
     }
+
+    /** Longest matched phrase kept with a voice event. */
+    private const val MAX_PHRASE = 40
 }

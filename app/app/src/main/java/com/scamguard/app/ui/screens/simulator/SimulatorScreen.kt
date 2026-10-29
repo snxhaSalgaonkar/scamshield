@@ -64,6 +64,9 @@ private fun ScenarioCard(scenario: Scenario, result: ScenarioResult?, enabled: B
             scenario.messages(0).forEach { (_, text) ->
                 Text(stringResource(R.string.simulator_sms, text), style = MaterialTheme.typography.bodySmall)
             }
+            scenario.speech(0).forEach { (_, line) ->
+                Text(stringResource(R.string.simulator_speech, line), style = MaterialTheme.typography.bodySmall)
+            }
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.semantics(mergeDescendants = true) {}) {
                 Text(stringResource(R.string.simulator_expected), style = MaterialTheme.typography.labelLarge)
                 ChipGap()

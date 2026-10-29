@@ -62,6 +62,7 @@ object Labels {
         ReasonCode.LINK_THEN_INSTALL -> R.string.reason_link_install
         ReasonCode.NETWORK_LOST -> R.string.reason_network_lost
         ReasonCode.COMBO_OTP_DEBIT -> R.string.reason_combo_otp_debit
+        ReasonCode.COMBO_OTP_ASKED -> R.string.reason_combo_otp_asked
         ReasonCode.COMBO_FORWARDING_OTP -> R.string.reason_combo_forwarding_otp
         ReasonCode.COMBO_MERGE_OTP -> R.string.reason_combo_merge_otp
         ReasonCode.COMBO_REMOTE_DEBIT -> R.string.reason_combo_remote_debit
@@ -69,12 +70,33 @@ object Labels {
         ReasonCode.VOICE_ARREST_THREAT -> R.string.reason_voice_arrest
         ReasonCode.VOICE_PAYMENT_PRESSURE -> R.string.reason_voice_payment
         ReasonCode.VOICE_REMOTE_APP -> R.string.reason_voice_remote
+        ReasonCode.VIDEO_CALL_UNKNOWN -> R.string.reason_video_unknown
+        ReasonCode.VIDEO_CALL_LONG -> R.string.reason_video_long
+        ReasonCode.AUTHORITY_CALLER_NAME -> R.string.reason_authority_name
+        ReasonCode.SCREEN_LAW_ENFORCEMENT -> R.string.reason_screen_law
+        ReasonCode.SCREEN_LEGAL_THREAT -> R.string.reason_screen_legal
+        ReasonCode.SCREEN_PAYMENT_DEMAND -> R.string.reason_screen_payment
+        ReasonCode.COMBO_VIDEO_AUTHORITY -> R.string.reason_combo_video_authority
+        ReasonCode.VOICE_AUTHORITY_CLAIM -> R.string.reason_voice_authority
+        ReasonCode.VOICE_ACCUSATION -> R.string.reason_voice_accusation
+        ReasonCode.VOICE_ISOLATION -> R.string.reason_voice_isolation
+        ReasonCode.VOICE_CARD_DETAILS -> R.string.reason_voice_card
+        ReasonCode.VOICE_LINK_REQUEST -> R.string.reason_voice_link
+        ReasonCode.COMBO_VOICE_ACCUSED -> R.string.reason_combo_voice_accused
+        ReasonCode.COMBO_VOICE_THREAT -> R.string.reason_combo_voice_threat
+        ReasonCode.COMBO_VOICE_IMPERSONATION -> R.string.reason_combo_voice_impersonation
+        ReasonCode.COMBO_VOICE_DIGITAL_ARREST -> R.string.reason_combo_voice_digital_arrest
     }
 
-    @StringRes fun voiceCategory(stored: String?): Int = when (stored) {
+    @StringRes fun voiceCategory(stored: String?): Int = when (stored?.substringBefore('|')) {
         VoiceCategory.OTP_REQUEST.name -> R.string.voice_cat_otp
         VoiceCategory.ARREST_THREAT.name -> R.string.voice_cat_arrest
         VoiceCategory.PAYMENT_PRESSURE.name -> R.string.voice_cat_payment
+        VoiceCategory.AUTHORITY_CLAIM.name -> R.string.voice_cat_authority
+        VoiceCategory.ACCUSATION.name -> R.string.voice_cat_accusation
+        VoiceCategory.ISOLATION.name -> R.string.voice_cat_isolation
+        VoiceCategory.CARD_DETAILS.name -> R.string.voice_cat_card
+        VoiceCategory.LINK_REQUEST.name -> R.string.voice_cat_link
         else -> R.string.voice_cat_remote
     }
 

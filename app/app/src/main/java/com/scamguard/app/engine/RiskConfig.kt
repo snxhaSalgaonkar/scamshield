@@ -33,7 +33,23 @@ data class RiskConfig(
     val voicePaymentPressure: Int = 15,
     val voiceRemoteApp: Int = 15,
     val voiceCap: Int = 40,
+    val voiceAuthority: Int = 15,
+    val voiceAccusation: Int = 15,
+    val voiceIsolation: Int = 20,
+    val voiceCardDetails: Int = 20,
+    val voiceLink: Int = 10,
+    val voiceTotalCap: Int = 60,
+    val videoUnknown: Int = 15,
+    val videoLong: Int = 20,
+    val videoVeryLong: Int = 15,
+    val authorityName: Int = 25,
+    val screenLawEnforcement: Int = 30,
+    val screenLegalThreat: Int = 25,
+    val screenPaymentDemand: Int = 15,
+    val screenCap: Int = 50,
     val comboFloor: Int = 75,
+    /** Floor for a complete digital-arrest script (authority, threat or isolation, then money). */
+    val scamFloor: Int = 90,
     val warningThreshold: Int = 40,
     val redFlagThreshold: Int = 75,
 
@@ -41,6 +57,8 @@ data class RiskConfig(
     val comboOtpDebitMs: Long = 5 * MINUTE,
     val multipleDebitsMs: Long = 10 * MINUTE,
     val longCallMs: Long = 5 * MINUTE,
+    val videoLongMs: Long = 20 * MINUTE,
+    val videoVeryLongMs: Long = 60 * MINUTE,
     val repeatedCallsCount: Int = 3,
     val farAboveMultiplier: Int = 5,
     val farAboveMinPaise: Long = 5_000_00,
@@ -78,7 +96,22 @@ data class RiskConfig(
         "voicePaymentPressure" -> voicePaymentPressure
         "voiceRemoteApp" -> voiceRemoteApp
         "voiceCap" -> voiceCap
+        "voiceAuthority" -> voiceAuthority
+        "voiceAccusation" -> voiceAccusation
+        "voiceIsolation" -> voiceIsolation
+        "voiceCardDetails" -> voiceCardDetails
+        "voiceLink" -> voiceLink
+        "voiceTotalCap" -> voiceTotalCap
+        "videoUnknown" -> videoUnknown
+        "videoLong" -> videoLong
+        "videoVeryLong" -> videoVeryLong
+        "authorityName" -> authorityName
+        "screenLawEnforcement" -> screenLawEnforcement
+        "screenLegalThreat" -> screenLegalThreat
+        "screenPaymentDemand" -> screenPaymentDemand
+        "screenCap" -> screenCap
         "comboFloor" -> comboFloor
+        "scamFloor" -> scamFloor
         "warningThreshold" -> warningThreshold
         "redFlagThreshold" -> redFlagThreshold
         else -> error("Unknown weight $key")
@@ -114,7 +147,22 @@ data class RiskConfig(
                 "voicePaymentPressure" -> c.copy(voicePaymentPressure = v)
                 "voiceRemoteApp" -> c.copy(voiceRemoteApp = v)
                 "voiceCap" -> c.copy(voiceCap = v)
+                "voiceAuthority" -> c.copy(voiceAuthority = v)
+                "voiceAccusation" -> c.copy(voiceAccusation = v)
+                "voiceIsolation" -> c.copy(voiceIsolation = v)
+                "voiceCardDetails" -> c.copy(voiceCardDetails = v)
+                "voiceLink" -> c.copy(voiceLink = v)
+                "voiceTotalCap" -> c.copy(voiceTotalCap = v)
+                "videoUnknown" -> c.copy(videoUnknown = v)
+                "videoLong" -> c.copy(videoLong = v)
+                "videoVeryLong" -> c.copy(videoVeryLong = v)
+                "authorityName" -> c.copy(authorityName = v)
+                "screenLawEnforcement" -> c.copy(screenLawEnforcement = v)
+                "screenLegalThreat" -> c.copy(screenLegalThreat = v)
+                "screenPaymentDemand" -> c.copy(screenPaymentDemand = v)
+                "screenCap" -> c.copy(screenCap = v)
                 "comboFloor" -> c.copy(comboFloor = v)
+                "scamFloor" -> c.copy(scamFloor = v)
                 "warningThreshold" -> c.copy(warningThreshold = v)
                 "redFlagThreshold" -> c.copy(redFlagThreshold = v)
                 else -> c
@@ -129,7 +177,10 @@ data class RiskConfig(
             "remoteAppOpened", "sideloadedApk", "linkThenInstall", "networkLoss",
             "knownBankNumber", "userMarkedSafe",
             "voiceOtpRequest", "voiceArrestThreat", "voicePaymentPressure", "voiceRemoteApp", "voiceCap",
-            "comboFloor", "warningThreshold", "redFlagThreshold",
+            "voiceAuthority", "voiceAccusation", "voiceIsolation", "voiceCardDetails", "voiceLink", "voiceTotalCap",
+            "videoUnknown", "videoLong", "videoVeryLong", "authorityName",
+            "screenLawEnforcement", "screenLegalThreat", "screenPaymentDemand", "screenCap",
+            "comboFloor", "scamFloor", "warningThreshold", "redFlagThreshold",
         )
     }
 }

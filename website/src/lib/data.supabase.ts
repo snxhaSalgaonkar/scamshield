@@ -3,9 +3,9 @@
 import { computeStats, rangeMs } from './analytics'
 import { applyFilters } from './filters'
 import { supabaseBrowser } from './supabase/client'
-import type { DataSource, NumberRecord, NumberSeries, RealtimeStatus, Report, ReportFilters } from './types'
+import type { DataSource, NumberRecord, RealtimeStatus, Report, ReportFilters } from './types'
 
-/** Upper bound for "all reports in a window" queries (overview, clusters, map). */
+/** Upper bound for "all reports in a window" queries (overview, spikes). */
 const WINDOW_LIMIT = 5000
 
 function check<T>(res: { data: T | null; error: { message: string } | null }): T {
@@ -55,10 +55,6 @@ export const supabaseDataSource: DataSource = {
 
   async getNumber(number) {
     return check(await sb().from('numbers').select('*').eq('number', number).maybeSingle())
-  },
-
-  async getNumberSeries() {
-    return (check(await sb().from('number_series').select('*')) ?? []) as NumberSeries[]
   },
 
   async getStats(range) {

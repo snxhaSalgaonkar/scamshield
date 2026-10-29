@@ -1,5 +1,6 @@
 package com.scamguard.app.engine
 
+import com.scamguard.app.bus.CallChannel
 import com.scamguard.app.bus.SignalEvent
 
 /**
@@ -27,7 +28,11 @@ data class CallWindow(
     val endedAt: Long? = null,
     val durationMs: Long? = null,
     val events: List<SignalEvent> = emptyList(),
+    val channel: CallChannel = CallChannel.CELLULAR,
+    val authorityName: Boolean = false,
 ) {
+    val isVideoCall: Boolean get() = channel == CallChannel.VIDEO_APP
+
     /** Whether an event at [ts] still belongs to this window. */
     fun isOpenAt(ts: Long, config: RiskConfig): Boolean =
         state != WindowState.CLOSED && (endedAt == null || ts - endedAt <= config.windowAfterEndMs)
@@ -70,6 +75,8 @@ data class CallWindow(
             isHidden = ringing.isHidden,
             startedAt = ringing.ts,
             events = listOf(ringing),
+            channel = ringing.channel,
+            authorityName = ringing.authorityName,
         )
     }
 }

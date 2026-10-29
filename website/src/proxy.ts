@@ -1,14 +1,13 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { isMock, supabaseConfigured } from '@/lib/env'
+import { supabaseConfigured } from '@/lib/env'
 import { updateSession } from '@/lib/supabase/middleware'
 
 /**
  * Guards the officer-only pages: a Supabase session AND profiles.role = 'authority'.
- * Mock mode has no backend, so it skips this (the dashboard layout still asks for a demo sign-in).
  * API routes check auth themselves (they must answer 401/403, not redirect).
  */
 export async function proxy(request: NextRequest) {
-  if (isMock || !supabaseConfigured) return NextResponse.next()
+  if (!supabaseConfigured) return NextResponse.next()
 
   const { response, user, authority } = await updateSession(request)
   if (user && authority) return response
@@ -25,5 +24,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/command/:path*', '/dev/:path*'],
+  matcher: ['/dashboard/:path*'],
 }

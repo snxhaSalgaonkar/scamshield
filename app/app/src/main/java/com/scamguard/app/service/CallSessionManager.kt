@@ -23,6 +23,7 @@ import com.scamguard.app.engine.TransactionHistory
 import com.scamguard.app.engine.WindowState
 import com.scamguard.app.engine.WindowTracker
 import com.scamguard.app.reputation.LocalReputation
+import com.scamguard.app.util.LatencyLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
@@ -134,7 +135,8 @@ class CallSessionManager(
         }
     }
 
-    private suspend fun process(env: Envelope, s: AppSettings) {
+    private suspend fun process(original: Envelope, s: AppSettings) {
+        val env = asUnknownForTesting(original, s)
         val config = RiskConfig().withOverrides(s.riskOverrides)
         val tracker = if (env.simulated) simTracker else liveTracker
         val window = tracker.onEvent(env.event, config)
@@ -145,10 +147,23 @@ class CallSessionManager(
             if (tracker.current == null) publish(env.simulated, null)
             return
         }
-        val decision = scorer.evaluate(buildInput(window, env.simulated, s, env.event.ts), config)
+        val input = buildInput(window, env.simulated, s, env.event.ts)
+        val started = System.nanoTime()
+        val decision = scorer.evaluate(input, config)
+        LatencyLog.record(LatencyLog.Metric.SCORING, (System.nanoTime() - started) / 1_000_000)
         publish(env.simulated, LiveWindow(window, decision))
         if (persisted != null) persistDecision(persisted, decision, env.simulated)
         if (!env.quiet) dispatcher.onDecision(window, decision, env.event)
+    }
+
+    /** With the testing switch on, a real call from a saved contact is handled like an unknown caller. */
+    private fun asUnknownForTesting(env: Envelope, s: AppSettings): Envelope {
+        val e = env.event
+        return if (s.contactsAsUnknown && !env.simulated && e is SignalEvent.CallRinging && !e.isUnknown) {
+            env.copy(event = e.copy(isUnknown = true))
+        } else {
+            env
+        }
     }
 
     /** Re-scores an ongoing call (talk time grows) and closes expired windows. */
@@ -171,7 +186,8 @@ class CallSessionManager(
     }
 
     private suspend fun buildInput(window: CallWindow, simulated: Boolean, s: AppSettings, now: Long): RiskInput {
-        if (simulated) return RiskInput(window, voiceLayerEnabled = s.voiceLayer, now = now)
+        // Simulated speech is invented script text, never call audio, so the voice layer is always on here.
+        if (simulated) return RiskInput(window, voiceLayerEnabled = true, now = now)
         val hash = window.numberHash
         val caller = CallerContext(
             callsLastHour = hash?.let { db.callEvents().ringsSince(it, now - HOUR_MS) }?.coerceAtLeast(1) ?: 1,

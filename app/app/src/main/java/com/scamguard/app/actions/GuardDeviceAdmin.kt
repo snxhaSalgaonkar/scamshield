@@ -8,7 +8,7 @@ import android.content.Intent
 import com.scamguard.app.R
 
 /**
- * Device admin with the single force-lock policy, used only by Demo Mode to lock the
+ * Device admin with the single force-lock policy, used by "Freeze phone" (user tap) and Demo Mode to lock the
  * screen after a red flag. Activation always goes through the system consent screen.
  */
 class GuardDeviceAdmin : DeviceAdminReceiver() {

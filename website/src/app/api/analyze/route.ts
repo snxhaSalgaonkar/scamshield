@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { isMock, supabaseConfigured } from '@/lib/env'
+import { supabaseConfigured } from '@/lib/env'
 import { analyze, AnalyzeBody } from '@/lib/semantic/analyze'
 import { allow } from '@/lib/semantic/rateLimit'
 import { supabaseAnon } from '@/lib/supabase/server'
@@ -13,10 +13,7 @@ const RATE_PER_MIN = 30
 async function caller(request: NextRequest): Promise<string | null> {
   const token = /^Bearer\s+(.+)$/i.exec(request.headers.get('authorization') ?? '')?.[1]?.trim()
   if (!token) return null
-  if (!supabaseConfigured) {
-    // Mock mode has no auth server: accept any token so the phone team can integrate early.
-    return isMock ? `mock:${token.slice(0, 64)}` : null
-  }
+  if (!supabaseConfigured) return null
   const { data, error } = await supabaseAnon().auth.getUser(token)
   return error || !data.user ? null : data.user.id
 }

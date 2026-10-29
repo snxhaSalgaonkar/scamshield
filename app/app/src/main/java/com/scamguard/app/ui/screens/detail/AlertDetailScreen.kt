@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -40,6 +41,7 @@ import com.scamguard.app.ui.Labels
 import com.scamguard.app.ui.components.maskOrUnknown
 import com.scamguard.app.ui.components.ChipGap
 import com.scamguard.app.ui.components.LayerBars
+import com.scamguard.app.ui.components.highlightScamPhrases
 import com.scamguard.app.ui.components.LevelChip
 import com.scamguard.app.ui.components.ScoreGauge
 import com.scamguard.app.ui.components.ScreenFrame
@@ -88,6 +90,21 @@ fun AlertDetailScreen(windowId: String, onBack: () -> Unit) {
         }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp)) { LayerBars(d.l1, d.l2, d.l3) }
+        }
+
+        if (data.transcript.isNotEmpty()) {
+            SectionTitle(stringResource(R.string.detail_transcript))
+            Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    data.transcript.forEach { line ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Text(formatClock(line.ts), style = MaterialTheme.typography.labelLarge)
+                            Text(highlightScamPhrases(line.text), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
+            }
+            Text(stringResource(R.string.detail_transcript_note), style = MaterialTheme.typography.bodySmall)
         }
 
         SectionTitle(stringResource(R.string.detail_reasons))
@@ -142,7 +159,7 @@ private fun SectionTitle(text: String) {
     Text(text, style = MaterialTheme.typography.titleMedium, modifier = Modifier.semantics { heading() })
 }
 
-/** Event types, amounts and times only; there is no text to show because none is stored. */
+/** Event types, amounts and times, plus the matched words of scam phrases heard on the call. */
 @Composable
 private fun Timeline(calls: List<CallEventEntity>, signals: List<SignalEventEntity>) {
     val rows = calls.map { it.ts to callLine(it) } + signals.map { it.ts to signalLine(it) }
@@ -184,8 +201,13 @@ private fun signalLine(e: SignalEventEntity): @Composable () -> String = {
             if (e.flag == true) R.string.ev_apk_sideloaded else R.string.ev_apk_store, e.pkg.orEmpty(),
         )
         "NETWORK_LOST" -> stringResource(R.string.ev_network_lost)
+        "SCREEN" -> stringResource(R.string.ev_screen)
         "FEEDBACK" -> stringResource(if (e.detail == "THIS_WAS_ME") R.string.ev_feedback_me else R.string.ev_feedback_scam)
-        "VOICE_KEYWORD" -> stringResource(R.string.ev_voice, stringResource(Labels.voiceCategory(e.detail)))
+        "VOICE_KEYWORD" -> {
+            val category = stringResource(Labels.voiceCategory(e.detail))
+            val phrase = e.detail?.substringAfter('|', "").orEmpty()
+            if (phrase.isEmpty()) stringResource(R.string.ev_voice, category) else stringResource(R.string.ev_voice_phrase, phrase, category)
+        }
         "SMS_ML" -> {
             val f = EventMapping.parseSmsDetail(e.detail)
             val p = ((f["p"]?.toDoubleOrNull() ?: 0.0) * 100).roundToInt()
