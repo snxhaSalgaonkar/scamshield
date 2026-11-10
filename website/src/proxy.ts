@@ -10,18 +10,25 @@ import { updateSession } from '@/lib/supabase/middleware'
 export async function proxy(request: NextRequest) {
   if (isMock || !supabaseConfigured) return NextResponse.next()
 
-  const { response, user, authority } = await updateSession(request)
-  if (user && authority) return response
+  try {
+    const { response, user, authority } = await updateSession(request)
+    if (user && authority) return response
 
-  const url = request.nextUrl.clone()
-  url.pathname = '/login'
-  url.search = ''
-  if (user && !authority) url.searchParams.set('error', 'restricted')
-  else url.searchParams.set('next', request.nextUrl.pathname + request.nextUrl.search)
-  const redirect = NextResponse.redirect(url)
-  // Keep any refreshed auth cookies.
-  response.cookies.getAll().forEach((c) => redirect.cookies.set(c))
-  return redirect
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    url.search = ''
+    if (user && !authority) url.searchParams.set('error', 'restricted')
+    else url.searchParams.set('next', request.nextUrl.pathname + request.nextUrl.search)
+    const redirect = NextResponse.redirect(url)
+    // Keep any refreshed auth cookies.
+    response.cookies.getAll().forEach((c) => redirect.cookies.set(c))
+    return redirect
+  } catch (err) {
+    console.error('Proxy error:', err)
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
+  }
 }
 
 export const config = {
