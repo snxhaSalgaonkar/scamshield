@@ -20,8 +20,11 @@ export async function proxy(request: NextRequest) {
     if (user && !authority) url.searchParams.set('error', 'restricted')
     else url.searchParams.set('next', request.nextUrl.pathname + request.nextUrl.search)
     const redirect = NextResponse.redirect(url)
-    // Keep any refreshed auth cookies.
-    response.cookies.getAll().forEach((c) => redirect.cookies.set(c))
+    try {
+      response.cookies.getAll().forEach((c) => {
+        redirect.cookies.set(c.name, c.value, c)
+      })
+    } catch {}
     return redirect
   } catch (err) {
     console.error('Proxy error:', err)
