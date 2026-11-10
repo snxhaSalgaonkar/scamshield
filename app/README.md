@@ -32,7 +32,7 @@ ml/    Training, evaluation, export and tests for the on-device models (see ../m
 ```
 
 | Model | What it predicts | Trained on | Held-out result | Status |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | A. Message | spam/smishing probability; scam category | UCI SMS Spam + Mendeley SMS Phishing (+ synthetic Indian examples, train only) | real test (n=882): precision 0.956, recall 0.935, F1 0.945, PR-AUC 0.982, FPR 0.8% | binary head validated; **category head experimental** |
 | D. Link | phishing probability of a link's registrable domain | PhiUSIIL (171k unique domains) | PR-AUC 0.715; at the "likely phishing" threshold precision 0.976 / recall 0.24 | validated but weak → supporting evidence only |
 | B+C. Call risk | scam probability + scam type for a call window | **synthetic** generator | only synthetic metrics exist | **experimental** |
@@ -54,7 +54,7 @@ licences, leakage handling and metrics: [`../ml/README.md`](../ml/README.md) and
 ## What works on a real device, and what is experimental or demo-only
 
 | Feature | Real device | Notes |
-|---|---|---|
+| --- | --- | --- |
 | Unknown-caller detection (call-screening role, Android 10+) | ✅ | Without the role (Android 8–9 or declined) every incoming call is treated as unknown. |
 | Call state, talk time, second call / merge signal | ✅ | `READ_PHONE_STATE`. |
 | SMS: OTP/debit parsing + ML message classification + link model | ✅ | `RECEIVE_SMS`. Only SMS; WhatsApp/RCS/other apps are **not** visible. Hindi/regional text is often "cannot judge". |
@@ -74,7 +74,7 @@ licences, leakage handling and metrics: [`../ml/README.md`](../ml/README.md) and
 ## Permissions
 
 | Permission | Why | If denied |
-|---|---|---|
+| --- | --- | --- |
 | `RECEIVE_SMS` | OTP/debit/link events, message model | No SMS-based signals; manual check still works |
 | `READ_PHONE_STATE` | call state; forwarding check | No call windows |
 | Call-screening role | caller number → hash, unknown check | Every call treated as unknown, no reputation |

@@ -16,7 +16,7 @@ object TextFeaturizer {
 
     private const val WHITESPACE =
         "\t\n\r\u000b\u000c\u001c\u001d\u001e\u001f\u0085        " +
-            "         　"
+            "       　"
     private val whitespaceSet = WHITESPACE.toSet()
 
     private const val TLDS = "com|in|net|org|info|xyz|top|ly|co|me|io|app|site|online|click|link|live|tk|ml|ga|cf|gq|" +

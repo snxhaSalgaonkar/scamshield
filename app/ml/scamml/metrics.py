@@ -2,8 +2,13 @@
 from __future__ import annotations
 
 import numpy as np
-from sklearn.metrics import (average_precision_score, brier_score_loss, confusion_matrix,
-                             f1_score, precision_recall_curve, precision_score, recall_score,
+from sklearn.metrics import (average_precision_score, 
+                             brier_score_loss, 
+                             confusion_matrix,
+                             f1_score,
+                             precision_recall_curve, 
+                             precision_score, 
+                             recall_score,
                              roc_auc_score)
 
 
