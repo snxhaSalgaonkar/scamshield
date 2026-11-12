@@ -8,8 +8,8 @@
    3. `supabase/003_triggers_rpcs.sql` (also enables Realtime on `reports` + `numbers`)
    4. `supabase/004_seed.sql` (demo data; safe to re-run before the demo, it refreshes timestamps)
 3. **Authentication → Sign In / Providers** → turn on **Allow anonymous sign-ins** (citizen phones use it).
-4. **Authentication → Users → Add user → Create new user** twice (two officers, tick *Auto Confirm User*).
-5. Edit the two emails in `supabase/005_authority_users.sql`, paste it in the SQL Editor, Run. It should list both emails with role `authority`.
+4. **Authentication → Users → Add user → Create new user** for each officer (set a password and tick *Auto Confirm User*). Importing an email into a data table does not create a Supabase Auth account; it must appear under **Authentication → Users**.
+5. Edit the emails in `supabase/005_authority_users.sql` to exactly match the Auth users, paste it in the SQL Editor, and Run. Its final query must list the email(s) with role `authority`. Repeat this step whenever you add another officer. The login email and password are the Auth user's credentials.
 6. Check: **Database → Publications → supabase_realtime** shows `reports` and `numbers` ticked.
 
 ## 2. Configure the dashboard
@@ -24,8 +24,7 @@ LLM_API_KEY=<optional>
 LLM_MODEL=claude-haiku-5-5
 SIMULATOR_ENABLED=true
 ```
-Then `npm install`, `npm run build`, `npm start` (or `npm run dev`). Sign in with an officer from step 1.4.
-`NEXT_PUBLIC_*` and `SIMULATOR_ENABLED` are read at **build** time, so rebuild after changing them.
+Then `npm install`, `npm run build`, `npm start` (or `npm run dev`). Sign in with an officer from step 1.4. `NEXT_PUBLIC_DATA_SOURCE` must be exactly `supabase` (not `supaba`); a misspelled value now produces a clear configuration error instead of silently selecting mock mode. `NEXT_PUBLIC_*` and `SIMULATOR_ENABLED` are read at **build** time, so rebuild and redeploy after changing them.
 
 ## 3. Send to the Kotlin team
 ```

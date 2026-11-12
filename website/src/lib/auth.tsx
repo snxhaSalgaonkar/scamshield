@@ -19,7 +19,8 @@ interface AuthValue {
   signOut(): Promise<void>
 }
 
-export const RESTRICTED_MESSAGE = 'Access restricted to authorised officials.'
+export const RESTRICTED_MESSAGE =
+  'This Supabase account is not authorised for RakshaCall. In Supabase SQL Editor, promote its Auth user to role "authority" in public.profiles (see website/SETUP.md).'
 
 const MOCK_KEY = 'rakshacall.mock-session'
 
@@ -56,7 +57,11 @@ async function supabaseSignIn(email: string, password: string): Promise<Officer>
   const sb = supabaseBrowser()
   const { data, error } = await sb.auth.signInWithPassword({ email, password })
   if (error || !data.user) {
-    throw new Error(error?.message === 'Invalid login credentials' ? 'Wrong email or password.' : (error?.message ?? 'Sign-in failed.'))
+    const message = error?.message ?? 'Sign-in failed.'
+    if (message === 'Invalid login credentials') {
+      throw new Error('Supabase could not sign in this email. Check the password and confirm that the Auth user exists and its email is confirmed.')
+    }
+    throw new Error(message)
   }
   const { data: profile, error: profileError } = await sb.from('profiles').select('role').eq('id', data.user.id).maybeSingle()
   if (profileError || profile?.role !== 'authority') {

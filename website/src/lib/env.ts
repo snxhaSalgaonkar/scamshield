@@ -1,7 +1,15 @@
 // Public (NEXT_PUBLIC_*) values are inlined at build time, so they must be read with literal
 // property access, never process.env[name].
 
-export const DATA_SOURCE: 'mock' | 'supabase' = process.env.NEXT_PUBLIC_DATA_SOURCE === 'supabase' ? 'supabase' : 'mock'
+const configuredDataSource = process.env.NEXT_PUBLIC_DATA_SOURCE?.trim().toLowerCase()
+
+if (configuredDataSource && configuredDataSource !== 'mock' && configuredDataSource !== 'supabase') {
+  throw new Error(
+    `Invalid NEXT_PUBLIC_DATA_SOURCE "${configuredDataSource}". Use exactly "mock" or "supabase".`,
+  )
+}
+
+export const DATA_SOURCE: 'mock' | 'supabase' = configuredDataSource === 'supabase' ? 'supabase' : 'mock'
 export const isMock = DATA_SOURCE === 'mock'
 
 export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
