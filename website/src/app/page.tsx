@@ -5,7 +5,6 @@ import {
   Download,
   QrCode,
   Lock,
-  ExternalLink,
   ArrowRight,
   Cpu,
   Users,
