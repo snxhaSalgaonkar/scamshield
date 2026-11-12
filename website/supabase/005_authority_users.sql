@@ -9,7 +9,8 @@ insert into public.profiles (id, role)
 select u.id, 'authority'
 from auth.users u
 where u.email in (
-  'walshdsouza10@gmail.com',   -- ← change
+  'police@gmail.com',   -- ← change
+  'police2@gmail.com',
   'sohampendse10@gmail.com'    -- ← change
 )
 on conflict (id) do update set role = 'authority';

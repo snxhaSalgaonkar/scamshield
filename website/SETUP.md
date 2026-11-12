@@ -16,7 +16,7 @@
 `cp .env.example .env.local`, then fill in from **Project Settings → API**:
 ```
 NEXT_PUBLIC_DATA_SOURCE=supabase
-NEXT_PUBLIC_SUPABASE_URL=<Project URL>
+NEXT_PUBLIC_SUPABASE_URL=<Project URL, e.g. https://<project-ref>.supabase.co; no /auth/v1 or /rest/v1 path>
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon / publishable key>
 SUPABASE_SERVICE_ROLE_KEY=<service_role / secret key>   # server only
 LLM_PROVIDER=anthropic          # or gemini, or none
@@ -24,7 +24,7 @@ LLM_API_KEY=<optional>
 LLM_MODEL=claude-haiku-5-5
 SIMULATOR_ENABLED=true
 ```
-Then `npm install`, `npm run build`, `npm start` (or `npm run dev`). Sign in with an officer from step 1.4. `NEXT_PUBLIC_DATA_SOURCE` must be exactly `supabase` (not `supaba`); a misspelled value now produces a clear configuration error instead of silently selecting mock mode. `NEXT_PUBLIC_*` and `SIMULATOR_ENABLED` are read at **build** time, so rebuild and redeploy after changing them.
+Then `npm install`, `npm run build`, `npm start` (or `npm run dev`). Sign in with an officer from step 1.4. `NEXT_PUBLIC_DATA_SOURCE` must be exactly `supabase` (not `supaba`); a misspelled value now produces a clear configuration error instead of silently selecting mock mode. Use the project base URL from Supabase Project Settings → API; do not append `/auth/v1`, `/rest/v1`, or another path. `NEXT_PUBLIC_*` and `SIMULATOR_ENABLED` are read at **build** time, so rebuild and redeploy after changing them.
 
 ## 3. Send to the Kotlin team
 ```
