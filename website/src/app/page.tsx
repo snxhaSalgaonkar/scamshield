@@ -1,8 +1,6 @@
 import Link from 'next/link'
 import {
   ShieldCheck,
-  ShieldAlert,
-  PhoneCall,
   Download,
   QrCode,
   Lock,
@@ -10,13 +8,9 @@ import {
   ArrowRight,
   CheckCircle2,
   Cpu,
-  Layers,
   Users,
-  EyeOff,
   Smartphone,
-  Flame,
   Radio,
-  FileCheck2,
 } from 'lucide-react'
 import { Wordmark } from '@/components/Wordmark'
 import { Crest } from '@/components/Crest'
