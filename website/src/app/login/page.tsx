@@ -187,7 +187,7 @@ export default function LoginPage() {
           </p>
           <div className="mt-3 text-center">
             <Link href="/" className="text-xs text-white/50 transition-colors hover:text-white underline underline-offset-4">
-              ← Back to Citizen Portal & App Download
+              ← Back to ScamShield Citizen Portal & App Download
             </Link>
           </div>
         </div>
