@@ -138,6 +138,13 @@ export function AppShell({ children, simulatorEnabled }: { children: ReactNode; 
               </Link>
             )}
             <Link
+              href="/"
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-white/70"
+              title="View Public Citizen Portal"
+            >
+              <span>Public Portal</span>
+            </Link>
+            <Link
               href="/command"
               className="flex size-9 items-center justify-center rounded-lg text-white/70 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-white/70"
               title="Command wall (projector view)"

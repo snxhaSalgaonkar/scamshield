@@ -1,6 +1,7 @@
 'use client'
 
 import { Link2, Lock, MessageSquareText, ShieldAlert, ShieldCheck, Users } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState, type FormEvent } from 'react'
 import { Wordmark } from '@/components/Wordmark'
@@ -184,6 +185,11 @@ export default function LoginPage() {
           <p className="mt-5 border-t border-border pt-4 text-center text-xs leading-relaxed text-muted-foreground">
             Unauthorised access is prohibited. Sign-ins and case updates are recorded.
           </p>
+          <div className="mt-3 text-center">
+            <Link href="/" className="text-xs text-white/50 transition-colors hover:text-white underline underline-offset-4">
+              ← Back to Citizen Portal & App Download
+            </Link>
+          </div>
         </div>
       </div>
     </div>
