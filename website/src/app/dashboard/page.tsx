@@ -40,7 +40,7 @@ export default function OverviewPage() {
 
   useEffect(() => {
     const n = stats?.awaitingReview ?? 0
-    document.title = n ? `(${n}) Overview · RakshaCall` : 'Overview · RakshaCall'
+    document.title = n ? `(${n}) Overview · ScamShield` : 'Overview · ScamShield'
   }, [stats?.awaitingReview])
 
   return (

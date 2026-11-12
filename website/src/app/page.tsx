@@ -487,7 +487,7 @@ export default function LandingPage() {
               <ShieldCheck className="size-4" />
             </div>
             <span>
-              <strong className="text-slate-800">ScamShield</strong> • National Institute of Technology Goa (NIT Goa) — 2026
+              <strong className="text-slate-800">ScamShield</strong> • Built in 24 hours during a Hackathon at NIT Goa (2026)
             </span>
           </div>
 
