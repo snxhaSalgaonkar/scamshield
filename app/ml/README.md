@@ -20,10 +20,12 @@ the "event pattern" part.
 ## Setup
 
 ```bash
-cd ml
+cd app/ml
 uv venv --python 3.12 .venv            # or: python3.12 -m venv .venv
 uv pip install --python .venv/bin/python -r requirements.txt   # or .venv/bin/pip install -r requirements.txt
 ```
+
+The commands below use Linux/macOS virtual-environment paths (`.venv/bin/python`). On Windows, use `.venv/Scripts/python.exe` instead.
 
 ## Reproduce everything
 

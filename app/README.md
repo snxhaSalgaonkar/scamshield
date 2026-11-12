@@ -11,7 +11,7 @@ models that run entirely on the phone.
 
 ```
 app/   Android app (this Gradle project: Kotlin, Jetpack Compose, Room, DataStore)
-ml/    Training, evaluation, export and tests for the on-device models (see ../ml/README.md)
+ml/    Training, evaluation, export and tests for the on-device models (see [ml/README.md](ml/README.md))
 ```
 
 ## How detection works
@@ -40,7 +40,7 @@ ml/    Training, evaluation, export and tests for the on-device models (see ../m
 The call model replaced the previous fixed-weight point system as the **primary detector**. The old
 rules (`RiskEngine`) remain only as a clearly labelled fallback ("Rule baseline — call model
 unavailable") when the model file cannot be loaded, and as a regression test. Full method, datasets,
-licences, leakage handling and metrics: [`../ml/README.md`](../ml/README.md) and `../ml/reports/`.
+licences, leakage handling and metrics: [`ml/README.md`](ml/README.md) and `ml/reports/`.
 
 ### Conventional code (not ML) still does
 
@@ -101,7 +101,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 ML pipeline (Python 3.12), from the repository root:
 
 ```bash
-cd ml
+cd app/ml
 uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements.txt
 .venv/bin/python -m scamml.download
 .venv/bin/python -m scamml.train_text && .venv/bin/python -m scamml.train_url && .venv/bin/python -m scamml.train_call

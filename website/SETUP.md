@@ -1,64 +1,92 @@
-# RakshaCall dashboard: setup guide (what to paste where)
+# Supabase and deployment setup
 
-## 1. Create the Supabase project
-1. supabase.com → New project → region **Mumbai (ap-south-1)**.
-2. **SQL Editor** → New query → paste and **Run** each file, in this order:
-   1. `supabase/001_schema.sql`
-   2. `supabase/002_rls.sql`
-   3. `supabase/003_triggers_rpcs.sql` (also enables Realtime on `reports` + `numbers`)
-   4. `supabase/004_seed.sql` (demo data; safe to re-run before the demo, it refreshes timestamps)
-3. **Authentication → Sign In / Providers** → turn on **Allow anonymous sign-ins** (citizen phones use it).
-4. **Authentication → Users → Add user → Create new user** for each officer (set a password and tick *Auto Confirm User*). Importing an email into a data table does not create a Supabase Auth account; it must appear under **Authentication → Users**.
-5. Edit the emails in `supabase/005_authority_users.sql` to exactly match the Auth users, paste it in the SQL Editor, and Run. Its final query must list the email(s) with role `authority`. Repeat this step whenever you add another officer. The login email and password are the Auth user's credentials.
-6. Check: **Database → Publications → supabase_realtime** shows `reports` and `numbers` ticked.
+This guide configures the RakshaCall web console. The Android app currently works offline and does not send reports to Supabase.
 
-## 2. Configure the dashboard
-`cp .env.example .env.local`, then fill in from **Project Settings → API**:
+## 1. Create and configure Supabase
+
+Create a Supabase project. In its **SQL Editor**, run these files in order:
+
+1. `supabase/001_schema.sql` — tables and indexes.
+2. `supabase/002_rls.sql` — row-level security and policies.
+3. `supabase/003_triggers_rpcs.sql` — report triggers, RPCs, and Realtime publication.
+4. `supabase/004_seed.sql` — optional demo data; safe to rerun to refresh seed data.
+
+Create an officer account:
+
+1. Open **Authentication → Users → Add user → Create new user**.
+2. Enter the officer's email and password, and enable **Auto Confirm User**.
+3. Edit `supabase/005_authority_users.sql` so the `where u.email in (...)` list contains the exact email address(es) of the Auth user(s). Run it in the SQL Editor.
+4. Confirm the result lists each officer email with `role = authority`.
+
+An email in a database table is not a Supabase Auth account. A login succeeds only when the user exists under **Authentication → Users**, uses that Auth password, and has an `authority` profile. Reset the password in Supabase if it is unknown. Do not put passwords in SQL or commit them.
+
+Anonymous sign-ins are only needed if you later connect citizen devices to Supabase. They are not needed for officer email/password login. At present, the Android app has no internet permission and does not use this cloud integration.
+
+## 2. Configure local development
+
+From this directory, copy the example file:
+
+```powershell
+Copy-Item .env.example .env.local
 ```
+
+Set the values from **Supabase → Project Settings → API**:
+
+```dotenv
 NEXT_PUBLIC_DATA_SOURCE=supabase
-NEXT_PUBLIC_SUPABASE_URL=<Project URL, e.g. https://<project-ref>.supabase.co; no /auth/v1 or /rest/v1 path>
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon / publishable key>
-SUPABASE_SERVICE_ROLE_KEY=<service_role / secret key>   # server only
-LLM_PROVIDER=anthropic          # or gemini, or none
-LLM_API_KEY=<optional>
-LLM_MODEL=claude-haiku-5-5
+NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-or-publishable-key>
+SUPABASE_SERVICE_ROLE_KEY=<service-role-secret>
 SIMULATOR_ENABLED=true
-```
-Then `npm install`, `npm run build`, `npm start` (or `npm run dev`). Sign in with an officer from step 1.4. `NEXT_PUBLIC_DATA_SOURCE` must be exactly `supabase` (not `supaba`); a misspelled value now produces a clear configuration error instead of silently selecting mock mode. Use the project base URL from Supabase Project Settings → API; do not append `/auth/v1`, `/rest/v1`, or another path. `NEXT_PUBLIC_*` and `SIMULATOR_ENABLED` are read at **build** time, so rebuild and redeploy after changing them.
-
-## 3. Send to the Kotlin team
-```
-SUPABASE_URL=<Project URL>
-SUPABASE_ANON_KEY=<anon key>
-ANALYZE_API_URL=https://<your-vercel-app>.vercel.app/api/analyze   (or the ngrok URL)
-```
-What the app must do (all enforced by RLS):
-- On first launch: anonymous sign-in, then insert its profile once: `profiles.insert({ id: <auth uid>, device_id: <random uuid> })`.
-- Insert reports with `device_id` = that same value. Max 20 per device per hour. `number_prefix`/`telecom_circle` may be left empty (the trigger fills them).
-- Pre-ring lookup: `rpc("get_number_reputation", { p_number: "+919811255501" })` returns one object.
-- "This was safe": `rpc("mark_report_safe", { p_report_id: "<uuid>" })`.
-- Demo numbers: Scenario B is `+919811255501` (already reported by 2 seed devices; the phone's report makes it flagged).
-
-Sample insert body:
-```json
-{ "device_id": "<own device_id>", "caller_number": "+919811255501", "number_prefix": "98112",
-  "risk_score": 90, "l1_score": 5, "l2_score": 40, "l3_score": 95, "scam_type": "wrong_number_distraction",
-  "matched_phrases": [], "reasons": ["Bank OTP SMS received during call"], "similarity": null,
-  "detected_via": ["sms", "correlation"], "action_taken": "disconnected", "call_started_at": "2026-10-28T10:00:00Z" }
+LLM_PROVIDER=none
 ```
 
-## 4. Deploy (Vercel)
-Import the repo, set **Root Directory = `website`**, add the env vars from step 2, deploy.
-The similarity model (~120 MB) downloads on cold start into `/tmp`. If the first `/api/analyze` call after a cold start is too slow,
-run locally instead: `npm run build && npm start`, then `ngrok http 3000`, and send that URL to the Kotlin team.
+Use the project base URL only. For example, `https://<project-ref>.supabase.co` is valid; do not append `/rest/v1`, `/auth/v1`, a trailing route, query, or fragment. The service-role key is server-only and must never be exposed in browser code or committed. `.env.local` is ignored by Git.
 
-## 5. Phase 9: integration test against real Supabase
-After steps 1–2: `OFFICER_EMAIL=… OFFICER_PASSWORD=… npm run test:integration -- 3`
-(PowerShell: `$env:OFFICER_EMAIL='…'; $env:OFFICER_PASSWORD='…'; npm run test:integration -- 3`).
-It plays three phones and the officer: Scenario A/B/C, the false-positive mark, "This was safe", realtime arrival under 2 s, and RLS, 3 rounds.
-Then run the same scenarios with the real Kotlin app and watch the dashboard. Pitch kit: `docs/PITCH.md`.
+`NEXT_PUBLIC_DATA_SOURCE` must be exactly `supabase` or `mock`. If it is omitted, the app defaults to mock mode; invalid values produce a configuration error. Mock mode is for local demos only and accepts any email/password at its login screen.
 
-## 6. Tests
-- `npm test`: SQL (RLS, triggers, RPCs on an in-process Postgres) + logic tests.
-- `npm run test:analyze`: 15 scam / 10 genuine lines through the semantic model (add `-- <url> <token>` to hit a running endpoint).
-- Demo without a phone: `/dev/simulate` (flask icon in the header).
+Install dependencies and start the app:
+
+```bash
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000`. For a production build, run `npm run build` then `npm start`.
+
+### Optional semantic LLM
+
+The `/api/analyze` endpoint can use the local similarity model without a hosted LLM. To enable an LLM, set `LLM_PROVIDER` to `anthropic` or `gemini`, provide `LLM_API_KEY`, and set `LLM_MODEL` to a model available to that account. Leave `LLM_PROVIDER=none` to avoid a third-party model call. Send only PII-scrubbed text to this endpoint.
+
+## 3. Deploy to Vercel
+
+1. Import the repository and set **Root Directory** to `website`.
+2. Add the environment variables above in the Vercel project settings. For Supabase mode, `NEXT_PUBLIC_DATA_SOURCE`, `NEXT_PUBLIC_SUPABASE_URL`, and `NEXT_PUBLIC_SUPABASE_ANON_KEY` must all refer to the same Supabase project.
+3. Deploy or redeploy after changing any `NEXT_PUBLIC_*` value; Next.js embeds these values at build time.
+4. Create and authorize officer users as described in step 1.
+
+`SUPABASE_SERVICE_ROLE_KEY` is used only by the server-side demo simulator. Keep it configured as a Vercel server environment variable and never name it `NEXT_PUBLIC_*`.
+
+## 4. Optional integration checks
+
+From `website/`:
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+```
+
+`npm test` runs SQL and logic checks. `npm run test:integration` targets a configured Supabase project and requires `OFFICER_EMAIL` and `OFFICER_PASSWORD` for an authorized test account. In PowerShell, set them for the current shell before running it:
+
+```powershell
+$env:OFFICER_EMAIL = 'officer@example.gov'
+$env:OFFICER_PASSWORD = '<test-account-password>'
+npm run test:integration
+```
+
+`npm run test:analyze` exercises the semantic analyzer. Avoid running integration tests against production data; use a separate test project.
+
+## 5. Current Android integration boundary
+
+The database includes policies and RPCs designed for a future citizen-device integration. The Android app currently has no `INTERNET` permission and uses a local-only gateway. It does not insert reports, query number reputation, or call `/api/analyze`. Dashboard reports currently come from seed data, the web simulator, or data entered through other authorized database workflows. See the [feature audit](../FEATURE_AUDIT.md) before treating cloud ingestion as an implemented feature.
